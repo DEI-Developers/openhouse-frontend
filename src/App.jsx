@@ -1,16 +1,15 @@
-import reactLogo from './assets/react.svg';
 import './App.css';
+import {Suspense} from 'react';
+import {BrowserRouter} from 'react-router-dom';
+import AppRouter from './Router';
 
 function App() {
   return (
-    <>
-      <div>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className="text-3xl font-bold text-primary">Hello world!</h1>
-    </>
+    <BrowserRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppRouter />
+      </Suspense>
+    </BrowserRouter>
   );
 }
 
