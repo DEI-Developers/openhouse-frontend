@@ -1,14 +1,14 @@
 import React from 'react';
-import LoginForm from '@components/Auth/LoginForm';
 import CustomHeader from '@components/UI/CustomHeader';
+import ResetPasswordForm from '@components/Auth/ResetPasswordForm';
 
-const Login = () => {
+const ResetPassword = () => {
   return (
     <div>
-      <CustomHeader title="Iniciar sesión" />
+      <CustomHeader title="Restablecer Contraseña" />
       <div className="flex">
         <div className="flex-1 px-6 md:px-0">
-          <LoginForm />
+          <ResetPasswordForm />
         </div>
         <div className="hidden md:flex flex-1">
           <img src="/uca-bg.jpg" className="h-screen py-8" alt="UCA" />
@@ -18,4 +18,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

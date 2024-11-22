@@ -1,12 +1,15 @@
 import {Routes, Route} from 'react-router-dom';
-import {Home, Login, Dashboard} from './pages';
+import {Home, Login, ResetPassword, ForgotPassword, Dashboard} from './pages';
 
 const AppRouter = () => {
   return (
     <Routes>
-      <Route exact path="/" element={<Home />} />
-      <Route exact path="/iniciar-sesion" element={<Login />} />
-      <Route exact path="/plataforma/*" element={<Dashboard />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/iniciar-sesion" element={<Login />} />
+      <Route path="/restablecer-contraseña" element={<ResetPassword />} />
+      <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+
+      <Route path="/plataforma/*" element={<Dashboard />} />
     </Routes>
   );
 };

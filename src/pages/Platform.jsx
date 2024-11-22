@@ -26,11 +26,11 @@ const Dashboard = () => {
         <div>
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
-              <Route exact path="/" element={<Stadistics />} />
-              <Route exact path="/roles" element={<Roles />} />
-              <Route exact path="/usuarios" element={<Users />} />
-              <Route exact path="/eventos" element={<Events />} />
-              <Route exact path="/participantes" element={<Participants />} />
+              <Route path="/" element={<Stadistics />} />
+              <Route path="/roles" element={<Roles />} />
+              <Route path="/usuarios" element={<Users />} />
+              <Route path="/eventos" element={<Events />} />
+              <Route path="/participantes" element={<Participants />} />
             </Routes>
           </Suspense>
         </div>

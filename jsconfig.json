@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "jsx": "preserve",
+    "checkJs": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "moduleResolution": "node",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+    }
+  },
+  "include": ["src"]
+}
