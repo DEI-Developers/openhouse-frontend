@@ -1,5 +1,12 @@
 import {Routes, Route} from 'react-router-dom';
-import {Home, Login, ResetPassword, ForgotPassword, Dashboard} from './pages';
+import {
+  Home,
+  Login,
+  NotFound,
+  Dashboard,
+  ResetPassword,
+  ForgotPassword,
+} from './pages';
 
 const AppRouter = () => {
   return (
@@ -10,6 +17,8 @@ const AppRouter = () => {
       <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
 
       <Route path="/plataforma/*" element={<Dashboard />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

@@ -79,7 +79,10 @@ const loginSchema = yup.object().shape({
     .string()
     .required('Campo obligatorio.')
     .email('Dirección de correo no válida.'),
-  password: yup.string().required('Campo obligatorio.'),
+  password: yup
+    .string()
+    .required('Campo obligatorio.')
+    .min(6, 'Mínimo 6 caracteres.'),
 });
 
 export default LoginForm;
