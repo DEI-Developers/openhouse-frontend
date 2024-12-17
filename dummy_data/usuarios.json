@@ -18,7 +18,7 @@
     "Apellido": "Garcia Lopez",
     "Fecha de nacimiento": "23/11/1999",
     "Rol": "Director de carrera",
-    "Estado": "Activo"
+    "Estado": "Inactivo"
   },
   {
     "Nombre": "María Fernanda",
@@ -39,7 +39,7 @@
     "Apellido": "Jimenez Perez",
     "Fecha de nacimiento": "02/09/1995",
     "Rol": "Visitante",
-    "Estado": "Activo"
+    "Estado": "Inactivo"
   },
   {
     "Nombre": "Roberto Carlos",

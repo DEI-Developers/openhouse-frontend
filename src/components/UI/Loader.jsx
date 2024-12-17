@@ -1,6 +1,6 @@
-const Loader = ({className}) => (
+const Loader = ({className = 'text-white'}) => (
   <svg
-    className={`animate-spin -ml-1 mr-3 text-white ${className}`}
+    className={`animate-spin -ml-1 mr-3 ${className}`}
     viewBox="0 0 24 24"
     fill="none"
   >

@@ -5,11 +5,14 @@
     "checkJs": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "paths": {
       "@assets/*": ["assets/*"],
       "@components/*": ["components/*"],
       "@pages/*": ["pages/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
     }
   },
   "include": ["src"]
