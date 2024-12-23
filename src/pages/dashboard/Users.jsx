@@ -48,30 +48,30 @@ const getCustomActions = (setCurrentRecord) => [
 const columns = [
   {
     title: 'Nombre',
-    field: 'Nombre',
+    field: 'name',
   },
   {
     title: 'Apellido',
-    field: 'Apellido',
-    // stackedColumn: true,
+    field: 'lastname',
+    stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
   {
     title: 'Fecha de nacimiento',
-    field: 'Fecha de nacimiento',
+    field: 'birthdate',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
   {
     title: 'Rol',
-    field: 'Rol',
+    field: 'roles',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
   {
     title: 'Estado',
-    field: 'Estado',
-    render: (rowData) => <BadgeStatus status={rowData.Estado} />,
+    field: 'isActive',
+    render: (rowData) => <BadgeStatus status={rowData.isActive} />,
   },
 ];
 
