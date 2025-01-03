@@ -36,8 +36,6 @@ const CustomTable = ({
     refetchOnWindowFocus: false,
   });
 
-  console.log(data);
-
   useEffect(() => {
     if (!empty(data?.nRows)) {
       setNRows(data?.nRows);

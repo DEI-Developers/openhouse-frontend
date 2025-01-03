@@ -1,22 +1,40 @@
-import React, {useState, useEffect} from 'react';
+/* eslint-disable prettier/prettier */
+import {empty} from '@utils/helpers';
+import React, {useState} from 'react';
 import {getUsers} from '@services/Users';
-import {HiOutlineTrash} from 'react-icons/hi';
 import {BiEditAlt} from 'react-icons/bi';
+import {AiOutlinePlus} from 'react-icons/ai';
+import {HiOutlineTrash} from 'react-icons/hi';
+import useUsers from '@hooks/Dashboard/useUsers';
 import CustomHeader from '@components/UI/CustomHeader';
+import Breadcrumb from '@components/Dashboard/Breadcrumb';
+import CustomModal from '@components/UI/Modal/CustomModal';
+import UserForm from '@components/Dashboard/User/UserForm';
 import CustomTable from '@components/UI/Table/CustomTable';
+import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
 const Users = () => {
-  const [currentRecord, setCurrentRecord] = useState(null);
-  const customActions = getCustomActions(setCurrentRecord);
-
-  useEffect(() => {
-    console.log('currentRecord', currentRecord);
-  }, [currentRecord]);
+  const [userIdToDelete, setUserIdToDelete] = useState(null);
+  const {onEdit, onCreate, onUpdate, onDelete, onCloseForm, onToggleForm, isOpenForm, currentData} = useUsers();
+  const customActions = getCustomActions(onEdit, setUserIdToDelete);
 
   return (
     <div>
       <CustomHeader title="Usuarios" />
-      <h1 className="text-primary text-3xl font-bold">Usuarios</h1>
+
+      <Breadcrumb pageName="Usuarios" />
+
+      <div className="flex justify-between items-center mb-4 mt-1">
+        <h1 className="text-primary text-3xl font-bold">Usuarios</h1>
+        <button
+          type="button"
+          onClick={onToggleForm}
+          className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+        >
+          <AiOutlinePlus className="mr-2" />
+          <span>Agregar usuario</span>
+        </button>
+      </div>
 
       <CustomTable
         columns={columns}
@@ -24,24 +42,44 @@ const Users = () => {
         customActions={customActions}
         fetchData={getUsers}
       />
+
+      <DeleteDialog
+        isOpen={!empty(userIdToDelete)}
+        isLoading={onDelete.isPending}
+        isSuccess={onDelete.isSuccess}
+        onClose={() => setUserIdToDelete(null)}
+        onDelete={() => onDelete.mutate(userIdToDelete)}
+      />
+
+      <CustomModal
+        isOpen={isOpenForm}
+        onToggleModal={onCloseForm}
+        className="p-0 w-full sm:max-w-3xl"
+      >
+        <UserForm
+          initialData={currentData}
+          onCreate={onCreate}
+          onUpdate={onUpdate}
+          onClose={onCloseForm}
+        />
+      </CustomModal>
     </div>
   );
 };
-
-const getCustomActions = (setCurrentRecord) => [
+const getCustomActions = (onEdit, onDelete) => [
   {
     id: 1,
     label: '',
     tooltip: 'Editar',
     Icon: BiEditAlt,
-    onClick: (data) => console.log('Edit', data),
+    onClick: onEdit,
   },
   {
     id: 2,
     label: '',
     tooltip: 'Borrar',
     Icon: HiOutlineTrash,
-    onClick: (data) => console.log('Delete', data),
+    onClick: (data) => onDelete(data.id),
   },
 ];
 

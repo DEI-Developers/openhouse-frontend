@@ -29,15 +29,14 @@ const getUsers = async (pageNumber, pageSize, searchedWord) => {
 
   const queryParams = parseUrlParams(params, []);
   const response = await apiInstance.get(`/users?${queryParams}`);
-  console.log('Response', response);
 
   return {
     rows: response.data.data.map((user) => ({
       ...user,
       id: user._id,
-      roles: user.roles.join(', '),
+      roles: user.roles?.join(', ') ?? 'Sin roles',
       birthdate: '01/01/1990',
-      isActive: Math.random() < 0.5 ? 'Activo' : 'Inactivo',
+      isActive: user.isActive ? 'Activo' : 'Inactivo',
     })),
     nRows: response.data.nItems,
     nPages: response.data.nPages,

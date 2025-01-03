@@ -30,7 +30,6 @@ const flattenMenu = (menuObj) => {
 
 const getCurrentMenuName = (pathname, menu) => {
   const flatMenu = flattenMenu(menu);
-  console.log(flatMenu, pathname);
   const currentMenu = flatMenu.find(
     (item) => item.href !== '' && pathname.includes(item.href)
   );
