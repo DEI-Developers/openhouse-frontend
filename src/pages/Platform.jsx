@@ -63,7 +63,7 @@ const Platform = () => {
           onOpenMenu={() => setSidebarOpen(true)}
         />
 
-        <main className="py-10 lg:pl-72 bg-background">
+        <main className="py-10 lg:pl-72 bg-background min-h-screen">
           <div className="px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>

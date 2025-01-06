@@ -22,7 +22,7 @@ const CustomTable = ({
   const [page, setPage] = useState(1);
   const [nRows, setNRows] = useState(0);
   const [filter, setFilter] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const {
     isLoading,
