@@ -11,9 +11,9 @@ const CustomInput = ({
   <div className={containerClassName}>
     {label && (
       <label
-        aria-required={required}
         htmlFor={name}
         className="block text-sm font-medium text-gray-700"
+        {...(required && {'aria-required': true})}
       >
         {label}
       </label>

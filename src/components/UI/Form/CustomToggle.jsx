@@ -1,30 +1,19 @@
 /* eslint-disable max-len */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Controller } from 'react-hook-form'
-import { Field, Label, Switch } from '@headlessui/react'
-
-
-interface Props {
-  error?: any,
-  name: string,
-  control: any,
-  label: string,
-  description?: string,
-  containerClassName?: string,
-}
+import {Controller} from 'react-hook-form';
+import {Field, Label, Switch} from '@headlessui/react';
 
 const CustomToggle = ({
   name,
   label,
   error,
   control,
-  description,
   containerClassName = '',
-}:Props) => (
+}) => (
   <Controller
     name={name}
     control={control}
-    render={({ field }: any) => (
+    render={({field}) => (
       <div className={containerClassName}>
         <Field className="flex items-center">
           <Switch
@@ -45,6 +34,6 @@ const CustomToggle = ({
       </div>
     )}
   />
-)
+);
 
-export default CustomToggle
+export default CustomToggle;

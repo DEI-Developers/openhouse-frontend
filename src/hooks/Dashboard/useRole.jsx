@@ -1,43 +1,43 @@
 import {useState} from 'react';
 import useBooleanBox from '@hooks/useBooleanBox';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {createUser, deleteUser, updateUser} from '@services/Users';
+import {createRole, deleteRole, updateRole} from '@services/Roles';
 
-const useUsers = () => {
+const useRole = () => {
   const queryClient = useQueryClient();
   const {isOpen, onToggleBox, onClose} = useBooleanBox();
-  const [currentData, setCurrentUser] = useState(initialData);
+  const [currentData, setCurrentRole] = useState(initialData);
 
   const onToggleForm = (data) => {
-    setCurrentUser(initialData);
+    setCurrentRole(initialData);
     onToggleBox();
   };
 
   const onEdit = (data) => {
-    setCurrentUser(data);
+    setCurrentRole(data);
     onToggleBox();
   };
 
   const onCreate = useMutation({
-    mutationFn: createUser,
+    mutationFn: createRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['users']});
+      queryClient.invalidateQueries({queryKey: ['roles']});
       onClose();
     },
   });
 
   const onUpdate = useMutation({
-    mutationFn: updateUser,
+    mutationFn: updateRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['users']});
+      queryClient.invalidateQueries({queryKey: ['roles']});
       onClose();
     },
   });
 
   const onDelete = useMutation({
-    mutationFn: deleteUser,
+    mutationFn: deleteRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['users']});
+      queryClient.invalidateQueries({queryKey: ['roles']});
     },
   });
 
@@ -56,12 +56,8 @@ const useUsers = () => {
 const initialData = {
   id: null,
   name: '',
-  email: '',
-  password: '',
-  role: null,
-  faculty: null,
-  career: null,
-  isActive: true,
+  description: '',
+  permissions: [],
 };
 
-export default useUsers;
+export default useRole;

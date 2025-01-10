@@ -34,9 +34,14 @@ const getUsers = async (pageNumber, pageSize, searchedWord) => {
     rows: response.data.data.map((user) => ({
       ...user,
       id: user._id,
-      roles: user.roles?.join(', ') ?? 'Sin roles',
-      birthdate: '01/01/1990',
-      isActive: user.isActive ? 'Activo' : 'Inactivo',
+      role: {
+        label: user.roleName,
+        value: user.roleId,
+      },
+      faculty: {
+        label: user?.facultyName,
+        value: user?.facultyId,
+      },
     })),
     nRows: response.data.nItems,
     nPages: response.data.nPages,

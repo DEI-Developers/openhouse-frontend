@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+label[aria-required]:after{
+  content:" *";
+  color: red;
+  font-weight: bold;
+}
+
+.custom-MultiSelectError {
+  border-width: 1px!important;
+  border-color: #EF4444!important;
+}
+
+.custom-MultiSelectNoError {
+  border-color: #D1D5DB!important;
+}

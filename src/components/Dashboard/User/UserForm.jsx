@@ -1,22 +1,44 @@
+import * as yup from 'yup';
 import {empty} from '@utils/helpers';
 import {useForm} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import CustomToggle from '@components/UI/Form/CustomToggle';
 import SubmitButton from '@components/UI/Form/SubmitButton';
+import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
 
-const UserForm = ({initialData, onCreate, onUpdate, onClose}) => {
-  const {control, formState, register, handleSubmit} = useForm({
+const UserForm = ({
+  initialData,
+  onCreate,
+  onUpdate,
+  onClose,
+  roles,
+  faculties,
+}) => {
+  const {control, formState, register, watch, handleSubmit} = useForm({
     mode: 'onBlur',
     defaultValues: initialData,
+    resolver: yupResolver(getCurrentSchema(empty(initialData.id))),
   });
 
   const {errors, isSubmitting} = formState;
+  const currentFaculty = watch('faculty');
 
   const onSubmit = (data) => {
-    console.log(data);
+    const updatedData = {
+      ...data,
+      facultyId: data.faculty?.value,
+      roleId: data.role?.value,
+      careerId: data.career?.value,
+      role: undefined,
+      faculty: undefined,
+      career: undefined,
+      password: empty(data.id) ? data.password : undefined,
+    };
+
     const mutation = !empty(data.id) ? onUpdate : onCreate;
 
-    mutation.mutate(data);
+    mutation.mutate(updatedData);
   };
 
   return (
@@ -36,18 +58,22 @@ const UserForm = ({initialData, onCreate, onUpdate, onClose}) => {
             error={errors.name}
             containerClassName="w-full lg:w-1/2"
           />
-          <CustomInput
+          <CustomMultiSelect
             required
-            type="text"
-            name="lastname"
-            label="Apellido"
+            isSearchable
+            isClearable
+            placeholder=""
+            control={control}
+            closeMenuOnSelect
+            name="role"
             disabled={isSubmitting}
-            register={register}
-            error={errors.lastname}
-            containerClassName="w-full lg:w-1/2"
+            error={errors.role}
+            containerClassName="w-full lg:w-1/2 z-30"
+            label="Rol"
+            options={roles ?? []}
           />
         </div>
-        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 mt-2">
+        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-4">
           <CustomInput
             required
             type="text"
@@ -55,47 +81,55 @@ const UserForm = ({initialData, onCreate, onUpdate, onClose}) => {
             label="Correo electrónico"
             disabled={isSubmitting}
             register={register}
-            error={errors.name}
-            containerClassName="w-full lg:w-1/2 lg:mt-2"
+            error={errors.email}
+            containerClassName="w-full lg:w-1/2"
           />
           <CustomInput
-            required
-            type="date"
-            name="birthdate"
-            label="Fecha de nacimiento"
+            required={empty(initialData.id)}
+            type="text"
+            name="password"
+            label="Contraseña"
             disabled={isSubmitting}
             register={register}
-            error={errors.lastname}
+            error={errors.password}
             containerClassName="w-full lg:w-1/2"
           />
         </div>
-        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 mt-2">
-          <CustomInput
-            required
-            type="text"
-            name="rol"
-            label="Rol"
+        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-4">
+          <CustomMultiSelect
+            isSearchable
+            isClearable
+            required={false}
+            placeholder=""
+            control={control}
+            closeMenuOnSelect
+            name="faculty"
             disabled={isSubmitting}
-            register={register}
-            error={errors.rol}
-            containerClassName="w-full lg:w-1/2 lg:mt-2"
+            error={errors.faculty}
+            containerClassName="w-full lg:w-1/2 z-20"
+            label="Facultad"
+            options={faculties ?? []}
           />
-          <CustomInput
-            required
-            type="text"
-            name="institute"
-            label="Institución"
+          <CustomMultiSelect
+            isSearchable
+            isClearable
+            required={false}
+            placeholder=""
+            control={control}
+            closeMenuOnSelect
+            name="career"
             disabled={isSubmitting}
-            register={register}
-            error={errors.lastname}
-            containerClassName="w-full lg:w-1/2"
+            error={errors.career}
+            containerClassName="w-full lg:w-1/2 z-20"
+            label="Carrera"
+            options={currentFaculty?.careers ?? []}
           />
         </div>
         <div className="flex flex-col lg:flex-row lg:justify-between lg:space-x-4 space-y-2 mt-4">
           <CustomToggle
             control={control}
-            name="is_active"
-            error={errors.is_active}
+            name="isActive"
+            error={errors.isActive}
             label="Activo"
             containerClassName="w-full lg:w-1/3"
           />
@@ -119,6 +153,23 @@ const UserForm = ({initialData, onCreate, onUpdate, onClose}) => {
       </form>
     </div>
   );
+};
+
+const getCurrentSchema = (requirePassword) => {
+  return yup.object().shape({
+    name: yup.string().required('Campo obligatorio.'),
+    email: yup
+      .string()
+      .required('Campo obligatorio.')
+      .email('Dirección de correo no válida.'),
+    password: requirePassword
+      ? yup
+          .string()
+          .required('Campo obligatorio.')
+          .min(6, 'Mínimo 6 caracteres.')
+      : null,
+    role: yup.object().nullable().required('Campo obligatorio.'),
+  });
 };
 
 export default UserForm;

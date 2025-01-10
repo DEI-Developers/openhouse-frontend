@@ -6,6 +6,7 @@ import {BiEditAlt} from 'react-icons/bi';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {HiOutlineTrash} from 'react-icons/hi';
 import useUsers from '@hooks/Dashboard/useUsers';
+import useCatalogs from '@hooks/Dashboard/useCatalogs';
 import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
@@ -14,6 +15,7 @@ import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
 const Users = () => {
+  const {roles, faculties} = useCatalogs();
   const [userIdToDelete, setUserIdToDelete] = useState(null);
   const {onEdit, onCreate, onUpdate, onDelete, onCloseForm, onToggleForm, isOpenForm, currentData} = useUsers();
   const customActions = getCustomActions(onEdit, setUserIdToDelete);
@@ -61,6 +63,8 @@ const Users = () => {
           onCreate={onCreate}
           onUpdate={onUpdate}
           onClose={onCloseForm}
+          roles={roles}
+          faculties={faculties}
         />
       </CustomModal>
     </div>
@@ -89,22 +93,23 @@ const columns = [
     field: 'name',
   },
   {
-    title: 'Apellido',
-    field: 'lastname',
-    stackedColumn: true,
-    className: 'hidden lg:table-cell',
-  },
-  {
-    title: 'Fecha de nacimiento',
-    field: 'birthdate',
+    title: 'Correo electrónico',
+    field: 'email',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
   {
     title: 'Rol',
-    field: 'roles',
+    field: 'roleName',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
+  },
+  {
+    title: 'Facultad / Carrera',
+    field: 'careerName',
+    stackedColumn: true,
+    className: 'hidden lg:table-cell',
+    render: (rowData) => <FacultyCareerRow facultyName={rowData.facultyName} careerName={rowData.careerName} />,
   },
   {
     title: 'Estado',
@@ -113,9 +118,22 @@ const columns = [
   },
 ];
 
+const FacultyCareerRow = ({facultyName, careerName}) => {
+  return (
+    <div>
+      <p className="font-medium">{facultyName ?? 'N/A'}</p>
+      {!empty(careerName) && (
+        <ul className="list-disc list-inside">
+          <li>{careerName}</li>
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const BadgeStatus = ({status}) => {
   const customClassName =
-    status == 'Activo'
+    status
       ? 'bg-green-100 text-green-600'
       : 'bg-red-100 text-red-600';
 
@@ -123,7 +141,7 @@ const BadgeStatus = ({status}) => {
     <div
       className={`flex justify-center item-center bg-green-100 px-3 py-2 rounded-lg ${customClassName}`}
     >
-      <p className="font-bold">{status}</p>
+      <p className="font-bold">{status ? 'Activo' : 'Inactivo'}</p>
     </div>
   );
 };
