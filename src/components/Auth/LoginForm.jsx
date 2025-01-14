@@ -1,13 +1,17 @@
 import * as yup from 'yup';
 import {useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {useForm} from 'react-hook-form';
+import login from '@services/Auth/login';
+import {useAuth} from '@context/AuthContext';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import CustomButton from '@components/UI/Form/CustomButton';
 import CustomInputPassword from '@components/UI/Form/CustomInputPassword';
 
 const LoginForm = () => {
+  const {onLogin} = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const {register, handleSubmit, formState} = useForm({
     mode: 'onBlur',
@@ -17,12 +21,16 @@ const LoginForm = () => {
 
   const {isSubmitting, errors} = formState;
 
-  const onLogin = async (data) => {
+  const onSubmit = async (data) => {
     setLoading(true);
-    setTimeout(() => {
-      console.log(data);
-      setLoading(false);
-    }, 2000);
+    const response = await login(data);
+
+    if (response.success) {
+      onLogin(response.data);
+      navigate('/plataforma');
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -35,7 +43,7 @@ const LoginForm = () => {
       </p>
       <form
         noValidate
-        onSubmit={handleSubmit(onLogin)}
+        onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
         className="w-full space-y-4"
       >

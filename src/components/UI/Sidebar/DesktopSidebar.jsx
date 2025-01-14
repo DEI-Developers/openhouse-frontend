@@ -2,7 +2,7 @@ import {CiLogout} from 'react-icons/ci';
 import Logo from '../Logo';
 import SectionMenu from './SectionMenu';
 
-const DesktopSidebar = ({menu}) => {
+const DesktopSidebar = ({menu, user, onLogout}) => {
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
       <div className="flex grow flex-col gap-y-3 overflow-y-auto border-r border-gray-200 bg-white px-6">
@@ -27,16 +27,22 @@ const DesktopSidebar = ({menu}) => {
                     src="/uca-logo.png"
                     className="size-10 rounded-full border p-1"
                   />
-                  <span className="hidden lg:flex lg:items-center flex-1 justify-start">
+                  <span className="hidden lg:flex lg:flex-col lg:items-start flex-1 justify-center">
                     <span
                       aria-hidden="true"
                       className="ml-2 text-sm font-semibold leading-6 text-gray-900"
                     >
-                      Usuario UCA
+                      {user.name}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="ml-2 text-xs leading-6 text-gray-400"
+                    >
+                      {user.roleName}
                     </span>
                   </span>
                   <button
-                    onClick={() => {}}
+                    onClick={onLogout}
                     className="p-2.5 text-sm text-left leading-6 hover:bg-gray-50"
                   >
                     <CiLogout

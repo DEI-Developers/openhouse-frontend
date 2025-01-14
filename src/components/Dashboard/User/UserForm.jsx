@@ -120,7 +120,7 @@ const UserForm = ({
             name="career"
             disabled={isSubmitting}
             error={errors.career}
-            containerClassName="w-full lg:w-1/2 z-20"
+            containerClassName="w-full lg:w-1/2 z-200"
             label="Carrera"
             options={currentFaculty?.careers ?? []}
           />

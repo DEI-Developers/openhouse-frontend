@@ -1,3 +1,4 @@
+import {empty} from '@utils/helpers';
 import axios from 'axios';
 
 const apiInstance = axios.create({
@@ -9,5 +10,17 @@ const apiInstance = axios.create({
     Accept: 'application/json',
   },
 });
+
+const requestInterceptor = (config) => {
+  const token = localStorage.getItem('appToken');
+
+  if (!empty(token)) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+};
+
+apiInstance.interceptors.request.use(requestInterceptor);
 
 export default apiInstance;

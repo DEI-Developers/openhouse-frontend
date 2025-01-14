@@ -1,12 +1,15 @@
+import {useAuth} from '@context/AuthContext';
 import {IoChevronDownOutline} from 'react-icons/io5';
 import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react';
 
 const UserButton = () => {
+  const {user, onLogout} = useAuth();
+
   return (
     <Menu as="div" className="relative">
       <MenuButton className="-m-1.5 flex items-center justify-start p-1.5">
         <img
-          alt=""
+          alt={user.name}
           src="/uca-logo.png"
           className="size-10 rounded-full border p-1"
         />
@@ -15,7 +18,7 @@ const UserButton = () => {
             aria-hidden="true"
             className="ml-2 text-sm font-semibold leading-6 text-gray-900"
           >
-            Usuario UCA
+            {user.name}
           </span>
           <IoChevronDownOutline
             aria-hidden="true"
@@ -29,7 +32,7 @@ const UserButton = () => {
       >
         <MenuItem>
           <button
-            onClick={() => {}}
+            onClick={onLogout}
             className="block w-full px-3 py-1 text-sm text-left leading-6 text-gray-900 data-[focus]:bg-gray-50"
           >
             Cerrar sesión
