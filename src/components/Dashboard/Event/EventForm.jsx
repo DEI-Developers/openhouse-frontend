@@ -2,9 +2,11 @@ import {empty} from '@utils/helpers';
 import {useForm} from 'react-hook-form';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
+import CustomToggle from '@components/UI/Form/CustomToggle';
+import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
 
-const EventForm = ({initialData, onCreate, onUpdate, onClose}) => {
-  const {formState, register, handleSubmit} = useForm({
+const EventForm = ({initialData, onCreate, onUpdate, onClose, faculties}) => {
+  const {formState, control, register, handleSubmit} = useForm({
     mode: 'onBlur',
     defaultValues: initialData,
   });
@@ -12,10 +14,13 @@ const EventForm = ({initialData, onCreate, onUpdate, onClose}) => {
   const {errors, isSubmitting} = formState;
 
   const onSubmit = (data) => {
-    console.log(data);
+    const updatedData = {
+      ...data,
+      faculties: data.faculties?.map((faculty) => faculty.value),
+    };
     const mutation = !empty(data.id) ? onUpdate : onCreate;
 
-    mutation.mutate(data);
+    mutation.mutate(updatedData);
   };
 
   return (
@@ -68,7 +73,32 @@ const EventForm = ({initialData, onCreate, onUpdate, onClose}) => {
             containerClassName="w-full lg:w-1/2"
           />
         </div>
+
+        <div className="mt-4">
+          <CustomMultiSelect
+            isMulti
+            isSearchable
+            isClearable
+            required={false}
+            placeholder=""
+            control={control}
+            closeMenuOnSelect
+            name="faculties"
+            disabled={isSubmitting}
+            error={errors.faculties}
+            containerClassName="w-full z-20"
+            label="Facultad"
+            options={faculties ?? []}
+          />
+        </div>
         <div className="flex flex-col lg:flex-row lg:justify-between lg:space-x-4 space-y-2 mt-4">
+          <CustomToggle
+            control={control}
+            name="enabled"
+            error={errors.enabled}
+            label="Activo"
+            containerClassName="w-full lg:w-1/3"
+          />
           <div className="sm:flex sm:flex-row-reverse">
             <SubmitButton
               type="submit"

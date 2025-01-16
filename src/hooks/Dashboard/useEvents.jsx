@@ -59,6 +59,8 @@ const initialData = {
   startDate: '',
   endDate: '',
   capacity: '',
+  faculties: [],
+  enabled: true,
 };
 
 export default useEvents;
