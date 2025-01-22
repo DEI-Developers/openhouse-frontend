@@ -2,7 +2,7 @@ import {empty} from '@utils/helpers';
 import axios from 'axios';
 
 const apiInstance = axios.create({
-  baseURL: 'https://openhouse-xvol.onrender.com/api/v2',
+  baseURL: 'https://squid-app-ebe2n.ondigitalocean.app/api/v2',
   params: {},
   timeout: 1000,
   headers: {

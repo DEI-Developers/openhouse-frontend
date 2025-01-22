@@ -37,8 +37,10 @@ const CustomMultiSelect = ({
         <Controller
           name={name}
           control={control}
+          defaultValue={isMulti ? [] : null}
           render={({field}) => (
             <Select
+              {...field}
               isMulti={isMulti}
               options={options}
               closeMenuOnScroll
@@ -57,7 +59,6 @@ const CustomMultiSelect = ({
                 }),
               }}
               className={`${inputClassName} ${error ? 'custom-MultiSelectError' : 'custom-MultiSelectNoError'}`}
-              {...field}
             />
           )}
         />
