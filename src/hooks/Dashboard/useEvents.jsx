@@ -6,15 +6,15 @@ import {createEvent, deleteEvent, updateEvent} from '@services/Events';
 const useEvents = () => {
   const queryClient = useQueryClient();
   const {isOpen, onToggleBox, onClose} = useBooleanBox();
-  const [currentData, setCurrentUser] = useState(initialData);
+  const [currentData, setCurrentEvent] = useState(initialData);
 
   const onToggleForm = (data) => {
-    setCurrentUser(initialData);
+    setCurrentEvent(initialData);
     onToggleBox();
   };
 
   const onEdit = (data) => {
-    setCurrentUser(data);
+    setCurrentEvent(data);
     onToggleBox();
   };
 
