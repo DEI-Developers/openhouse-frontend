@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import {useEffect} from 'react';
 import {empty} from '@utils/helpers';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -15,11 +16,13 @@ const UserForm = ({
   roles,
   faculties,
 }) => {
-  const {control, formState, register, watch, handleSubmit} = useForm({
-    mode: 'onBlur',
-    defaultValues: initialData,
-    resolver: yupResolver(getCurrentSchema(empty(initialData.id))),
-  });
+  const {control, formState, register, watch, setValue, handleSubmit} = useForm(
+    {
+      mode: 'onBlur',
+      defaultValues: initialData,
+      resolver: yupResolver(getCurrentSchema(empty(initialData.id))),
+    }
+  );
 
   const {errors, isSubmitting} = formState;
   const currentFaculty = watch('faculty');
@@ -40,6 +43,15 @@ const UserForm = ({
 
     mutation.mutate(updatedData);
   };
+
+  useEffect(() => {
+    if (empty(currentFaculty.careers)) {
+      const updatedFaculty = faculties.find(
+        (f) => f.value === currentFaculty.value
+      );
+      setValue('faculty', updatedFaculty);
+    }
+  }, [currentFaculty]);
 
   return (
     <div className="bg-white px-2 pt-2 pb-2 sm:p-2 sm:pb-4">

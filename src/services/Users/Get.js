@@ -42,6 +42,12 @@ const getUsers = async (pageNumber, pageSize, searchedWord) => {
         label: user?.facultyName,
         value: user?.facultyId,
       },
+      career: user.careerId
+        ? {
+            label: user?.careerName,
+            value: user?.careerId,
+          }
+        : null,
     })),
     nRows: response.data.nItems,
     nPages: response.data.nPages,
