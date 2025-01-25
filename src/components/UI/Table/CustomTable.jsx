@@ -16,13 +16,14 @@ const CustomTable = ({
   fetchData,
   groupByField = null,
   customActions,
+  defaultRowsPerPage = 5,
   customHeaderClassName = 'text-left text-sm text-gray-900',
   customContainerClassName = '',
 }) => {
   const [page, setPage] = useState(1);
   const [nRows, setNRows] = useState(0);
   const [filter, setFilter] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const {
     isLoading,

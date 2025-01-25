@@ -8,6 +8,7 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
 import getPublicCatalogs from '@services/getPublicCatalogs';
+import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import useParticipants from '@hooks/Dashboard/useParticipants';
 import CustomRadioGroup from '@components/UI/Form/CustomRadioGroup';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
@@ -15,15 +16,21 @@ import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
 
 import Event from './Event';
 import SuccessModal from './SuccessModal';
-import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 
-const ParticipationForm = () => {
+const ParticipationForm = ({
+  onCloseForm = null,
+  initialData = initialFormData,
+  titleLabel = 'Formulario de inscripción',
+  submitButtonLabel = 'Enviar formulario',
+  titleClassName = 'font-bold text-3xl text-center text-primary tracking-wide',
+  submitButtonClassName = 'w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg',
+}) => {
   const {data} = useQuery({
     queryKey: ['publicCatalogs'],
     queryFn: getPublicCatalogs,
     refetchOnWindowFocus: false,
   });
-  const [subscribed, setSubscribed] = useState([]);
+  const [subscribed, setSubscribed] = useState(initialData?.subscribed ?? []);
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -36,6 +43,7 @@ const ParticipationForm = () => {
   };
 
   const {currentData, onCreate, onUpdate, onClean} = useParticipants(
+    initialData,
     onSuccess,
     onError
   );
@@ -61,10 +69,13 @@ const ParticipationForm = () => {
     reset();
     setSuccessfulCode('');
     setErrorMessage('');
+    onCloseForm && onCloseForm();
   };
 
   useEffect(() => {
-    setValue('grade', null);
+    if (currentFaculty !== initialData.faculty) {
+      setValue('grade', null);
+    }
   }, [currentFaculty]);
 
   const onSubmit = async (data) => {
@@ -94,9 +105,7 @@ const ParticipationForm = () => {
   return (
     <div>
       <div className="px-4 md:px-0 py-6 mx-auto max-w-6xl">
-        <h1 className="font-bold text-3xl text-center text-primary tracking-wide">
-          Formulario de inscripción
-        </h1>
+        <h1 className={titleClassName}>{titleLabel}</h1>
 
         <form
           noValidate
@@ -241,13 +250,29 @@ const ParticipationForm = () => {
             />
           )}
 
-          <div className="flex justify-center items-center">
+          <div
+            className={
+              onCloseForm
+                ? 'sm:flex sm:flex-row-reverse'
+                : '"flex justify-center items-center"'
+            }
+          >
             <SubmitButton
               type="submit"
-              label="Enviar formulario"
+              label={submitButtonLabel}
               loading={onCreate.isPending || onUpdate.isPending}
-              className="w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg"
+              className={submitButtonClassName}
             />
+            {onCloseForm && (
+              <button
+                type="button"
+                data-autofocus
+                onClick={onCloseForm}
+                className="mt-3 inline-flex w-full justify-center items-center rounded-md bg-white px-8 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+              >
+                Cancelar
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -258,6 +283,21 @@ const ParticipationForm = () => {
       />
     </div>
   );
+};
+
+const initialFormData = {
+  id: null,
+  phoneNumber: '',
+  name: '',
+  institution: '',
+  email: '',
+  networks: '',
+  faculty: '',
+  grade: null,
+  means: '1',
+  parentUca: '1',
+  medio: 'Formulario',
+  subscribed: [],
 };
 
 const schema = yup.object().shape({

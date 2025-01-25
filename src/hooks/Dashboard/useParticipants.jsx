@@ -8,7 +8,11 @@ import {
   updateParticipant,
 } from '@services/Participants';
 
-const useParticipants = (onSuccess = (code) => {}, onError = () => {}) => {
+const useParticipants = (
+  initialData,
+  onSuccess = (code) => {},
+  onError = () => {}
+) => {
   const queryClient = useQueryClient();
   const {isOpen, onToggleBox, onClose} = useBooleanBox();
   const [currentData, setCurrentParticipant] = useState(initialData);
@@ -40,10 +44,16 @@ const useParticipants = (onSuccess = (code) => {}, onError = () => {}) => {
 
   const onUpdate = useMutation({
     mutationFn: updateParticipant,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({queryKey: ['participants']});
       onClose();
-      onSuccess();
+      onSuccess(response.code);
+    },
+    onError: (error) => {
+      onError(
+        error?.response?.data?.errors ??
+          'Opss! Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.'
+      );
     },
   });
 
@@ -69,20 +79,6 @@ const useParticipants = (onSuccess = (code) => {}, onError = () => {}) => {
     isOpenForm: isOpen,
     currentData,
   };
-};
-
-const initialData = {
-  id: null,
-  phoneNumber: '',
-  name: '',
-  institution: '',
-  email: '',
-  networks: '',
-  faculty: '',
-  grade: null,
-  means: '1',
-  parentUca: '1',
-  medio: 'Formulario',
 };
 
 export default useParticipants;
