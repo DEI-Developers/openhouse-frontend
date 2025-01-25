@@ -1,14 +1,20 @@
 import {formatDate} from 'date-fns';
 
 const Event = ({event, isSubscribed, onClick}) => {
+  const onVerifyDisponibility = () => {
+    if (event.isFull) {
+      return;
+    }
+    onClick();
+  };
   return (
     <div
-      className="px-4 py-2 border rounded-md shadow-md flex items-start w-96 cursor-pointer"
-      onClick={onClick}
+      className={`px-4 py-2 border rounded-md shadow-md flex items-start w-96 ${event.isFull ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+      onClick={onVerifyDisponibility}
     >
       <div className="flex justify-center py-2 pr-2">
         <CheckIcon
-          className="h-9 w-9 flex-shrink-0 cursor-pointer"
+          className={`h-9 w-9 flex-shrink-0 ${event.isFull ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           activeColor="#003C71"
           checked={isSubscribed}
         />

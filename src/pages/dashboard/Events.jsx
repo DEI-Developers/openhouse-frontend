@@ -103,6 +103,7 @@ const columns = [
   {
     title: 'Evento',
     field: 'name',
+    className: 'max-w-md',
   },
   {
     title: 'Fecha de inicio',
@@ -126,6 +127,7 @@ const columns = [
     field: 'capacity',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
+    render: (rowData) => <Capacity data={rowData} />,
   },
   {
     title: 'Estado',
@@ -141,6 +143,15 @@ const Faculties = ({data}) => {
         <li key={faculty.value} className="text-xs">{faculty.name}</li>
       ))}
     </ul>
+  )
+}
+
+
+const Capacity = ({data}) => {
+  return (
+    <div className="flex items-center justify-center">
+      <p><span className="font-bold">{data.subscribed?.length ?? 0}</span>/<span>{data.capacity}</span></p>
+    </div>
   )
 }
 
