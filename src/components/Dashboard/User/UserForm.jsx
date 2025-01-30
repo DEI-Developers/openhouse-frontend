@@ -45,9 +45,9 @@ const UserForm = ({
   };
 
   useEffect(() => {
-    if (empty(currentFaculty.careers)) {
-      const updatedFaculty = faculties.find(
-        (f) => f.value === currentFaculty.value
+    if (empty(currentFaculty?.careers)) {
+      const updatedFaculty = faculties?.find(
+        (f) => f.value === currentFaculty?.value
       );
       setValue('faculty', updatedFaculty);
     }
