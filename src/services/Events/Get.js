@@ -1,6 +1,6 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
-import {format, formatDate} from 'date-fns';
+import {format, formatDate, parseISO} from 'date-fns';
 
 const getEvents = async (pageNumber, pageSize, searchedWord) => {
   const params = {
@@ -17,10 +17,8 @@ const getEvents = async (pageNumber, pageSize, searchedWord) => {
   return {
     rows: response.data.data.map((event) => ({
       ...event,
-      startDate: format(new Date(event.startDate), 'yyyy-MM-dd'),
-      endDate: format(new Date(event.endDate), 'yyyy-MM-dd'),
-      formatStartDate: formatDate(new Date(event.startDate), 'dd/MM/yyyy'),
-      formatEndDate: formatDate(new Date(event.endDate), 'dd/MM/yyyy'),
+      careerLabels: event?.careers ?? [],
+      careers: event?.careers?.map((career) => career.value),
       id: event._id,
     })),
     nRows: response.data.nItems,

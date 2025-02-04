@@ -103,17 +103,11 @@ const columns = [
   {
     title: 'Evento',
     field: 'name',
-    className: 'max-w-md',
+    className: 'max-w-sm',
   },
   {
-    title: 'Fecha de inicio',
-    field: 'formatStartDate',
-    stackedColumn: true,
-    className: 'hidden lg:table-cell',
-  },
-  {
-    title: 'Fecha de fin',
-    field: 'formatEndDate',
+    title: 'Fecha',
+    field: 'formatDate',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
@@ -131,8 +125,8 @@ const columns = [
   },
   {
     title: 'Estado',
-    field: 'enabled',
-    render: (rowData) => <BadgeStatus status={rowData.enabled} />,
+    field: 'isActive',
+    render: (rowData) => <BadgeStatus status={rowData.isActive} />,
   },
 ];
 

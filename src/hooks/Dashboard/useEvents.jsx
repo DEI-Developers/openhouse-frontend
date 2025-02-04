@@ -56,11 +56,11 @@ const useEvents = () => {
 const initialData = {
   id: null,
   name: '',
-  startDate: '',
-  endDate: '',
+  date: '',
   capacity: '',
   faculties: [],
-  enabled: true,
+  careers: [],
+  isActive: true,
 };
 
 export default useEvents;
