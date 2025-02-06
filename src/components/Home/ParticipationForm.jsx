@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as yup from 'yup';
 import {empty} from '@utils/helpers';
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useQuery} from '@tanstack/react-query';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -14,7 +14,7 @@ import CustomRadioGroup from '@components/UI/Form/CustomRadioGroup';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
 import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
 
-import Event from './Event';
+import Events from './Events';
 import SuccessModal from './SuccessModal';
 
 const ParticipationForm = ({
@@ -30,7 +30,9 @@ const ParticipationForm = ({
     queryFn: getPublicCatalogs,
     refetchOnWindowFocus: false,
   });
-  const [subscribed, setSubscribed] = useState(initialData?.subscribed ?? []);
+  const [subscribedTo, setSubscribedTo] = useState(
+    initialData?.subscribedTo ?? []
+  );
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -56,13 +58,20 @@ const ParticipationForm = ({
     });
 
   const currentFaculty = watch('faculty');
+  const currentCareer = watch('career')?.value ?? null;
   const {isSubmitting, errors} = formState;
 
-  const careers =
-    data?.faculties?.find((f) => f.value === currentFaculty)?.careers ?? [];
+  const careers = useMemo(() => {
+    return (
+      data?.faculties?.find((f) => f.value === currentFaculty)?.careers ?? []
+    );
+  }, [currentFaculty, data]);
 
-  const events =
-    data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? [];
+  const events = useMemo(() => {
+    return (
+      data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
+    );
+  }, [currentFaculty, data]);
 
   const onCloseModal = () => {
     onClean();
@@ -74,7 +83,7 @@ const ParticipationForm = ({
 
   useEffect(() => {
     if (currentFaculty !== initialData.faculty) {
-      setValue('grade', null);
+      setValue('career', null);
     }
   }, [currentFaculty]);
 
@@ -84,8 +93,9 @@ const ParticipationForm = ({
     const updatedData = {
       ...data,
       phoneNumber: data.phoneNumber?.replaceAll('+', ''),
-      grade: data.grade?.id,
-      subscribed,
+      career: data.career?.id,
+      networks: data.networks?.value,
+      subscribedTo,
     };
 
     const mutation = !empty(data.id) ? onUpdate : onCreate;
@@ -93,7 +103,7 @@ const ParticipationForm = ({
   };
 
   const onEnrollment = (eventId) => {
-    setSubscribed((prev) => {
+    setSubscribedTo((prev) => {
       if (prev.includes(eventId)) {
         return prev.filter((id) => id !== eventId);
       }
@@ -157,25 +167,29 @@ const ParticipationForm = ({
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
               <CustomInput
                 type="text"
-                name="institution"
+                name="institute"
                 required
                 label="¿Cuál es el nombre de tu colegio o instituto?"
-                error={errors.institution}
+                error={errors.institute}
                 disabled={isSubmitting}
                 register={register}
                 containerClassName="flex-1"
                 placeholder=""
               />
-              <CustomInput
-                type="text"
-                name="networks"
+
+              <CustomMultiSelect
+                isSearchable
+                isClearable
                 required
-                label="¿Por que medio te enteraste del Vive la UCA?"
-                error={errors.networks}
-                disabled={isSubmitting}
-                register={register}
-                containerClassName="flex-1"
                 placeholder=""
+                control={control}
+                closeMenuOnSelect
+                name="networks"
+                disabled={isSubmitting}
+                error={errors.networks}
+                containerClassName="flex-1"
+                label="¿Por que medio te enteraste del Vive la UCA?"
+                options={networksOptions}
               />
             </div>
 
@@ -194,9 +208,9 @@ const ParticipationForm = ({
                 placeholder=""
                 control={control}
                 closeMenuOnSelect
-                name="grade"
+                name="career"
                 disabled={isSubmitting}
-                error={errors.grade}
+                error={errors.career}
                 containerClassName="w-full lg:w-1/2 z-200 md:pl-2"
                 label="Carrera"
                 options={careers}
@@ -208,40 +222,27 @@ const ParticipationForm = ({
             <p className="mb-3 italic font-bold">Asistencia</p>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
               <CustomRadioGroup
-                name="parentUca"
+                name="withParent"
                 register={register}
-                options={parentUcaOptions}
+                options={withParentOptions}
                 label="¿Asistirás al Vive la UCA con tu padre, madre o encargado? (Máximo UNO de ellos.)"
               />
               <CustomRadioGroup
-                name="means"
+                name="tourMethod"
                 register={register}
-                options={medioOptions}
+                options={tourMethodOptions}
                 containerClassName="md:pl-2"
                 label="¿Para el recorrido preferirías hacerlo por tu cuenta o sumarte a los recorridos guiados?"
               />
             </div>
           </div>
 
-          {!empty(events) && (
-            <>
-              <p className="my-3 italic font-bold">
-                De acuerdo a tu selección, estos son los días que podrás vivir
-                la experiencia de la UCA. Por favor, escogé el día en que nos
-                visitarás.
-              </p>
-              <div className="flex flex-wrap justify-center items-center space-x-4">
-                {events.map((event) => (
-                  <Event
-                    key={event.value}
-                    event={event}
-                    isSubscribed={subscribed.includes(event.value)}
-                    onClick={() => onEnrollment(event.value)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          <Events
+            events={events}
+            subscribed={subscribedTo}
+            currentCareer={currentCareer}
+            onEnrollment={onEnrollment}
+          />
 
           {!empty(errorMessage) && (
             <CustomErrorAlert
@@ -287,46 +288,59 @@ const ParticipationForm = ({
 
 const initialFormData = {
   id: null,
-  phoneNumber: '',
   name: '',
-  institution: '',
   email: '',
+  phoneNumber: '',
+  institute: '',
   networks: '',
-  faculty: '',
-  grade: null,
-  means: '1',
-  parentUca: '1',
   medio: 'Formulario',
-  subscribed: [],
+
+  subscribedTo: [],
+  faculty: '',
+  career: null,
+  tourMethod: '1',
+  withParent: '1',
 };
 
 const schema = yup.object().shape({
-  phoneNumber: yup.string().required('Campo obligatorio.'),
-  name: yup.string().required('Campo obligatorio.'),
-  institution: yup.string().required('Campo obligatorio.'),
   email: yup
     .string()
     .email('Debe ser un correo electrónico válido')
     .required('Campo obligatorio.'),
-  networks: yup.string().required('Campo obligatorio.'),
-  faculty: yup.string().required('Campo obligatorio.'),
-  grade: yup.object().required('Campo obligatorio.'),
-  means: yup.boolean().required('Campo obligatorio.'),
-  parentUca: yup.boolean().required('Campo obligatorio.'),
+  phoneNumber: yup.string().required('Campo obligatorio.'),
+  name: yup.string().required('Campo obligatorio.'),
+  institute: yup.string().required('Campo obligatorio.'),
+  networks: yup.object().required('Campo obligatorio.'),
   medio: yup.string().required('Campo obligatorio.'),
+
+  faculty: yup.string().required('Campo obligatorio.'),
+  career: yup.object().required('Campo obligatorio.'),
+  tourMethod: yup.boolean().required('Campo obligatorio.'),
+  withParent: yup.boolean().required('Campo obligatorio.'),
 });
 
-const parentUcaOptions = [
+const withParentOptions = [
   {value: 1, label: 'Sí'},
   {value: 0, label: 'No'},
 ];
 
-const medioOptions = [
+const tourMethodOptions = [
   {
     value: 1,
     label: 'Por mi cuenta, descargando una App especial',
   },
   {value: 0, label: 'Recorrido guiado'},
+];
+
+const networksOptions = [
+  {value: 'Charla UCA', label: 'Charla UCA'},
+  {value: 'Sitio web de la UCA', label: 'Sitio web de la UCA'},
+  {value: 'Un conocido me contó', label: 'Un conocido me contó'},
+  {value: 'Facebook', label: 'Facebook'},
+  {value: 'Instagram', label: 'Instagram'},
+  {value: 'Tik Tok', label: 'Tik Tok'},
+  {value: 'Correo Electrónico', label: 'Correo Electrónico'},
+  {value: 'Otro', label: 'Otro'},
 ];
 
 export default ParticipationForm;

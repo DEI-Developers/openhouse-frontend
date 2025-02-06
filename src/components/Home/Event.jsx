@@ -1,42 +1,35 @@
-import {formatDate} from 'date-fns';
+const Event = ({event, isSubscribed, currentCareer, onClick}) => {
+  const disableEvent = event.isFull || !event?.careers.includes(currentCareer);
 
-const Event = ({event, isSubscribed, onClick}) => {
   const onVerifyDisponibility = () => {
-    if (event.isFull) {
+    if (event.isFull || !event?.careers.includes(currentCareer)) {
       return;
     }
     onClick();
   };
   return (
     <div
-      className={`px-4 py-2 border rounded-md shadow-md flex items-start w-96 ${event.isFull ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+      className={`px-4 py-2 border rounded-md shadow-md flex items-start w-96 ${disableEvent ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       onClick={onVerifyDisponibility}
     >
       <div className="flex justify-center py-2 pr-2">
         <CheckIcon
-          className={`h-9 w-9 flex-shrink-0 ${event.isFull ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`h-9 w-9 flex-shrink-0 ${disableEvent ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           activeColor="#003C71"
           checked={isSubscribed}
         />
       </div>
       <div className="">
-        <h1 className="font-bold italic text-lg text-primary">{event.name}</h1>
-        {event.isFull ? (
-          <p className="text-red-600 italic pb-1">Evento lleno</p>
+        <h1 className="font-bold italic text-lg text-primary h-12">
+          {event.name}
+        </h1>
+        {disableEvent ? (
+          <p className="text-red-600 italic pb-1 pt-2">Evento lleno</p>
         ) : (
-          <p className="text-green-600 italic pb-1">Cupos disponibles</p>
+          <p className="text-green-600 italic pb-1 pt-2">Cupos disponibles</p>
         )}
         <p className="text-gray-600 pb-1">
-          Fecha inicio:{' '}
-          <span className="font-bold">
-            {formatDate(new Date(event.startDate), 'dd/MM/yyyy')}
-          </span>
-        </p>
-        <p className="text-gray-600 pb-1">
-          Fecha fin:{' '}
-          <span className="font-bold">
-            {formatDate(new Date(event.endDate), 'dd/MM/yyyy')}
-          </span>
+          Fecha: <span className="font-bold">{event.formatDate}</span>
         </p>
       </div>
     </div>

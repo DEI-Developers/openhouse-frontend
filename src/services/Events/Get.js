@@ -1,6 +1,5 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
-import {format, formatDate, parseISO} from 'date-fns';
 
 const getEvents = async (pageNumber, pageSize, searchedWord) => {
   const params = {
