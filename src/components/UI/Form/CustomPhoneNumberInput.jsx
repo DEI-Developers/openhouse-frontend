@@ -10,6 +10,7 @@ const CustomPhoneNumberInput = ({
   defaultValue,
   required = false,
   error,
+  onBlur,
 }) => {
   return (
     <div className={containerClassName}>
@@ -30,6 +31,7 @@ const CustomPhoneNumberInput = ({
             value={value}
             onChange={onChange}
             inputClassName="w-full"
+            onBlur={onBlur}
           />
         )}
       />

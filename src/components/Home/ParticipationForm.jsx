@@ -10,6 +10,7 @@ import SubmitButton from '@components/UI/Form/SubmitButton';
 import getPublicCatalogs from '@services/getPublicCatalogs';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import useParticipants from '@hooks/Dashboard/useParticipants';
+import {getParticipantByPhoneNumber} from '@services/Participants';
 import CustomRadioGroup from '@components/UI/Form/CustomRadioGroup';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
 import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
@@ -112,6 +113,19 @@ const ParticipationForm = ({
     });
   };
 
+  const onSearchByPhoneNumber = async (phoneNumber) => {
+    if (empty(phoneNumber)) {
+      return;
+    }
+
+    const data = await getParticipantByPhoneNumber(phoneNumber);
+
+    if (!empty(data.participant)) {
+      reset(data.participant);
+      setSubscribedTo(data.subscribedTo);
+    }
+  };
+
   return (
     <div>
       <div className="px-4 md:px-0 py-6 mx-auto max-w-6xl">
@@ -133,6 +147,7 @@ const ParticipationForm = ({
                 label="¿Cuál es tu número de celular?"
                 error={errors.phoneNumber}
                 containerClassName="flex-1"
+                onBlur={(e) => onSearchByPhoneNumber(e.target.value)}
               />
               <div className="flex-1" />
             </div>
@@ -157,7 +172,7 @@ const ParticipationForm = ({
                 disabled={isSubmitting}
                 register={register}
                 containerClassName="flex-1"
-                placeholder="00084417@uca.edu.sv"
+                placeholder="00084417@mail.com"
               />
             </div>
           </div>
@@ -298,7 +313,7 @@ const initialFormData = {
   subscribedTo: [],
   faculty: '',
   career: null,
-  tourMethod: '1',
+  tourMethod: 'App especial',
   withParent: '1',
 };
 
@@ -315,7 +330,7 @@ const schema = yup.object().shape({
 
   faculty: yup.string().required('Campo obligatorio.'),
   career: yup.object().required('Campo obligatorio.'),
-  tourMethod: yup.boolean().required('Campo obligatorio.'),
+  tourMethod: yup.string().required('Campo obligatorio.'),
   withParent: yup.boolean().required('Campo obligatorio.'),
 });
 
@@ -326,10 +341,10 @@ const withParentOptions = [
 
 const tourMethodOptions = [
   {
-    value: 1,
+    value: 'App especial',
     label: 'Por mi cuenta, descargando una App especial',
   },
-  {value: 0, label: 'Recorrido guiado'},
+  {value: 'Recorrido guiado', label: 'Recorrido guiado'},
 ];
 
 const networksOptions = [
