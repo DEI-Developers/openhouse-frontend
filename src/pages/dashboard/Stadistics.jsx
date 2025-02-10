@@ -7,7 +7,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 
 const Stadistics = () => {
-  const eventId = '667351b1ff8c189960aa11e0';
+  const eventId = '67a02794f928974321efab36';
   const {data, isLoading} = useQuery({
     queryKey: ['statistics', eventId],
     queryFn: () => getStadistics(eventId),
@@ -54,6 +54,7 @@ const Stadistics = () => {
           </div>
         ))}
       </div>
+      <div className="hidden col-span-2" />
     </div>
   );
 };

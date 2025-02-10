@@ -33,22 +33,18 @@ const Participants = () => {
   const onEdit = (data) => {
     const updatedData = {
       id: data.id,
-      phoneNumber: data.phoneNumber,
       name: data.name,
-      institution: data.institution,
       email: data.email,
+      phoneNumber: data.phoneNumber,
+      institute: data.institute,
       networks: data.networks,
-      faculty: data.facultyId,
-      grade: {
-        value: data.grade?._id,
-        label: data.grade?.name,
-        id: data.grade?._id,
-        name: data.grade?.name,
-      },
       medio: data.medio,
-      parentUca: data.parentUca ? '1' : '0',
-      means: data.means ? '1' : '0',
-      subscribed: data.subscribed.map((item) => item.student),
+    
+      subscribedTo: data.subscribedTo?.map((e) => e.event),
+      faculty: '',
+      career: null,
+      tourMethod: 'App especial',
+      withParent: '1',
     }
 
     setCurrentParticipant(updatedData);
@@ -121,17 +117,18 @@ const Participants = () => {
 
 const initialFormData = {
   id: null,
-  phoneNumber: '',
   name: '',
-  institution: '',
   email: '',
+  phoneNumber: '',
+  institute: '',
   networks: '',
-  faculty: '',
-  grade: null,
-  means: '1',
-  parentUca: '1',
   medio: 'Formulario',
-  subscribed: [],
+
+  subscribedTo: [],
+  faculty: '',
+  career: null,
+  tourMethod: 'App especial',
+  withParent: '1',
 };
 
 const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
@@ -169,11 +166,9 @@ const columns = [
     className: 'hidden lg:table-cell',
   },
   {
-    title: 'Eventos de interés',
+    title: 'Como se dio cuenta',
     field: 'networks',
-    stackedColumn: true,
     className: 'hidden lg:table-cell',
-    render: (rowData) => <ExtraInfo data={rowData} />,
   },
   {
     title: 'Medio',
@@ -197,42 +192,44 @@ const ContactInfo = ({data}) => {
       >
         {`${formatPhoneNumber(data.phoneNumber)}`}
       </a>
-      <p className="text-xs text-gray-500 font-normal">{data.institution}</p>
+      <p className="text-xs text-gray-500 font-normal">{data.institute}</p>
     </div>
   );
 };
 
 const FacultyCareerRow = ({data}) => {
+  const subscribedTo = data?.subscribedTo ?? [];
+  console.log(subscribedTo);
+
   return (
     <div>
-      <p className="font-medium text-gray-600">{data.facultyName ?? 'N/A'}</p>
-      {!empty(data.gradeName) && (
-        <ul className="list-disc list-inside">
-          <li>{data.gradeName}</li>
-        </ul>
-      )}
+      {subscribedTo.map((item) => (
+        <div key={item.event} className="mb-2">
+          <p className="font-medium text-gray-600">{item.faculty?.name ?? 'N/A'}</p>
+          {!empty(item.career) && (
+            <ul className="list-disc list-inside">
+              <li>{item.career?.name}</li>
+            </ul>
+          )}
+        </div>
+      ))}
     </div>
+
   );
 };
 
-const ExtraInfo = ({data}) => {
-  return (
-    <ul className="list-disc list-inside">
-      <li className="text-xs text-gray-800 font-bold">
-        {`${data?.subscribed?.length ?? 0} evento(s)`}
-      </li>
-      <li className="text-xs text-gray-500 font-normal">
-        {data.networks ?? 'N/R'}
-      </li>
-      <li className="text-xs text-gray-500 font-normal">
-        {data.parentUca ? 'Acompaña familiar' : 'Sin acompañamiento'}
-      </li>
-      <li className="text-xs text-gray-500 font-normal">
-        {data.means ? 'Recorrido por App' : 'Recorrido guiado'}
-      </li>
-    </ul>
-  );
-};
+// const ExtraInfo = ({data}) => {
+//   return (
+//     <ul className="list-disc list-inside">
+//       <li className="text-xs text-gray-500 font-normal">
+//         {data.parentUca ? 'Acompaña familiar' : 'Sin acompañamiento'}
+//       </li>
+//       <li className="text-xs text-gray-500 font-normal">
+//         {data.means ? 'Recorrido por App' : 'Recorrido guiado'}
+//       </li>
+//     </ul>
+//   );
+// };
 
 const BadgeMedio = ({medio}) => {
   const customClassName =
