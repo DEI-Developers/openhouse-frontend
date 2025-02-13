@@ -11,7 +11,10 @@ const useCatalogs = () => {
   return {
     roles: data?.roles ?? [],
     permissions: data?.permissions ?? [],
+    events: data?.events ?? [],
     faculties: data?.faculties ?? [],
+    careers: data?.careers ?? [],
+    lastEvent: data?.events?.length > 0 ? data.events[0] : null,
   };
 };
 

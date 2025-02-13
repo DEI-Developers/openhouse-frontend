@@ -1,7 +1,7 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
 
-const getRoles = async (pageNumber, pageSize, searchedWord) => {
+const getRoles = async (pageNumber, pageSize, searchedWord, filters = null) => {
   const params = {
     pageNumber,
     pageSize,

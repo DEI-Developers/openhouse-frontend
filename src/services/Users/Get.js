@@ -18,7 +18,7 @@ import apiInstance from '@utils/instances/ApiInstance';
 //   });
 // };
 
-const getUsers = async (pageNumber, pageSize, searchedWord) => {
+const getUsers = async (pageNumber, pageSize, searchedWord, filters = null) => {
   const params = {
     pageNumber,
     pageSize,

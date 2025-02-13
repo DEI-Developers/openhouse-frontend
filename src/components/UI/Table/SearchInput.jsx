@@ -1,9 +1,8 @@
 import {useState} from 'react';
 import {empty} from '@utils/helpers';
-import {BsSearch} from 'react-icons/bs';
 import {IoCloseCircle} from 'react-icons/io5';
 
-const SearchInput = ({onCustomAction}) => {
+const SearchInput = ({onCustomAction, customContainerClassName}) => {
   const [value, setValue] = useState('');
 
   const onClear = () => {
@@ -18,7 +17,7 @@ const SearchInput = ({onCustomAction}) => {
   };
 
   return (
-    <div className="flex rounded-md shadow-sm">
+    <div className={`flex rounded-md shadow-sm ${customContainerClassName}`}>
       <div className="relative flex flex-grow items-stretch focus-within:z-10">
         <input
           type="text"
@@ -26,7 +25,7 @@ const SearchInput = ({onCustomAction}) => {
           placeholder="Buscar..."
           onKeyDown={handleKeyDown}
           onChange={(e) => setValue(e.target.value)}
-          className="block w-full text-sm rounded-none rounded-l-md border-0 py-1.5 px-4 text-gray-600 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-primary"
+          className="block w-full text-sm rounded-md border-0 py-1.5 px-4 bg-background text-primary ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-primary"
         />
         {!empty(value) && (
           <button
@@ -41,13 +40,6 @@ const SearchInput = ({onCustomAction}) => {
           </button>
         )}
       </div>
-      <button
-        type="button"
-        onClick={() => onCustomAction(value)}
-        className="relative -ml-px rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus:ring-primary"
-      >
-        <BsSearch aria-hidden="true" className="h-5 w-5 text-gray-400" />
-      </button>
     </div>
   );
 };

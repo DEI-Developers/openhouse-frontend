@@ -15,6 +15,7 @@ import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import ParticipationForm from '@components/Home/ParticipationForm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {deleteParticipant, getParticipants} from '@services/Participants';
+import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 
 const Participants = () => {
   const {permissions} = useAuth();
@@ -84,6 +85,7 @@ const Participants = () => {
         defaultRowsPerPage={10}
         customActions={customActions}
         fetchData={getParticipants}
+        CustomFilters={ParticipantsFilters}
       />
 
       <DeleteDialog

@@ -1,20 +1,21 @@
 // @ts-nocheck
-import React from 'react';
+import {useState} from 'react';
 import Chart from 'react-apexcharts';
 import {useQuery} from '@tanstack/react-query';
 import {getStadistics} from '@services/Stadistics';
 import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
+import StadisticsFilters from '@components/UI/Filters/StadisticsFilters';
 
 const Stadistics = () => {
-  const eventId = '67a02794f928974321efab36';
+  const [eventId, setEventId] = useState(null);
   const {data, isLoading} = useQuery({
     queryKey: ['statistics', eventId],
     queryFn: () => getStadistics(eventId),
     refetchOnWindowFocus: true,
   });
 
-  console.log(data);
+  console.log(eventId);
 
   if (isLoading) {
     return (
@@ -24,6 +25,7 @@ const Stadistics = () => {
 
         <div className="flex justify-between items-center mb-4 mt-1">
           <h1 className="text-primary text-3xl font-bold">Inicio</h1>
+          <StadisticsFilters onApplyFilters={setEventId} />
         </div>
 
         <div className="flex justify-center items-center">
@@ -40,6 +42,7 @@ const Stadistics = () => {
 
       <div className="flex justify-between items-center mb-4 mt-1">
         <h1 className="text-primary text-3xl font-bold">Inicio</h1>
+        <StadisticsFilters onApplyFilters={setEventId} />
       </div>
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">

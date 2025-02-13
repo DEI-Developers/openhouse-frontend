@@ -15,6 +15,7 @@ import CustomModal from '@components/UI/Modal/CustomModal';
 import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import EventForm from '@components/Dashboard/Event/EventForm';
+import EventsFilters from '@components/UI/Filters/EventsFilters';
 
 const Events = () => {
   const {permissions} = useAuth();
@@ -48,6 +49,7 @@ const Events = () => {
         queryKey="events"
         customActions={customActions}
         fetchData={getEvents}
+        CustomFilters={EventsFilters}
       />
 
       <DeleteDialog

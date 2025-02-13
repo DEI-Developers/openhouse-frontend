@@ -8,7 +8,7 @@ import {useQuery} from '@tanstack/react-query';
 import Loader from '../Loader';
 import CustomRow from './CustomRow';
 import Pagination from './Pagination';
-import TableFilters from './TableFilters';
+import TableFilters from '../Filters/EventsFilters';
 
 const CustomTable = ({
   columns,
@@ -19,10 +19,12 @@ const CustomTable = ({
   defaultRowsPerPage = 5,
   customHeaderClassName = 'text-left text-sm text-gray-900',
   customContainerClassName = '',
+  CustomFilters = null,
 }) => {
   const [page, setPage] = useState(1);
   const [nRows, setNRows] = useState(0);
-  const [filter, setFilter] = useState('');
+  const [filters, setFilters] = useState({});
+  const [searchedWord, setSearchedWord] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const {
@@ -32,8 +34,8 @@ const CustomTable = ({
     data,
     refetch,
   } = useQuery({
-    queryKey: [queryKey, filter, page],
-    queryFn: () => fetchData(page, rowsPerPage, filter),
+    queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
+    queryFn: () => fetchData(page, rowsPerPage, searchedWord, filters),
     refetchOnWindowFocus: false,
   });
 
@@ -43,9 +45,18 @@ const CustomTable = ({
     }
   }, [data]);
 
+  useEffect(() => {
+    console.log('filters', filters);
+  }, [filters]);
+
   return (
     <div className="my-4">
-      {/* <TableFilters searchAction={(newFilter) => setFilter(newFilter)} /> */}
+      {CustomFilters && (
+        <CustomFilters
+          onSearchAction={(newWord) => setSearchedWord(newWord)}
+          onApplyFilters={setFilters}
+        />
+      )}
 
       <div
         className={`bg-white -mx-4 my-6 overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg p-2 ${customContainerClassName}`}
