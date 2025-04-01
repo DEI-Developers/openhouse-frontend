@@ -1,8 +1,11 @@
 import {empty} from '@utils/helpers';
 import axios from 'axios';
 
+// @ts-ignore
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const apiInstance = axios.create({
-  baseURL: 'https://squid-app-ebe2n.ondigitalocean.app/api/v2',
+  baseURL: BASE_URL,
   params: {},
   timeout: 1000,
   headers: {

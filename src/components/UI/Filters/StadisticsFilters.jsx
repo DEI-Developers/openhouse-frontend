@@ -1,6 +1,6 @@
+import {useEffect} from 'react';
 import useCatalogs from '@hooks/Dashboard/useCatalogs';
 import SelectFilter from './SelectFilter';
-import { useEffect } from 'react';
 
 const StadisticsFilters = ({onApplyFilters}) => {
   const {events, lastEvent} = useCatalogs();
