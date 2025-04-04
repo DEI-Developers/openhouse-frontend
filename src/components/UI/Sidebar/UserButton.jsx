@@ -1,3 +1,4 @@
+import {BASE_PATH_URL} from '@config/index';
 import {useAuth} from '@context/AuthContext';
 import {IoChevronDownOutline} from 'react-icons/io5';
 import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react';
@@ -10,7 +11,7 @@ const UserButton = () => {
       <MenuButton className="-m-1.5 flex items-center justify-start p-1.5">
         <img
           alt={user.name}
-          src="/uca-logo.png"
+          src={`${BASE_PATH_URL}/uca-logo.png`}
           className="size-10 rounded-full border p-1"
         />
         <span className="hidden lg:flex lg:items-center justify-start">

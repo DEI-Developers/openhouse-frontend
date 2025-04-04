@@ -1,3 +1,4 @@
+import {BASE_PATH_URL} from '@config/index';
 import {CiLogout} from 'react-icons/ci';
 import Logo from '../Logo';
 import SectionMenu from './SectionMenu';
@@ -24,7 +25,7 @@ const DesktopSidebar = ({menu, user, onLogout}) => {
                 <li className="w-full flex items-center px-4 pb-4">
                   <img
                     alt=""
-                    src="/uca-logo.png"
+                    src={`${BASE_PATH_URL}/uca-logo.png`}
                     className="size-10 rounded-full border p-1"
                   />
                   <span className="hidden lg:flex lg:flex-col lg:items-start flex-1 justify-center">

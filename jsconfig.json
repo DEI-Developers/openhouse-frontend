@@ -11,6 +11,7 @@
       "@assets/*": ["assets/*"],
       "@context/*": ["context/*"],
       "@components/*": ["components/*"],
+      "@config/*": ["config/*"],
       "@hooks/*": ["hooks/*"],
       "@pages/*": ["pages/*"],
       "@services/*": ["services/*"],

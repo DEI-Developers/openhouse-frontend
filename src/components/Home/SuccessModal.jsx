@@ -1,5 +1,6 @@
 import {useRef} from 'react';
 import {QRCodeCanvas} from 'qrcode.react';
+import {BASE_PATH_URL} from '@config/index';
 import CustomModal from '@components/UI/Modal/CustomModal';
 
 const SuccessModal = ({isOpen, onClose, code}) => {
@@ -35,7 +36,7 @@ const SuccessModal = ({isOpen, onClose, code}) => {
           size={256}
           title={code}
           imageSettings={{
-            src: '/uca-logo.png',
+            src: `${BASE_PATH_URL}/uca-logo.png`,
             x: undefined,
             y: undefined,
             height: 50,
