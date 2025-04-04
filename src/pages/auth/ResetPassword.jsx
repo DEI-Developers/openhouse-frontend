@@ -1,4 +1,5 @@
 import React from 'react';
+import {BASE_PATH_URL} from '@config/index';
 import CustomHeader from '@components/UI/CustomHeader';
 import ResetPasswordForm from '@components/Auth/ResetPasswordForm';
 
@@ -11,7 +12,11 @@ const ResetPassword = () => {
           <ResetPasswordForm />
         </div>
         <div className="hidden md:flex flex-1">
-          <img src="/uca-bg.jpg" className="h-screen py-8" alt="UCA" />
+          <img
+            src={`${BASE_PATH_URL}/uca-bg.jpg`}
+            className="h-screen py-8"
+            alt="UCA"
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
+import {BASE_PATH_URL} from '@config/index';
 import {RiArrowGoBackLine} from 'react-icons/ri';
 import CustomHeader from '@components/UI/CustomHeader';
 
@@ -29,7 +30,11 @@ const NotFound = () => {
           </div>
         </div>
         <div className="hidden md:flex flex-1">
-          <img src="/uca-bg.jpg" className="h-screen py-8" alt="UCA" />
+          <img
+            src={`${BASE_PATH_URL}/uca-bg.jpg`}
+            className="h-screen py-8"
+            alt="UCA"
+          />
         </div>
       </div>
     </div>
