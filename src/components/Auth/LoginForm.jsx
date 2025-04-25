@@ -7,11 +7,13 @@ import {useAuth} from '@context/AuthContext';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import CustomButton from '@components/UI/Form/CustomButton';
+import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import CustomInputPassword from '@components/UI/Form/CustomInputPassword';
 
 const LoginForm = () => {
   const {onLogin} = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const {register, handleSubmit, formState} = useForm({
     mode: 'onBlur',
@@ -23,11 +25,14 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    setError(false);
     const response = await login(data);
 
     if (response.success) {
       onLogin(response.data);
       navigate('/plataforma');
+    } else {
+      setError(true);
     }
 
     setLoading(false);
@@ -47,6 +52,12 @@ const LoginForm = () => {
         autoComplete="off"
         className="w-full space-y-4"
       >
+        {error && (
+          <CustomErrorAlert
+            message="Su correo electrónico y/o contraseña es incorrecto."
+            onClose={() => setError(false)}
+          />
+        )}
         <CustomInput
           type="text"
           name="email"

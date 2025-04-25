@@ -15,8 +15,6 @@ const Stadistics = () => {
     refetchOnWindowFocus: true,
   });
 
-  console.log(eventId);
-
   if (isLoading) {
     return (
       <div>

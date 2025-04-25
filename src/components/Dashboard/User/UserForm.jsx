@@ -59,54 +59,6 @@ const UserForm = ({
         {!empty(initialData.id) ? 'Editar usuario' : 'Agregar usuario'}
       </h3>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-2">
-          <CustomInput
-            required
-            type="text"
-            name="name"
-            label="Nombre"
-            disabled={isSubmitting}
-            register={register}
-            error={errors.name}
-            containerClassName="w-full lg:w-1/2"
-          />
-          <CustomMultiSelect
-            required
-            isSearchable
-            isClearable
-            placeholder=""
-            control={control}
-            closeMenuOnSelect
-            name="role"
-            disabled={isSubmitting}
-            error={errors.role}
-            containerClassName="w-full lg:w-1/2 z-30"
-            label="Rol"
-            options={roles ?? []}
-          />
-        </div>
-        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-4">
-          <CustomInput
-            required
-            type="text"
-            name="email"
-            label="Correo electrónico"
-            disabled={isSubmitting}
-            register={register}
-            error={errors.email}
-            containerClassName="w-full lg:w-1/2"
-          />
-          <CustomInput
-            required={empty(initialData.id)}
-            type="text"
-            name="password"
-            label="Contraseña"
-            disabled={isSubmitting}
-            register={register}
-            error={errors.password}
-            containerClassName="w-full lg:w-1/2"
-          />
-        </div>
         <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-4">
           <CustomMultiSelect
             isSearchable
@@ -132,9 +84,59 @@ const UserForm = ({
             name="career"
             disabled={isSubmitting}
             error={errors.career}
-            containerClassName="w-full lg:w-1/2 z-200"
+            containerClassName="w-full lg:w-1/2 z-30 max-h-24"
             label="Carrera"
             options={currentFaculty?.careers ?? []}
+          />
+        </div>
+
+        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-2">
+          <CustomInput
+            required
+            type="text"
+            name="name"
+            label="Nombre"
+            disabled={isSubmitting}
+            register={register}
+            error={errors.name}
+            containerClassName="w-full lg:w-1/2"
+          />
+          <CustomMultiSelect
+            required
+            isSearchable
+            isClearable
+            placeholder=""
+            control={control}
+            closeMenuOnSelect
+            name="role"
+            disabled={isSubmitting}
+            error={errors.role}
+            containerClassName="w-full lg:w-1/2 z-20"
+            label="Rol"
+            options={roles ?? []}
+          />
+        </div>
+
+        <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0 mt-4">
+          <CustomInput
+            required
+            type="text"
+            name="email"
+            label="Correo electrónico"
+            disabled={isSubmitting}
+            register={register}
+            error={errors.email}
+            containerClassName="w-full lg:w-1/2"
+          />
+          <CustomInput
+            required={empty(initialData.id)}
+            type="text"
+            name="password"
+            label="Contraseña"
+            disabled={isSubmitting}
+            register={register}
+            error={errors.password}
+            containerClassName="w-full lg:w-1/2"
           />
         </div>
         <div className="flex flex-col lg:flex-row lg:justify-between lg:space-x-4 space-y-2 mt-4">

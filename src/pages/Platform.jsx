@@ -4,7 +4,14 @@ import {Navigate, Route, Routes} from 'react-router-dom';
 import MobileNavbar from '@components/UI/Sidebar/MobileNavbar';
 import MobileSidebar from '@components/UI/Sidebar/MobileSidebar';
 import DesktopSidebar from '@components/UI/Sidebar/DesktopSidebar';
-import {Stadistics, Roles, Users, Events, Participants} from './dashboard';
+import {
+  Stadistics,
+  Roles,
+  Users,
+  Events,
+  Participants,
+  Welcome,
+} from './dashboard';
 
 const Platform = () => {
   const {menu, user, onLogout} = useAuth();
@@ -30,8 +37,10 @@ const Platform = () => {
           <div className="px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                {flatMenu.includes('Inicio') && (
+                {flatMenu.includes('Inicio') ? (
                   <Route path="/" element={<Stadistics />} />
+                ) : (
+                  <Route path="/" element={<Welcome />} />
                 )}
                 {flatMenu.includes('Roles') && (
                   <Route path="/roles" element={<Roles />} />

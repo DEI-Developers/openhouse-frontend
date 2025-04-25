@@ -128,7 +128,7 @@ const ParticipationForm = ({
 
   return (
     <div>
-      <div className="px-4 md:px-0 py-6 mx-auto max-w-6xl">
+      <div className="px-4 py-6 mx-auto max-w-6xl">
         <h1 className={titleClassName}>{titleLabel}</h1>
 
         <form
@@ -149,9 +149,9 @@ const ParticipationForm = ({
                 containerClassName="flex-1"
                 onBlur={(e) => onSearchByPhoneNumber(e.target.value)}
               />
-              <div className="flex-1" />
+              <div className="hidden lg:flex lg:flex-1" />
             </div>
-            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
+            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
                 type="text"
                 name="name"
@@ -179,7 +179,7 @@ const ParticipationForm = ({
 
           <div className="mb-6">
             <p className="mb-3 italic font-bold">Queremos saber mas de ti</p>
-            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
+            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
                 type="text"
                 name="institute"
@@ -208,7 +208,7 @@ const ParticipationForm = ({
               />
             </div>
 
-            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
+            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomRadioGroup
                 name="faculty"
                 register={register}
@@ -226,7 +226,7 @@ const ParticipationForm = ({
                 name="career"
                 disabled={isSubmitting}
                 error={errors.career}
-                containerClassName="w-full lg:w-1/2 z-200 md:pl-2"
+                containerClassName="flex-1"
                 label="Carrera"
                 options={careers}
               />
@@ -235,7 +235,7 @@ const ParticipationForm = ({
 
           <div className="mb-6">
             <p className="mb-3 italic font-bold">Asistencia</p>
-            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 lg:space-y-0 mb-4">
+            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomRadioGroup
                 name="withParent"
                 register={register}
