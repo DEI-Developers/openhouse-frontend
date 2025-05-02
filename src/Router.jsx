@@ -17,7 +17,10 @@ const AppRouter = () => {
 
       <Route path="/" element={<AuthRoute />}>
         <Route path="/iniciar-sesion" element={<Login />} />
-        <Route path="/restablecer-contraseña" element={<ResetPassword />} />
+        <Route
+          path="/restablecer-contraseña/:token"
+          element={<ResetPassword />}
+        />
         <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
       </Route>
 
