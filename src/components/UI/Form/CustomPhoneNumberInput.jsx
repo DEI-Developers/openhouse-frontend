@@ -10,7 +10,7 @@ const CustomPhoneNumberInput = ({
   defaultValue,
   required = false,
   error,
-  onBlur,
+  onCustomBlur,
 }) => {
   return (
     <div className={containerClassName}>
@@ -25,13 +25,18 @@ const CustomPhoneNumberInput = ({
         name={name}
         control={control}
         defaultValue={defaultValue}
-        render={({field: {onChange, value}}) => (
+        render={({field: {onChange, value, onBlur}}) => (
           <PhoneInput
             defaultCountry="sv"
             value={value}
             onChange={onChange}
-            inputClassName="w-full"
-            onBlur={onBlur}
+            onBlur={() => {
+              onBlur();
+              if (onCustomBlur) {
+                onCustomBlur(value);
+              }
+            }}
+            inputClassName={`w-full ${error ? 'border-red-500' : 'border-sgray-300'}`}
           />
         )}
       />

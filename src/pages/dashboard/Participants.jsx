@@ -169,7 +169,7 @@ const columns = [
   },
   {
     title: 'Como se dio cuenta',
-    field: 'networks',
+    field: 'networksLabel',
     className: 'hidden lg:table-cell',
   },
   {
@@ -201,7 +201,6 @@ const ContactInfo = ({data}) => {
 
 const FacultyCareerRow = ({data}) => {
   const subscribedTo = data?.subscribedTo ?? [];
-  console.log(subscribedTo);
 
   return (
     <div>

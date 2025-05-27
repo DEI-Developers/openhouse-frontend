@@ -24,7 +24,6 @@ const SelectFilter = ({
   };
 
   useEffect(() => {
-    console.log('setDefaultValue', setDefaultValue);
     if (setDefaultValue) {
       setValue(setDefaultValue);
     }

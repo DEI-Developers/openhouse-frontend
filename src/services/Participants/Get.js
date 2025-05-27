@@ -20,9 +20,11 @@ const getParticipants = async (
   const response = await apiInstance.get(`/participants?${queryParams}`);
 
   return {
-    rows: response.data.data.map((event) => ({
-      ...event,
-      id: event._id,
+    rows: response.data.data.map((participant) => ({
+      ...participant,
+      networks: {value: participant.networks, label: participant.networks},
+      networksLabel: participant.networks,
+      id: participant._id,
     })),
     nRows: response.data.nItems,
     nPages: response.data.nPages,

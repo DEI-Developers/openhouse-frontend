@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
-import {useParams} from 'react-router-dom';
 import {yupResolver} from '@hookform/resolvers/yup';
+import {useNavigate, useParams} from 'react-router-dom';
 import passwordReset from '@services/Auth/passwordReset';
 import CustomButton from '@components/UI/Form/CustomButton';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
@@ -11,6 +11,7 @@ import CustomInputPassword from '@components/UI/Form/CustomInputPassword';
 
 const ResetPasswordForm = () => {
   const {token} = useParams();
+  const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ const ResetPasswordForm = () => {
       .then((response) => {
         if (response.success) {
           setSuccess(true);
+          navigate('/iniciar-sesion');
         } else {
           setError(true);
         }

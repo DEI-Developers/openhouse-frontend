@@ -45,10 +45,6 @@ const CustomTable = ({
     }
   }, [data]);
 
-  useEffect(() => {
-    console.log('filters', filters);
-  }, [filters]);
-
   return (
     <div className="my-4">
       {CustomFilters && (

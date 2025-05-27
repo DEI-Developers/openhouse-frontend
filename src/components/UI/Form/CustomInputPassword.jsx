@@ -8,13 +8,15 @@ const CustomInputPassword = ({
   errors,
   register,
   isSubmitting,
+  containerClassName = '',
+  ...props
 }) => {
   const [passwordIsHidden, setPasswordIsHidden] = useState(true);
 
   const toogleHiddenPassword = () => setPasswordIsHidden((show) => !show);
 
   return (
-    <div className="relative">
+    <div className={`relative ${containerClassName}`}>
       <CustomInput
         type={passwordIsHidden ? 'password' : 'text'}
         name={name}
@@ -23,6 +25,7 @@ const CustomInputPassword = ({
         disabled={isSubmitting}
         register={register}
         placeholder="********"
+        {...props}
       />
       <button
         type="button"

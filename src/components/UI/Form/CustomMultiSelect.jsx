@@ -16,6 +16,7 @@ const CustomMultiSelect = ({
   isClearable = false,
   isSearchable = false,
   closeMenuOnSelect = false,
+  defaultValue = isMulti ? [] : null,
   placeholder = 'Elige una o varias opciones...',
 }) => {
   const animatedComponents = makeAnimated();
@@ -37,7 +38,7 @@ const CustomMultiSelect = ({
         <Controller
           name={name}
           control={control}
-          defaultValue={isMulti ? [] : null}
+          defaultValue={defaultValue}
           render={({field}) => (
             <Select
               {...field}
@@ -48,6 +49,7 @@ const CustomMultiSelect = ({
               isClearable={isClearable}
               placeholder={placeholder}
               isSearchable={isSearchable}
+              defaultValue={defaultValue}
               components={animatedComponents}
               closeMenuOnSelect={closeMenuOnSelect}
               filterOption={createFilter({ignoreAccents: false})}

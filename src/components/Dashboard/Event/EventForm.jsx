@@ -137,7 +137,7 @@ const schema = yup.object().shape({
   name: yup
     .string()
     .required('Campo obligatorio.')
-    .max(255, 'Máximo 255 caracteres.'),
+    .max(24, 'Máximo 24 caracteres.'),
   date: yup.string().required('Campo obligatorio.'),
   capacity: yup.string().required('Campo obligatorio.'),
 });

@@ -4,6 +4,7 @@ import {empty} from '@utils/helpers';
 import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useQuery} from '@tanstack/react-query';
+import {isValidPhoneNumber} from '@utils/helpers';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
@@ -114,7 +115,7 @@ const ParticipationForm = ({
   };
 
   const onSearchByPhoneNumber = async (phoneNumber) => {
-    if (empty(phoneNumber)) {
+    if (!isValidPhoneNumber(phoneNumber)) {
       return;
     }
 
@@ -147,7 +148,7 @@ const ParticipationForm = ({
                 label="¿Cuál es tu número de celular?"
                 error={errors.phoneNumber}
                 containerClassName="flex-1"
-                onBlur={(e) => onSearchByPhoneNumber(e.target.value)}
+                onCustomBlur={(value) => onSearchByPhoneNumber(value)}
               />
               <div className="hidden lg:flex lg:flex-1" />
             </div>
@@ -322,7 +323,13 @@ const schema = yup.object().shape({
     .string()
     .email('Debe ser un correo electrónico válido')
     .required('Campo obligatorio.'),
-  phoneNumber: yup.string().required('Campo obligatorio.'),
+  phoneNumber: yup
+    .string()
+    .required('Campo obligatorio')
+    .test('is-phone_number', 'Teléfono invalido', (value) =>
+      isValidPhoneNumber(value)
+    ),
+
   name: yup.string().required('Campo obligatorio.'),
   institute: yup.string().required('Campo obligatorio.'),
   networks: yup.object().required('Campo obligatorio.'),

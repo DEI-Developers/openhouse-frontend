@@ -14,8 +14,6 @@ const getParticipantByPhoneNumber = async (phoneNumber) => {
       throw new Error();
     }
 
-    console.log(data);
-
     return {
       participant: {
         id: data?.data._id,

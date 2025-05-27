@@ -7,6 +7,7 @@ import CustomInput from '@components/UI/Form/CustomInput';
 import CustomToggle from '@components/UI/Form/CustomToggle';
 import SubmitButton from '@components/UI/Form/SubmitButton';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
+import CustomInputPassword from '@components/UI/Form/CustomInputPassword';
 
 const UserForm = ({
   initialData,
@@ -128,14 +129,13 @@ const UserForm = ({
             error={errors.email}
             containerClassName="w-full lg:w-1/2"
           />
-          <CustomInput
+
+          <CustomInputPassword
             required={empty(initialData.id)}
-            type="text"
-            name="password"
             label="Contraseña"
-            disabled={isSubmitting}
+            errors={errors}
             register={register}
-            error={errors.password}
+            isSubmitting={isSubmitting}
             containerClassName="w-full lg:w-1/2"
           />
         </div>
