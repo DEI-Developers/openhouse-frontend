@@ -116,6 +116,11 @@ const ParticipationForm = ({
 
   const onSearchByPhoneNumber = async (phoneNumber) => {
     if (!isValidPhoneNumber(phoneNumber)) {
+      reset({
+        ...initialFormData,
+        phoneNumber: phoneNumber,
+      });
+      setSubscribedTo([]);
       return;
     }
 
