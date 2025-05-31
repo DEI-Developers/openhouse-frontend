@@ -13,7 +13,7 @@ import CustomModal from '@components/UI/Modal/CustomModal';
 import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import ParticipationForm from '@components/Home/ParticipationForm';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 
@@ -36,17 +36,18 @@ const Participants = () => {
       id: data.id,
       name: data.name,
       email: data.email,
+      confirmEmail: data.confirmEmail,
       phoneNumber: data.phoneNumber,
       institute: data.institute,
       networks: data.networks,
       medio: data.medio,
-    
+
       subscribedTo: data.subscribedTo?.map((e) => e.event),
       faculty: '',
       career: null,
-      tourMethod: 'App especial',
-      withParent: '1',
-    }
+      parentStudiedAtUCA: null,
+      withParent: '0',
+    };
 
     setCurrentParticipant(updatedData);
     onToggleBox();
@@ -54,10 +55,14 @@ const Participants = () => {
 
   const onCloseForm = () => {
     setCurrentParticipant(initialFormData);
-    onClose()
-  }
+    onClose();
+  };
 
-  const customActions = getCustomActions(onEdit, setParticipantIdToDelete, permissions.includes(Permissions.MANAGE_PARTICIPANTS));
+  const customActions = getCustomActions(
+    onEdit,
+    setParticipantIdToDelete,
+    permissions.includes(Permissions.MANAGE_PARTICIPANTS)
+  );
 
   return (
     <div>
@@ -106,10 +111,13 @@ const Participants = () => {
             onCloseForm={onCloseForm}
             submitButtonLabel="Guardar"
             initialData={currentData}
-            titleClassName='text-xl font-bold leading-6 text-primary mb-4'
-            titleLabel={!empty(currentData.id) ? 'Editar participante' : 'Agregar participante'}
+            titleClassName="text-xl font-bold leading-6 text-primary mb-4"
+            titleLabel={
+              !empty(currentData.id)
+                ? 'Editar participante'
+                : 'Agregar participante'
+            }
             submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-sm hover:bg-secondary sm:ml-3 sm:w-auto"
-            
           />
         </CustomModal>
       )}
@@ -121,6 +129,7 @@ const initialFormData = {
   id: null,
   name: '',
   email: '',
+  confirmEmail: '',
   phoneNumber: '',
   institute: '',
   networks: '',
@@ -129,8 +138,8 @@ const initialFormData = {
   subscribedTo: [],
   faculty: '',
   career: null,
-  tourMethod: 'App especial',
-  withParent: '1',
+  parentStudiedAtUCA: null,
+  withParent: '0',
 };
 
 const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
@@ -152,7 +161,7 @@ const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
       onClick: (data) => onDelete(data.id),
     },
   ];
-}
+};
 
 const columns = [
   {
@@ -206,7 +215,10 @@ const FacultyCareerRow = ({data}) => {
     <div>
       {subscribedTo.map((item) => (
         <div key={item.event} className="mb-2">
-          <p className="font-medium text-gray-600">{item.faculty?.name ?? 'N/A'}</p>
+          <p className="font-medium text-gray-600">
+            {item.faculty?.name ?? 'N/A'}{' '}
+            {new Date(item.event?.date).toLocaleDateString()}
+          </p>
           {!empty(item.career) && (
             <ul className="list-disc list-inside">
               <li>{item.career?.name}</li>
@@ -215,7 +227,6 @@ const FacultyCareerRow = ({data}) => {
         </div>
       ))}
     </div>
-
   );
 };
 

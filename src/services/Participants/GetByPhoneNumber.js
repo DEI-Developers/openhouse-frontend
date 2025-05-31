@@ -19,6 +19,7 @@ const getParticipantByPhoneNumber = async (phoneNumber) => {
         id: data?.data._id,
         name: data?.data.name,
         email: data?.data.email,
+        confirmEmail: data?.data.email,
         phoneNumber: '+' + data?.data.phoneNumber,
         institute: data?.data.institute,
         networks: {

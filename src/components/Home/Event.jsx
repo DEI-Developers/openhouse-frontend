@@ -1,5 +1,16 @@
 const Event = ({event, isSubscribed, currentCareer, onClick}) => {
-  const disableEvent = event.isFull || !event?.careers.includes(currentCareer);
+  const carrerNotFound = !event?.careers.includes(currentCareer);
+  const disableEvent = event.isFull || carrerNotFound;
+  console.log(
+    'DisableEvent: ',
+    disableEvent,
+    'carrerNotFound: ',
+    carrerNotFound,
+    'EventCarrers:',
+    event?.careers,
+    'currentCareer:',
+    currentCareer
+  );
 
   const onVerifyDisponibility = () => {
     if (event.isFull || !event?.careers.includes(currentCareer)) {
@@ -19,12 +30,18 @@ const Event = ({event, isSubscribed, currentCareer, onClick}) => {
           checked={isSubscribed}
         />
       </div>
-      <div className="">
+      <div>
         <h1 className="font-bold italic text-lg text-primary h-12">
           {event.name}
         </h1>
         {disableEvent ? (
-          <p className="text-red-600 italic pb-1 pt-2">Evento lleno</p>
+          carrerNotFound ? (
+            <p className="text-red-600 italic pb-1 text-wrap mr-10">
+              El cupo para esta carrera se ha agotado. Por favor, escogé otra.
+            </p>
+          ) : (
+            <p className="text-red-600 italic pb-1 pt-2">Evento lleno</p>
+          )
         ) : (
           <p className="text-green-600 italic pb-1 pt-2">Cupos disponibles</p>
         )}

@@ -92,6 +92,8 @@ const ParticipationForm = ({
   const onSubmit = async (data) => {
     setErrorMessage('');
 
+    console.log(data);
+
     const updatedData = {
       ...data,
       phoneNumber: data.phoneNumber?.replaceAll('+', ''),
@@ -118,6 +120,7 @@ const ParticipationForm = ({
     if (!isValidPhoneNumber(phoneNumber)) {
       reset({
         ...initialFormData,
+        confirmEmail: initialData.email,
         phoneNumber: phoneNumber,
       });
       setSubscribedTo([]);
@@ -169,6 +172,8 @@ const ParticipationForm = ({
                 containerClassName="flex-1"
                 placeholder=""
               />
+            </div>
+            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
                 type="text"
                 name="email"
@@ -178,6 +183,17 @@ const ParticipationForm = ({
                 disabled={isSubmitting}
                 register={register}
                 containerClassName="flex-1"
+                placeholder="00084417@mail.com"
+              />
+              <CustomInput
+                type="text"
+                name="confirmEmail"
+                required
+                label="¿Podrías confirmar tu correo electrónico?"
+                error={errors.confirmEmail}
+                disabled={isSubmitting}
+                register={register}
+                containerClassName="flex-1 "
                 placeholder="00084417@mail.com"
               />
             </div>
@@ -245,16 +261,17 @@ const ParticipationForm = ({
               <CustomRadioGroup
                 name="withParent"
                 register={register}
-                options={withParentOptions}
+                options={withParentAndparentStudiedAtUCAOptions}
                 label="¿Asistirás al Vive la UCA con tu padre, madre o encargado? (Máximo UNO de ellos.)"
               />
-              <CustomRadioGroup
-                name="tourMethod"
-                register={register}
-                options={tourMethodOptions}
-                containerClassName="md:pl-2"
-                label="¿Para el recorrido preferirías hacerlo por tu cuenta o sumarte a los recorridos guiados?"
-              />
+              {watch('withParent') === '1' && (
+                <CustomRadioGroup
+                  name="parentStudiedAtUCA"
+                  register={register}
+                  options={withParentAndparentStudiedAtUCAOptions}
+                  label="¿La persona (padre, madre o encargado) que te acompañará se graduó de la UCA? "
+                />
+              )}
             </div>
           </div>
 
@@ -311,6 +328,7 @@ const initialFormData = {
   id: null,
   name: '',
   email: '',
+  confirmEmail: '',
   phoneNumber: '',
   institute: '',
   networks: '',
@@ -319,8 +337,8 @@ const initialFormData = {
   subscribedTo: [],
   faculty: '',
   career: null,
-  tourMethod: 'App especial',
-  withParent: '1',
+  parentStudiedAtUCA: null,
+  withParent: '0',
 };
 
 const schema = yup.object().shape({
@@ -328,6 +346,14 @@ const schema = yup.object().shape({
     .string()
     .email('Debe ser un correo electrónico válido')
     .required('Campo obligatorio.'),
+  confirmEmail: yup
+    .string()
+    .email('Debe ser un correo electrónico válido')
+    .required('Campo obligatorio.')
+    .oneOf(
+      [yup.ref('email'), null],
+      'Los correos electrónicos deben coincidir'
+    ),
   phoneNumber: yup
     .string()
     .required('Campo obligatorio')
@@ -342,22 +368,21 @@ const schema = yup.object().shape({
 
   faculty: yup.string().required('Campo obligatorio.'),
   career: yup.object().required('Campo obligatorio.'),
-  tourMethod: yup.string().required('Campo obligatorio.'),
   withParent: yup.boolean().required('Campo obligatorio.'),
 });
 
-const withParentOptions = [
+const withParentAndparentStudiedAtUCAOptions = [
   {value: 1, label: 'Sí'},
   {value: 0, label: 'No'},
 ];
 
-const tourMethodOptions = [
-  {
-    value: 'App especial',
-    label: 'Por mi cuenta, descargando una App especial',
-  },
-  {value: 'Recorrido guiado', label: 'Recorrido guiado'},
-];
+// const tourMethodOptions = [
+//   {
+//     value: 'App especial',
+//     label: 'Por mi cuenta, descargando una App especial',
+//   },
+//   {value: 'Recorrido guiado', label: 'Recorrido guiado'},
+// ];
 
 const networksOptions = [
   {value: 'Charla UCA', label: 'Charla UCA'},

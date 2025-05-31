@@ -24,6 +24,8 @@ const CustomInput = ({
         className={`${inputClassName} ${error ? 'border-red-500' : ''} disabled:cursor-not-allowed placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
         {...(register && register(name, {required}))}
         {...rest}
+        onCopy={(e) => e.preventDefault()}
+        onPaste={(e) => e.preventDefault()}
       />
     </div>
     {error && <span className="text-red-500 text-xs">{error.message}</span>}

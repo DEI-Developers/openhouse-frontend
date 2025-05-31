@@ -8,6 +8,9 @@ export default defineConfig(({mode}) => {
 
   return {
     base: env.VITE_BASE_PATH ?? '/',
+    server: {
+      allowedHosts: true,
+    },
     plugins: [react()],
     resolve: {
       alias: {
