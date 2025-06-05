@@ -92,8 +92,6 @@ const ParticipationForm = ({
   const onSubmit = async (data) => {
     setErrorMessage('');
 
-    console.log(data);
-
     const updatedData = {
       ...data,
       phoneNumber: data.phoneNumber?.replaceAll('+', ''),
@@ -264,7 +262,7 @@ const ParticipationForm = ({
                 options={withParentAndparentStudiedAtUCAOptions}
                 label="¿Asistirás al Vive la UCA con tu padre, madre o encargado? (Máximo UNO de ellos.)"
               />
-              {watch('withParent') === '1' && (
+              {watch('withParent') === 'true' && (
                 <CustomRadioGroup
                   name="parentStudiedAtUCA"
                   register={register}
@@ -372,8 +370,8 @@ const schema = yup.object().shape({
 });
 
 const withParentAndparentStudiedAtUCAOptions = [
-  {value: 1, label: 'Sí'},
-  {value: 0, label: 'No'},
+  {value: true, label: 'Sí'},
+  {value: false, label: 'No'},
 ];
 
 // const tourMethodOptions = [

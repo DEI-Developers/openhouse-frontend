@@ -1,16 +1,6 @@
 const Event = ({event, isSubscribed, currentCareer, onClick}) => {
   const carrerNotFound = !event?.careers.includes(currentCareer);
   const disableEvent = event.isFull || carrerNotFound;
-  console.log(
-    'DisableEvent: ',
-    disableEvent,
-    'carrerNotFound: ',
-    carrerNotFound,
-    'EventCarrers:',
-    event?.careers,
-    'currentCareer:',
-    currentCareer
-  );
 
   const onVerifyDisponibility = () => {
     if (event.isFull || !event?.careers.includes(currentCareer)) {
