@@ -169,6 +169,8 @@ const ParticipationForm = ({
                 register={register}
                 containerClassName="flex-1"
                 placeholder=""
+                noCopy
+                noPaste
               />
             </div>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
@@ -182,6 +184,8 @@ const ParticipationForm = ({
                 register={register}
                 containerClassName="flex-1"
                 placeholder="00084417@mail.com"
+                noCopy
+                noPaste
               />
               <CustomInput
                 type="text"
@@ -193,6 +197,8 @@ const ParticipationForm = ({
                 register={register}
                 containerClassName="flex-1 "
                 placeholder="00084417@mail.com"
+                noCopy
+                noPaste
               />
             </div>
           </div>
@@ -210,6 +216,8 @@ const ParticipationForm = ({
                 register={register}
                 containerClassName="flex-1"
                 placeholder=""
+                noCopy
+                noPaste
               />
 
               <CustomMultiSelect
