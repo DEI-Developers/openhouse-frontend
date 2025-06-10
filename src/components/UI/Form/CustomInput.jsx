@@ -6,8 +6,6 @@ const CustomInput = ({
   required = false,
   containerClassName = '',
   inputClassName = 'appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm',
-  noCopy = false,
-  noPaste = false,
   ...rest
 }) => (
   <div className={containerClassName}>
@@ -26,16 +24,8 @@ const CustomInput = ({
         className={`${inputClassName} ${error ? 'border-red-500' : ''} disabled:cursor-not-allowed placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
         {...(register && register(name, {required}))}
         {...rest}
-        onCopy={(e) => {
-          if (noCopy) {
-            e.preventDefault();
-          }
-        }}
-        onPaste={(e) => {
-          if (noPaste) {
-            e.preventDefault();
-          }
-        }}
+        onCopy={(e) => e.preventDefault()}
+        onPaste={(e) => e.preventDefault()}
       />
     </div>
     {error && <span className="text-red-500 text-xs">{error.message}</span>}
