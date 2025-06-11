@@ -36,7 +36,7 @@ const Participants = () => {
       id: data.id,
       name: data.name,
       email: data.email,
-      confirmEmail: data.confirmEmail,
+      confirmEmail: data.email,
       phoneNumber: data.phoneNumber,
       institute: data.institute,
       networks: data.networks,
