@@ -42,7 +42,12 @@ const Participants = () => {
       networks: data.networks,
       medio: data.medio,
 
-      subscribedTo: data.subscribedTo?.map((e) => e.event),
+      subscribedTo: data.subscribedTo?.map((e) => {
+        if (typeof e.event === 'string') {
+          return e.event;
+        }
+        return e.event._id;
+      }),
       faculty: '',
       career: null,
       parentStudiedAtUCA: null,

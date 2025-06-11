@@ -32,6 +32,7 @@ const ParticipationForm = ({
     queryFn: getPublicCatalogs,
     refetchOnWindowFocus: false,
   });
+  console.log(initialData)
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
   );
@@ -105,6 +106,7 @@ const ParticipationForm = ({
   };
 
   const onEnrollment = (eventId) => {
+    console.log(eventId);
     setSubscribedTo((prev) => {
       if (prev.includes(eventId)) {
         return prev.filter((id) => id !== eventId);
@@ -129,7 +131,8 @@ const ParticipationForm = ({
 
     if (!empty(data.participant)) {
       reset(data.participant);
-      setSubscribedTo(data.subscribedTo);
+      console.log(data.subscribedTo);
+      setSubscribedTo(data.subscribedTo.map((e) => e.event));
     }
   };
 
