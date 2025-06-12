@@ -31,6 +31,9 @@ const SuccessModal = ({isOpen, onClose, code}) => {
           tu participación.
         </p>
         <QRCodeCanvas
+          marginSize={1}
+          bgColor="#fff"
+          level="H"
           ref={qrRef}
           value={code}
           size={256}
