@@ -8,7 +8,7 @@ const Home = () => {
     <div className="">
       <CustomHeader title="Formulario de Inscripción" />
       <img
-        src={`${BASE_PATH_URL}/uca-header.jpg`}
+        src={`${BASE_PATH_URL}/uca-header.webp`}
         className="w-full"
         alt="UCA"
       />
