@@ -46,7 +46,7 @@ const Participants = () => {
         if (typeof e.event === 'string') {
           return e.event;
         }
-        return e.event._id;
+        return e.event?._id;
       }),
       faculty: '',
       career: null,

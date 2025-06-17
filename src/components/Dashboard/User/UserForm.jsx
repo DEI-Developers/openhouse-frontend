@@ -46,6 +46,8 @@ const UserForm = ({
   };
 
   useEffect(() => {
+    if (empty(currentFaculty)) return;
+
     if (empty(currentFaculty?.careers)) {
       const updatedFaculty = faculties?.find(
         (f) => f.value === currentFaculty?.value

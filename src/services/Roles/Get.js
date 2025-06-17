@@ -7,7 +7,7 @@ const getRoles = async (pageNumber, pageSize, searchedWord, filters = null) => {
     pageSize,
     sortColumn: 'createdAt',
     sortOrder: 'desc',
-    search: !empty(searchedWord) ? searchedWord : undefined,
+    searchWord: !empty(searchedWord) ? searchedWord : undefined,
   };
 
   const queryParams = parseUrlParams(params, []);

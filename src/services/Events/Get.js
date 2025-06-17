@@ -7,7 +7,7 @@ const getEvents = async (pageNumber, pageSize, searchedWord, filters = {}) => {
     pageSize,
     sortColumn: 'createdAt',
     sortOrder: 'desc',
-    search: !empty(searchedWord) ? searchedWord : undefined,
+    searchWord: !empty(searchedWord) ? searchedWord : undefined,
     ...filters,
   };
 
