@@ -222,7 +222,12 @@ const FacultyCareerRow = ({data}) => {
         <div key={item.event} className="mb-2">
           <p className="font-medium text-gray-600">
             {item.faculty?.name ?? 'N/A'}{' '}
-            {new Date(item.event?.date).toLocaleDateString()}
+            {new Date(item.event?.date).toLocaleDateString('es-SV', {
+              timeZone: 'UTC',
+              day: 'numeric',
+              month: 'numeric',
+              year: 'numeric',
+            })}
           </p>
           {!empty(item.career) && (
             <ul className="list-disc list-inside">
