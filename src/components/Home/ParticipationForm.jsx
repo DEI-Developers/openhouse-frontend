@@ -247,7 +247,11 @@ const ParticipationForm = ({
               <CustomRadioGroup
                 name="faculty"
                 register={register}
-                options={data?.faculties ?? []}
+                options={
+                  data?.faculties?.sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                  ) ?? []
+                }
                 label="¿Cuál es tu área de interés?"
                 containerClassName="flex-1"
               />
@@ -263,7 +267,9 @@ const ParticipationForm = ({
                 error={errors.career}
                 containerClassName="flex-1"
                 label="Carrera"
-                options={careers}
+                options={
+                  careers?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
+                }
               />
             </div>
           </div>
