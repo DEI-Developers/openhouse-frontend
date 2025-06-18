@@ -238,7 +238,7 @@ const ParticipationForm = ({
                 disabled={isSubmitting}
                 error={errors.networks}
                 containerClassName="flex-1"
-                label="¿Por que medio te enteraste del Vive la UCA?"
+                label="¿Por qué medio te enteraste del Vive la UCA?"
                 options={networksOptions}
               />
             </div>
