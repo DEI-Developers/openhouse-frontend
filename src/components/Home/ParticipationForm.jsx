@@ -32,7 +32,6 @@ const ParticipationForm = ({
     queryFn: getPublicCatalogs,
     refetchOnWindowFocus: false,
   });
-  console.log(initialData)
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
   );
@@ -106,9 +105,8 @@ const ParticipationForm = ({
   };
 
   const onEnrollment = (eventId) => {
-    console.log(eventId);
     setSubscribedTo((prev) => {
-      if (prev.includes(eventId)) {
+      if (prev?.includes(eventId)) {
         return prev.filter((id) => id !== eventId);
       }
 
@@ -131,8 +129,14 @@ const ParticipationForm = ({
 
     if (!empty(data.participant)) {
       reset(data.participant);
-      console.log(data.subscribedTo);
-      setSubscribedTo(data.subscribedTo.map((e) => e.event));
+      setSubscribedTo(
+        data.subscribedTo.map((e) => {
+          if (typeof e === 'object') {
+            return e.event;
+          }
+          return e;
+        })
+      );
     }
   };
 
@@ -148,7 +152,7 @@ const ParticipationForm = ({
           className="w-full space-y-4"
         >
           <div className="mb-6">
-            <p className="mb-3 italic font-bold">¿Quién eres?</p>
+            <p className="mb-3 italic font-bold">¿Quién sos?</p>
             <div className="w-full flex space-x-4 mb-4">
               <CustomPhoneNumberInput
                 name="phoneNumber"
@@ -207,7 +211,7 @@ const ParticipationForm = ({
           </div>
 
           <div className="mb-6">
-            <p className="mb-3 italic font-bold">Queremos saber mas de ti</p>
+            <p className="mb-3 italic font-bold">Queremos saber más de vos</p>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
                 type="text"
