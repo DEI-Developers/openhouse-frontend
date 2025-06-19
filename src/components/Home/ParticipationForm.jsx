@@ -63,6 +63,10 @@ const ParticipationForm = ({
   const currentCareer = watch('career')?.value ?? null;
   const {isSubmitting, errors} = formState;
 
+  useEffect(() => {
+    setSubscribedTo([]);
+  }, [currentFaculty]);
+
   const careers = useMemo(() => {
     return (
       data?.faculties?.find((f) => f.value === currentFaculty)?.careers ?? []
