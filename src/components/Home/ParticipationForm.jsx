@@ -64,7 +64,7 @@ const ParticipationForm = ({
   const {isSubmitting, errors} = formState;
 
   useEffect(() => {
-    setSubscribedTo([]);
+    setSubscribedTo(initialData.subscribedTo);
   }, [currentFaculty]);
 
   const careers = useMemo(() => {
@@ -93,7 +93,19 @@ const ParticipationForm = ({
     }
   }, [currentFaculty]);
 
+  useEffect(() => {
+    if (subscribedTo?.length > 0 || empty(currentData.faculty)) {
+      setErrorMessage('');
+      return;
+    }
+    setErrorMessage('Debes seleccionar al menos 1 evento');
+  }, [subscribedTo]);
+
   const onSubmit = async (data) => {
+    if (subscribedTo?.length === 0) {
+      setErrorMessage('Debes seleccionar al menos 1 evento');
+      return;
+    }
     setErrorMessage('');
 
     const updatedData = {
@@ -133,14 +145,14 @@ const ParticipationForm = ({
 
     if (!empty(data.participant)) {
       reset(data.participant);
-      setSubscribedTo(
-        data.subscribedTo.map((e) => {
-          if (typeof e === 'object') {
-            return e.event;
-          }
-          return e;
-        })
-      );
+      const suscriptions = data.subscribedTo.map((e) => {
+        if (typeof e === 'object') {
+          return e.event;
+        }
+        return e;
+      });
+      setSubscribedTo(suscriptions);
+      initialData.subscribedTo = suscriptions;
     }
   };
 
@@ -304,11 +316,12 @@ const ParticipationForm = ({
             currentCareer={currentCareer}
             onEnrollment={onEnrollment}
           />
-
           {!empty(errorMessage) && (
             <CustomErrorAlert
               message={errorMessage}
-              onClose={() => setErrorMessage('')}
+              onClose={() => {
+                setErrorMessage('');
+              }}
             />
           )}
 
@@ -388,7 +401,6 @@ const schema = yup.object().shape({
   institute: yup.string().required('Campo obligatorio.'),
   networks: yup.object().required('Campo obligatorio.'),
   medio: yup.string().required('Campo obligatorio.'),
-
   faculty: yup.string().required('Campo obligatorio.'),
   career: yup.object().required('Campo obligatorio.'),
   withParent: yup.boolean().required('Campo obligatorio.'),
