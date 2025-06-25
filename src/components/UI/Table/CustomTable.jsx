@@ -20,6 +20,7 @@ const CustomTable = ({
   customHeaderClassName = 'text-left text-sm text-gray-900',
   customContainerClassName = '',
   CustomFilters = null,
+  permissions = [],
 }) => {
   const [page, setPage] = useState(1);
   const [nRows, setNRows] = useState(0);
@@ -27,15 +28,13 @@ const CustomTable = ({
   const [searchedWord, setSearchedWord] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  const {
-    isLoading,
-    isError,
-    // error,
-    data,
-    refetch,
-  } = useQuery({
+  const {isLoading, isError, error, data, refetch} = useQuery({
     queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
-    queryFn: () => fetchData(page, rowsPerPage, searchedWord, filters),
+    queryFn: () => {
+      console.log('refetch');
+      console.log(page, rowsPerPage, searchedWord, filters);
+      return fetchData(page, rowsPerPage, searchedWord, filters, permissions);
+    },
     refetchOnWindowFocus: false,
   });
 

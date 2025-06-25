@@ -194,6 +194,7 @@ const Participants = () => {
         customActions={customActions}
         fetchData={getParticipants}
         CustomFilters={ParticipantsFilters}
+        permissions={permissions}
       />
 
       <DeleteDialog
