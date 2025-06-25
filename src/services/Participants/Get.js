@@ -3,15 +3,13 @@ import apiInstance from '@utils/instances/ApiInstance';
 import Permissions from '@utils/Permissions';
 
 const getParticipants = async (
+  permissions,
   pageNumber,
   pageSize,
   searchedWord,
-  filters = {},
-  permissions = []
+  filters = {}
 ) => {
-  console.log(permissions);
   const isAdmin = permissions.includes(Permissions.MANAGE_PARTICIPANTS);
-  console.log(isAdmin);
   const params = {
     pageNumber,
     pageSize,
@@ -27,7 +25,6 @@ const getParticipants = async (
   return {
     rows: response.data.data.map((participant) => {
       const {email, phoneNumber, ...restParticipant} = participant;
-      console.log(participant);
       return {
         ...(isAdmin ? participant : restParticipant),
         networks: {value: participant.networks, label: participant.networks},

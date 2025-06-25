@@ -73,17 +73,15 @@ const Participants = () => {
 
   const handleDownloadExcel = async () => {
     try {
-      const response = await getParticipants();
+      const response = await getParticipants(permissions);
       const participants = response.rows || [];
-      console.log(participants.length);
 
       const participantsSheet = [];
-      const facultySheets = {}; // { facultad: [inscripciones...] }
+      const eventSheets = {}; // { "Nombre evento - fecha": [inscripciones...] }
 
       participants.forEach((p) => {
         // Agregar participante a hoja general
         participantsSheet.push({
-          // ID: p._id,
           Nombre: p.name,
           Email: p.email,
           Teléfono: formatPhoneNumber(p.phoneNumber),
@@ -93,29 +91,38 @@ const Participants = () => {
           'Registrado en': new Date(p.createdAt).toLocaleString('es-SV'),
         });
 
-        // Categorizar inscripciones por facultad
+        // Categorizar inscripciones por evento
         if (Array.isArray(p.subscribedTo)) {
           p.subscribedTo.forEach((sub) => {
-            const facultad = sub.faculty?.name || 'Sin Facultad';
+            const eventName = sub.event?.name || 'Evento desconocido';
+            const eventDate = new Date(sub.event?.date).toLocaleDateString(
+              'es-SV',
+              {
+                timeZone: 'UTC',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              }
+            );
+
+            // Nombre seguro para la hoja de Excel (máx. 31 caracteres)
+            const rawSheetName = `${eventDate} - ${eventName}`;
+            // Reemplazar caracteres prohibidos en nombres de hoja de Excel
+            const safeSheetName = rawSheetName
+              .replace(/[:\\\/\?\*\[\]]/g, '-')
+              .slice(0, 31);
 
             const row = {
-              // ParticipanteID: p._id,
               Nombre: p.name,
               Email: p.email,
               Teléfono: formatPhoneNumber(p.phoneNumber),
               Instituto: p.institute,
-              Facultad: facultad,
+              Facultad: sub.faculty?.name ?? 'N/A',
               Carrera: sub.career?.name ?? 'N/A',
-              Evento: sub.event?.name ?? 'N/A',
-              FechaEvento: new Date(sub.event?.date).toLocaleDateString(
-                'es-SV',
-                {
-                  timeZone: 'UTC',
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                }
-              ),
+              Evento: eventName,
+              medio: p.medio,
+              Redes: p.networksLabel,
+              FechaEvento: eventDate,
               Asistió: sub.attended ? 'Sí' : 'No',
               'Acompañado por familiar': sub.withParent ? 'Sí' : 'No',
               'Familiar estudió en UCA': sub.parentStudiedAtUCA ? 'Sí' : 'No',
@@ -124,10 +131,10 @@ const Participants = () => {
               ),
             };
 
-            if (!facultySheets[facultad]) {
-              facultySheets[facultad] = [];
+            if (!eventSheets[safeSheetName]) {
+              eventSheets[safeSheetName] = [];
             }
-            facultySheets[facultad].push(row);
+            eventSheets[safeSheetName].push(row);
           });
         }
       });
@@ -135,16 +142,14 @@ const Participants = () => {
       // Crear el archivo Excel
       const wb = XLSX.utils.book_new();
 
-      // Hoja de participantes
+      // Hoja general
       const wsParticipants = XLSX.utils.json_to_sheet(participantsSheet);
       XLSX.utils.book_append_sheet(wb, wsParticipants, 'Participantes');
 
-      // Hojas por facultad
-      Object.entries(facultySheets).forEach(([facultad, rows]) => {
+      // Hojas por evento
+      Object.entries(eventSheets).forEach(([sheetName, rows]) => {
         const ws = XLSX.utils.json_to_sheet(rows);
-        // Limitar nombre de la hoja a 31 caracteres (límite de Excel)
-        const safeSheetName = facultad.slice(0, 31);
-        XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
       });
 
       const excelBuffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
@@ -152,7 +157,7 @@ const Participants = () => {
         type: 'application/octet-stream',
       });
 
-      saveAs(blob, 'participantes-por-facultad.xlsx');
+      saveAs(blob, 'participantes-por-evento.xlsx');
     } catch (error) {
       console.error('Error exportando Excel:', error);
     }
