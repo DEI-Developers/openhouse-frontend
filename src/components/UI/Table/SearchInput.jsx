@@ -17,15 +17,15 @@ const SearchInput = ({onCustomAction, customContainerClassName}) => {
   };
 
   return (
-    <div className={`flex rounded-md shadow-sm ${customContainerClassName}`}>
-      <div className="relative flex flex-grow items-stretch focus-within:z-10">
+    <div className={`flex rounded-md shadow-xs ${customContainerClassName}`}>
+      <div className="relative flex grow items-stretch focus-within:z-10">
         <input
           type="text"
           value={value}
           placeholder="Buscar..."
           onKeyDown={handleKeyDown}
           onChange={(e) => setValue(e.target.value)}
-          className="block w-full text-sm rounded-md border-0 py-1.5 px-4 bg-background text-primary ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-primary"
+          className="block w-full text-sm rounded-md border-0 py-1.5 px-4 bg-background text-primary  ring-inset ring-gray-300 placeholder:text-gray-400 focus: focus:ring-inset focus:ring-primary"
         />
         {!empty(value) && (
           <button

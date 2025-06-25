@@ -7,7 +7,7 @@ const MobileNavbar = ({customMenu, onOpenMenu}) => {
   const currentMenuName = getCurrentMenuName(pathname, customMenu);
 
   return (
-    <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+    <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-xs sm:px-6 lg:hidden">
       <button
         type="button"
         onClick={onOpenMenu}

@@ -16,7 +16,7 @@ const SelectFilter = ({
 }) => {
   const [value, setValue] = useState(null);
   const animatedComponents = makeAnimated();
-  const inputClassName = `appearance-none block w-full rounded-md shadow-sm text-sm`;
+  const inputClassName = `appearance-none block w-full rounded-md shadow-xs text-sm`;
 
   const onChangeValue = (selectedOption) => {
     setValue(selectedOption);

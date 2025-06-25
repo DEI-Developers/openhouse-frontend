@@ -47,7 +47,7 @@ const Stadistics = () => {
         {data?.map((item) => (
           <div
             key={item.title}
-            className={`border shadow bg-white rounded-2xl p-6 ${item.customClassName}`}
+            className={`border shadow-sm bg-white rounded-2xl p-6 ${item.customClassName}`}
           >
             <h4 className="text-sm text-gray-500">{item.title}</h4>
             <p className="font-bold text-3xl">{item.total}</p>

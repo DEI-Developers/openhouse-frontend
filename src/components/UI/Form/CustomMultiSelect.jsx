@@ -21,7 +21,7 @@ const CustomMultiSelect = ({
 }) => {
   const animatedComponents = makeAnimated();
   const inputClassName =
-    'appearance-none block w-full rounded-md shadow-sm text-sm';
+    'appearance-none block w-full rounded-md shadow-xs text-sm';
 
   return (
     <div className={containerClassName}>

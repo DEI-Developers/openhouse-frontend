@@ -19,7 +19,7 @@ const CustomSuccessAlert = ({message, onClose}) => {
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+              className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-hidden focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
             >
               <span className="sr-only">Dismiss</span>
               <VscClose aria-hidden="true" className="size-5" />

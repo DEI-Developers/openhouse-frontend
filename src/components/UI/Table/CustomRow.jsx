@@ -47,7 +47,7 @@ const CustomRow = ({data, rowIdx, columns, customActions}) => {
                 <button
                   type="button"
                   onClick={() => action.onClick(data, rowIdx)}
-                  className={`flex justify-center items-center text-xs text-primary hover:text-secondary underline focus:outline-none font-medium px-1 my-2 md:my-0 ${verifyActionClassName(action, data)}`}
+                  className={`flex justify-center items-center text-xs text-primary hover:text-secondary underline focus:outline-hidden font-medium px-1 my-2 md:my-0 ${verifyActionClassName(action, data)}`}
                 >
                   {action.label}
                   {action.Icon && <action.Icon className="w-6 h-6" />}

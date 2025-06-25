@@ -122,7 +122,7 @@ const Participants = () => {
                 ? 'Editar participante'
                 : 'Agregar participante'
             }
-            submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-sm hover:bg-secondary sm:ml-3 sm:w-auto"
+            submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-secondary sm:ml-3 sm:w-auto"
           />
         </CustomModal>
       )}

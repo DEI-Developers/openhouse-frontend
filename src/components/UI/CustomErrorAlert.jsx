@@ -19,7 +19,7 @@ const CustomErrorAlert = ({message, onClose}) => {
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-green-50"
+              className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-hidden focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-green-50"
             >
               <span className="sr-only">Dismiss</span>
               <VscClose aria-hidden="true" className="size-5" />
