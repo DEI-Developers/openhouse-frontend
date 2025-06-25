@@ -22,7 +22,7 @@ const CustomRow = ({data, rowIdx, columns, customActions}) => {
         <td
           key={colIdx}
           className={`
-            px-3 py-4 text-sm
+            px-3 py-4 text-sm text-wrap
             ${colIdx === 0 ? 'font-medium text-gray-900' : 'text-gray-500'}
             ${getClassNameByField(columns, field)}
           `}

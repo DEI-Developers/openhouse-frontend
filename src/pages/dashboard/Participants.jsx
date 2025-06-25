@@ -169,7 +169,7 @@ const Participants = () => {
 
       <Breadcrumb pageName="Participantes" />
 
-      <div className="flex justify-between items-center mb-4 mt-1">
+      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
         <h1 className="text-primary text-3xl font-bold">Participantes</h1>
         {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
           <div className="flex gap-2">

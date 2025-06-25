@@ -27,7 +27,7 @@ const Roles = () => {
 
       <Breadcrumb pageName="Roles y permisos" />
 
-      <div className="flex justify-between items-center mb-4 mt-1">
+      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
         <h1 className="text-primary text-3xl font-bold">Roles y permisos</h1>
         <button
           type="button"
