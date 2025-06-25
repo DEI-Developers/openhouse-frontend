@@ -198,7 +198,7 @@ const ParticipationForm = ({
             </div>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
-                type="text"
+                type="email"
                 name="email"
                 required
                 label="¿Cuál es tu correo electrónico?"
@@ -211,7 +211,7 @@ const ParticipationForm = ({
                 noPaste
               />
               <CustomInput
-                type="text"
+                type="email"
                 name="confirmEmail"
                 required
                 label="¿Podrías confirmar tu correo electrónico?"
