@@ -16,6 +16,8 @@ import ParticipationForm from '@components/Home/ParticipationForm';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
+import * as XLSX from 'xlsx';
+import {saveAs} from 'file-saver';
 
 const Participants = () => {
   const {permissions} = useAuth();
@@ -69,6 +71,93 @@ const Participants = () => {
     permissions.includes(Permissions.MANAGE_PARTICIPANTS)
   );
 
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await getParticipants();
+      const participants = response.rows || [];
+      console.log(participants.length);
+
+      const participantsSheet = [];
+      const facultySheets = {}; // { facultad: [inscripciones...] }
+
+      participants.forEach((p) => {
+        // Agregar participante a hoja general
+        participantsSheet.push({
+          // ID: p._id,
+          Nombre: p.name,
+          Email: p.email,
+          Teléfono: formatPhoneNumber(p.phoneNumber),
+          Instituto: p.institute,
+          Medio: p.medio,
+          Redes: p.networksLabel,
+          'Registrado en': new Date(p.createdAt).toLocaleString('es-SV'),
+        });
+
+        // Categorizar inscripciones por facultad
+        if (Array.isArray(p.subscribedTo)) {
+          p.subscribedTo.forEach((sub) => {
+            const facultad = sub.faculty?.name || 'Sin Facultad';
+
+            const row = {
+              // ParticipanteID: p._id,
+              Nombre: p.name,
+              Email: p.email,
+              Teléfono: formatPhoneNumber(p.phoneNumber),
+              Instituto: p.institute,
+              Facultad: facultad,
+              Carrera: sub.career?.name ?? 'N/A',
+              Evento: sub.event?.name ?? 'N/A',
+              FechaEvento: new Date(sub.event?.date).toLocaleDateString(
+                'es-SV',
+                {
+                  timeZone: 'UTC',
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }
+              ),
+              Asistió: sub.attended ? 'Sí' : 'No',
+              'Acompañado por familiar': sub.withParent ? 'Sí' : 'No',
+              'Familiar estudió en UCA': sub.parentStudiedAtUCA ? 'Sí' : 'No',
+              FechaInscripción: new Date(sub.subscribedAt).toLocaleString(
+                'es-SV'
+              ),
+            };
+
+            if (!facultySheets[facultad]) {
+              facultySheets[facultad] = [];
+            }
+            facultySheets[facultad].push(row);
+          });
+        }
+      });
+
+      // Crear el archivo Excel
+      const wb = XLSX.utils.book_new();
+
+      // Hoja de participantes
+      const wsParticipants = XLSX.utils.json_to_sheet(participantsSheet);
+      XLSX.utils.book_append_sheet(wb, wsParticipants, 'Participantes');
+
+      // Hojas por facultad
+      Object.entries(facultySheets).forEach(([facultad, rows]) => {
+        const ws = XLSX.utils.json_to_sheet(rows);
+        // Limitar nombre de la hoja a 31 caracteres (límite de Excel)
+        const safeSheetName = facultad.slice(0, 31);
+        XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+      });
+
+      const excelBuffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+      const blob = new Blob([excelBuffer], {
+        type: 'application/octet-stream',
+      });
+
+      saveAs(blob, 'participantes-por-facultad.xlsx');
+    } catch (error) {
+      console.error('Error exportando Excel:', error);
+    }
+  };
+
   return (
     <div>
       <CustomHeader title="Participantes" />
@@ -78,14 +167,23 @@ const Participants = () => {
       <div className="flex justify-between items-center mb-4 mt-1">
         <h1 className="text-primary text-3xl font-bold">Participantes</h1>
         {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
-          <button
-            type="button"
-            onClick={onToggleBox}
-            className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
-          >
-            <AiOutlinePlus className="mr-2" />
-            <span>Agregar participante</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDownloadExcel}
+              className="btn bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700"
+            >
+              Descargar Excel
+            </button>
+            <button
+              type="button"
+              onClick={onToggleBox}
+              className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+            >
+              <AiOutlinePlus className="mr-2" />
+              <span>Agregar participante</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -218,8 +316,8 @@ const FacultyCareerRow = ({data}) => {
 
   return (
     <div>
-      {subscribedTo.map((item) => (
-        <div key={item.event} className="mb-2">
+      {subscribedTo.map((item, index) => (
+        <div key={index + new Date().getTime()} className="mb-2">
           <p className="font-medium text-gray-600">
             {item.faculty?.name ?? 'N/A'}{' '}
             {new Date(item.event?.date).toLocaleDateString('es-SV', {

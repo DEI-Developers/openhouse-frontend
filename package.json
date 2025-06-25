@@ -16,6 +16,7 @@
     "apexcharts": "^4.7.0",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
+    "file-saver": "^2.0.5",
     "google-libphonenumber": "^3.2.42",
     "lodash": "^4.17.21",
     "qrcode.react": "^4.2.0",
@@ -28,6 +29,7 @@
     "react-international-phone": "^4.5.0",
     "react-router-dom": "^7.6.2",
     "react-select": "^5.10.1",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {
