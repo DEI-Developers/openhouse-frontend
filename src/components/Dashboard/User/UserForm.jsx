@@ -29,16 +29,21 @@ const UserForm = ({
   const currentFaculty = watch('faculty');
 
   const onSubmit = (data) => {
+    console.log(data);
+    console.log('La data de faculty es: ', data.faculty?.value);
     const updatedData = {
       ...data,
-      facultyId: data.faculty?.value,
+      facultyId: data.faculty?.value ?? null,
       roleId: data.role?.value,
-      careerId: data.career?.value,
+      careerId: data.career?.value ?? null,
+      id: data.id,
       role: undefined,
       faculty: undefined,
       career: undefined,
       password: empty(data.id) ? data.password : undefined,
     };
+    console.log(updatedData);
+    console.log('La data de faculty es: ', updatedData.faculty?.value);
 
     const mutation = !empty(data.id) ? onUpdate : onCreate;
 
@@ -46,7 +51,11 @@ const UserForm = ({
   };
 
   useEffect(() => {
-    if (empty(currentFaculty)) return;
+    if (empty(currentFaculty)) {
+      setValue('career', null);
+      setValue('faculty', null);
+      return;
+    }
 
     if (empty(currentFaculty?.careers)) {
       const updatedFaculty = faculties?.find(
