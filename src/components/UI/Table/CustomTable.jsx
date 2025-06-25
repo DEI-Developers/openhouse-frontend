@@ -31,9 +31,9 @@ const CustomTable = ({
   const {isLoading, isError, error, data, refetch} = useQuery({
     queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
     queryFn: () => {
-      console.log('refetch');
-      console.log(page, rowsPerPage, searchedWord, filters);
-      return fetchData(page, rowsPerPage, searchedWord, filters, permissions);
+      return permissions.length > 0
+        ? fetchData(permissions, page, rowsPerPage, searchedWord, filters)
+        : fetchData(page, rowsPerPage, searchedWord, filters);
     },
     refetchOnWindowFocus: false,
   });

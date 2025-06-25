@@ -50,6 +50,11 @@ const CustomMultiSelect = ({
               placeholder={placeholder}
               isSearchable={isSearchable}
               defaultValue={defaultValue}
+              value={field.value}
+              onChange={(selectedOption) => {
+                console.log('Nueva selección:', selectedOption);
+                field.onChange(selectedOption);
+              }}
               components={animatedComponents}
               closeMenuOnSelect={closeMenuOnSelect}
               filterOption={createFilter({ignoreAccents: false})}
