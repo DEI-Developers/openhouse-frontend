@@ -21,7 +21,7 @@ const Stadistics = () => {
         <CustomHeader title="Inicio" />
         <Breadcrumb pageName="Inicio" />
 
-        <div className="flex justify-between items-center mb-4 mt-1">
+        <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
           <h1 className="text-primary text-3xl font-bold">Inicio</h1>
           <StadisticsFilters onApplyFilters={setEventId} />
         </div>
@@ -38,24 +38,49 @@ const Stadistics = () => {
       <CustomHeader title="Inicio" />
       <Breadcrumb pageName="Inicio" />
 
-      <div className="flex justify-between items-center mb-4 mt-1">
+      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
         <h1 className="text-primary text-3xl font-bold">Inicio</h1>
         <StadisticsFilters onApplyFilters={setEventId} />
       </div>
 
-      <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
-        {data?.map((item) => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {data?.map((item, idx) => (
           <div
-            key={item.title}
-            className={`border shadow bg-white rounded-2xl p-6 ${item.customClassName}`}
+            key={item.id || idx}
+            className={`border shadow-sm bg-white rounded-2xl p-4 w-full ${item.customClassName || ''}`}
           >
-            <h4 className="text-sm text-gray-500">{item.title}</h4>
-            <p className="font-bold text-3xl">{item.total}</p>
-            <Chart {...item.chartData} />
+            <h4 className="text-sm text-gray-500 mb-1">{item.title}</h4>
+            <p className="font-bold text-3xl mb-4">{item.total}</p>
+
+            <Chart
+              {...item.chartData}
+              options={{
+                ...item.chartData.options,
+                chart: {
+                  ...(item.chartData.options?.chart || {}),
+                  width: '100%',
+                  height: 300,
+                  toolbar: {show: false},
+                },
+                responsive: [
+                  {
+                    breakpoint: 768,
+                    options: {
+                      chart: {
+                        width: '100%',
+                        height: 250,
+                      },
+                      legend: {
+                        position: 'bottom',
+                      },
+                    },
+                  },
+                ],
+              }}
+            />
           </div>
         ))}
       </div>
-      <div className="hidden col-span-2" />
     </div>
   );
 };

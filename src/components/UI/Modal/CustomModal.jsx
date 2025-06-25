@@ -60,7 +60,7 @@ const CustomModal = ({
                       <button
                         type="button"
                         onClick={onToggleModal}
-                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-hidden"
                       >
                         <span className="sr-only">Close</span>
                         <VscClose className="h-7 w-7" aria-hidden="true" />

@@ -51,7 +51,7 @@ const SuccessModal = ({isOpen, onClose, code}) => {
         <button
           type="button"
           onClick={onDownloadClick}
-          className="inline-flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white shadow-sm mt-4"
+          className="inline-flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white shadow-xs mt-4"
         >
           Descargar
         </button>

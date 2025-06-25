@@ -11,7 +11,11 @@ const MenuItem = ({item, isActive, onClick}) => {
   const iconClassName = `size-6 shrink-0 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-primary'}`;
   return (
     <li key={item.name}>
-      <Link to={item.href} className={containerClassName} onClick={onClick}>
+      <Link
+        to={'/plataforma/' + item.href}
+        className={containerClassName}
+        onClick={onClick}
+      >
         <Icon aria-hidden="true" className={iconClassName} />
         {item.name}
       </Link>

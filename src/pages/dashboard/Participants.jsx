@@ -16,6 +16,8 @@ import ParticipationForm from '@components/Home/ParticipationForm';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
+import * as XLSX from 'xlsx';
+import {saveAs} from 'file-saver';
 
 const Participants = () => {
   const {permissions} = useAuth();
@@ -69,6 +71,98 @@ const Participants = () => {
     permissions.includes(Permissions.MANAGE_PARTICIPANTS)
   );
 
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await getParticipants(permissions);
+      const participants = response.rows || [];
+
+      const participantsSheet = [];
+      const eventSheets = {}; // { "Nombre evento - fecha": [inscripciones...] }
+
+      participants.forEach((p) => {
+        // Agregar participante a hoja general
+        participantsSheet.push({
+          Nombre: p.name,
+          Email: p.email,
+          Teléfono: formatPhoneNumber(p.phoneNumber),
+          Instituto: p.institute,
+          Medio: p.medio,
+          Redes: p.networksLabel,
+          'Registrado en': new Date(p.createdAt).toLocaleString('es-SV'),
+        });
+
+        // Categorizar inscripciones por evento
+        if (Array.isArray(p.subscribedTo)) {
+          p.subscribedTo.forEach((sub) => {
+            const eventName = sub.event?.name || 'Evento desconocido';
+            const eventDate = new Date(sub.event?.date).toLocaleDateString(
+              'es-SV',
+              {
+                timeZone: 'UTC',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              }
+            );
+
+            // Nombre seguro para la hoja de Excel (máx. 31 caracteres)
+            const rawSheetName = `${eventDate} - ${eventName}`;
+            // Reemplazar caracteres prohibidos en nombres de hoja de Excel
+            const safeSheetName = rawSheetName
+              .replace(/[:\\\/\?\*\[\]]/g, '-')
+              .slice(0, 31);
+
+            const row = {
+              Nombre: p.name,
+              Email: p.email,
+              Teléfono: formatPhoneNumber(p.phoneNumber),
+              Instituto: p.institute,
+              Facultad: sub.faculty?.name ?? 'N/A',
+              Carrera: sub.career?.name ?? 'N/A',
+              Evento: eventName,
+              medio: p.medio,
+              Redes: p.networksLabel,
+              FechaEvento: eventDate,
+              Asistió: sub.attended ? 'Sí' : 'No',
+              'Acompañado por familiar': sub.withParent ? 'Sí' : 'No',
+              'Familiar estudió en UCA': sub.parentStudiedAtUCA ? 'Sí' : 'No',
+              FechaInscripción: new Date(sub.subscribedAt).toLocaleString(
+                'es-SV'
+              ),
+            };
+
+            if (!eventSheets[safeSheetName]) {
+              eventSheets[safeSheetName] = [];
+            }
+            eventSheets[safeSheetName].push(row);
+          });
+        }
+      });
+
+      // Crear el archivo Excel
+      const wb = XLSX.utils.book_new();
+
+      // Hoja general
+      const wsParticipants = XLSX.utils.json_to_sheet(participantsSheet);
+      XLSX.utils.book_append_sheet(wb, wsParticipants, 'Participantes');
+
+      // Hojas por evento
+      Object.entries(eventSheets).forEach(([sheetName, rows]) => {
+        const ws = XLSX.utils.json_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      });
+
+      const excelBuffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+      const blob = new Blob([excelBuffer], {
+        type: 'application/octet-stream',
+      });
+
+      saveAs(blob, 'participantes-por-evento.xlsx');
+    } catch (error) {
+      console.error('Error exportando Excel:', error);
+    }
+  };
+
   return (
     <div>
       <CustomHeader title="Participantes" />
@@ -78,14 +172,23 @@ const Participants = () => {
       <div className="flex justify-between items-center mb-4 mt-1">
         <h1 className="text-primary text-3xl font-bold">Participantes</h1>
         {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
-          <button
-            type="button"
-            onClick={onToggleBox}
-            className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
-          >
-            <AiOutlinePlus className="mr-2" />
-            <span>Agregar participante</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDownloadExcel}
+              className="btn bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700"
+            >
+              Descargar Excel
+            </button>
+            <button
+              type="button"
+              onClick={onToggleBox}
+              className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+            >
+              <AiOutlinePlus className="mr-2" />
+              <span>Agregar participante</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -96,6 +199,7 @@ const Participants = () => {
         customActions={customActions}
         fetchData={getParticipants}
         CustomFilters={ParticipantsFilters}
+        permissions={permissions}
       />
 
       <DeleteDialog
@@ -122,7 +226,7 @@ const Participants = () => {
                 ? 'Editar participante'
                 : 'Agregar participante'
             }
-            submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-sm hover:bg-secondary sm:ml-3 sm:w-auto"
+            submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-secondary sm:ml-3 sm:w-auto"
           />
         </CustomModal>
       )}
@@ -218,8 +322,8 @@ const FacultyCareerRow = ({data}) => {
 
   return (
     <div>
-      {subscribedTo.map((item) => (
-        <div key={item.event} className="mb-2">
+      {subscribedTo.map((item, index) => (
+        <div key={index + new Date().getTime()} className="mb-2">
           <p className="font-medium text-gray-600">
             {item.faculty?.name ?? 'N/A'}{' '}
             {new Date(item.event?.date).toLocaleDateString('es-SV', {

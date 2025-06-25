@@ -20,6 +20,7 @@ const CustomTable = ({
   customHeaderClassName = 'text-left text-sm text-gray-900',
   customContainerClassName = '',
   CustomFilters = null,
+  permissions = [],
 }) => {
   const [page, setPage] = useState(1);
   const [nRows, setNRows] = useState(0);
@@ -27,15 +28,13 @@ const CustomTable = ({
   const [searchedWord, setSearchedWord] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  const {
-    isLoading,
-    isError,
-    // error,
-    data,
-    refetch,
-  } = useQuery({
+  const {isLoading, isError, error, data, refetch} = useQuery({
     queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
-    queryFn: () => fetchData(page, rowsPerPage, searchedWord, filters),
+    queryFn: () => {
+      return permissions.length > 0
+        ? fetchData(permissions, page, rowsPerPage, searchedWord, filters)
+        : fetchData(page, rowsPerPage, searchedWord, filters);
+    },
     refetchOnWindowFocus: false,
   });
 
@@ -55,7 +54,7 @@ const CustomTable = ({
       )}
 
       <div
-        className={`bg-white -mx-4 my-6 overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg p-2 ${customContainerClassName}`}
+        className={`bg-white -mx-4 my-6 overflow-hidden shadow-sm  ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg p-2 ${customContainerClassName}`}
       >
         <table className="min-w-full divide-y divide-gray-300">
           <thead className="">
@@ -125,7 +124,7 @@ const CustomTable = ({
             <button
               type="button"
               onClick={() => refetch()}
-              className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none text-sm"
+              className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-xs hover:bg-gray-50 focus:outline-hidden text-sm"
             >
               Reintentar
             </button>

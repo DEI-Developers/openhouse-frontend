@@ -15,7 +15,7 @@ const Event = ({event, isSubscribed, currentCareer, onClick}) => {
     >
       <div className="flex justify-center py-2 pr-2">
         <CheckIcon
-          className={`h-9 w-9 flex-shrink-0 ${disableEvent ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`h-9 w-9 shrink-0 ${disableEvent ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           activeColor="#003C71"
           checked={isSubscribed}
         />

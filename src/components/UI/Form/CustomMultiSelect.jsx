@@ -21,7 +21,7 @@ const CustomMultiSelect = ({
 }) => {
   const animatedComponents = makeAnimated();
   const inputClassName =
-    'appearance-none block w-full rounded-md shadow-sm text-sm';
+    'appearance-none block w-full rounded-md shadow-xs text-sm';
 
   return (
     <div className={containerClassName}>
@@ -50,6 +50,11 @@ const CustomMultiSelect = ({
               placeholder={placeholder}
               isSearchable={isSearchable}
               defaultValue={defaultValue}
+              value={field.value}
+              onChange={(selectedOption) => {
+                console.log('Nueva selección:', selectedOption);
+                field.onChange(selectedOption);
+              }}
               components={animatedComponents}
               closeMenuOnSelect={closeMenuOnSelect}
               filterOption={createFilter({ignoreAccents: false})}
