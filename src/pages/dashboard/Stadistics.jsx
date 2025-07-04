@@ -6,14 +6,24 @@ import {getStadistics} from '@services/Stadistics';
 import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import StadisticsFilters from '@components/UI/Filters/StadisticsFilters';
+import {useEffect} from 'react';
 
 const Stadistics = () => {
   const [eventId, setEventId] = useState(null);
-  const {data, isLoading} = useQuery({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {data, isLoading: isLoadingQuery} = useQuery({
     queryKey: ['statistics', eventId],
     queryFn: () => getStadistics(eventId),
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: 'always',
   });
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(isLoadingQuery);
+    }, 100);
+  }, [eventId, isLoadingQuery]);
 
   if (isLoading) {
     return (
