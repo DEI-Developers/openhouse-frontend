@@ -27,10 +27,10 @@ const ParticipationForm = ({
   titleClassName = 'font-bold text-3xl text-center text-primary tracking-wide',
   submitButtonClassName = 'w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg',
 }) => {
-  const {data} = useQuery({
+  const {data, refetch} = useQuery({
     queryKey: ['publicCatalogs'],
     queryFn: getPublicCatalogs,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false,    
   });
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
@@ -40,6 +40,7 @@ const ParticipationForm = ({
 
   const onSuccess = (code) => {
     setSuccessfulCode(code);
+    refetch();
   };
 
   const onError = (error) => {
