@@ -313,6 +313,17 @@ const ContactInfo = ({data}) => {
         {`${formatPhoneNumber(data.phoneNumber)}`}
       </a>
       <p className="text-xs text-gray-500 font-normal">{data.institute}</p>
+      <p className="text-xs text-gray-500 font-normal">
+        {new Date(data.createdAt).toLocaleDateString('es-SV', {
+          timeZone: 'America/El_Salvador',
+          day: 'numeric',
+          month: 'long', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })}
+      </p>
     </div>
   );
 };
