@@ -30,7 +30,7 @@ const ParticipationForm = ({
   const {data, refetch} = useQuery({
     queryKey: ['publicCatalogs'],
     queryFn: getPublicCatalogs,
-    refetchOnWindowFocus: false,    
+    refetchOnWindowFocus: false,
   });
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
@@ -40,7 +40,9 @@ const ParticipationForm = ({
 
   const onSuccess = (code) => {
     setSuccessfulCode(code);
-    refetch();
+    refetch(); // Refrescar los catálogos públicos después de enviar el formulario
+    reset(initialFormData); // Reiniciar el formulario a sus valores iniciales
+    setSubscribedTo([]); // Limpiar los eventos seleccionados
   };
 
   const onError = (error) => {
