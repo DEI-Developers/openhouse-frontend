@@ -17,7 +17,7 @@ const CustomTable = ({
   groupByField = null,
   customActions,
   defaultRowsPerPage = 5,
-  customHeaderClassName = 'text-left text-sm text-gray-900',
+  customHeaderClassName = 'text-left text-sm text-gray-900 text-wrap',
   customContainerClassName = '',
   CustomFilters = null,
   permissions = [],
@@ -45,7 +45,7 @@ const CustomTable = ({
   }, [data]);
 
   return (
-    <div className="my-4">
+    <div className="my-4 px-4">
       {CustomFilters && (
         <CustomFilters
           onSearchAction={(newWord) => setSearchedWord(newWord)}
@@ -54,16 +54,16 @@ const CustomTable = ({
       )}
 
       <div
-        className={`bg-white -mx-4 my-6 overflow-hidden shadow-sm  ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg p-2 ${customContainerClassName}`}
+        className={`bg-white -mx-4 my-6 overflow-x-auto shadow-sm  ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg p-2 box-content ${customContainerClassName}`}
       >
-        <table className="min-w-full divide-y divide-gray-300">
+        <table className="min-w-full divide-y divide-gray-300 px-2">
           <thead className="">
             <tr className={customHeaderClassName}>
               {columns.map((column) => (
                 <th
                   scope="col"
                   key={column.field}
-                  className={`${column.className} py-3.5 px-3 font-semibold`}
+                  className={`${column.className} py-3.5 md:px-3 font-semibold`}
                 >
                   {column.title}
                 </th>
@@ -78,7 +78,7 @@ const CustomTable = ({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 bg-white text-wrap">
             {empty(groupByField) ? (
               <>
                 {(data?.rows ?? []).map((row, rowIdx) => (
@@ -149,7 +149,7 @@ const GroupingRows = ({label, dataset, columns, customActions}) => (
       <th
         colSpan={columns.length + 1}
         scope="colgroup"
-        className="bg-gray-50 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
+        className="bg-gray-50 sm:py-2 pl-4 sm:pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3 text-wrap"
       >
         {label}
       </th>

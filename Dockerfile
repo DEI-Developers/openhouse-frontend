@@ -1,12 +1,12 @@
 # Etapa de compilación
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 # Creamos carpeta de trabajo
 WORKDIR /app
 
 # Copiamos package.json y package-lock.json (si existe) para instalar dependencias
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copiamos el resto de archivos
 COPY . .

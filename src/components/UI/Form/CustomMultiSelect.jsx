@@ -21,7 +21,7 @@ const CustomMultiSelect = ({
 }) => {
   const animatedComponents = makeAnimated();
   const inputClassName =
-    'appearance-none block w-full rounded-md shadow-xs text-sm';
+    'appearance-none border border-gray-300 w-full rounded-md shadow-xs text-sm';
 
   return (
     <div className={containerClassName}>
@@ -65,7 +65,8 @@ const CustomMultiSelect = ({
                   paddingBottom: '0.10rem',
                 }),
               }}
-              className={`${inputClassName} ${error ? 'custom-MultiSelectError' : 'custom-MultiSelectNoError'}`}
+              menuPosition="fixed"
+              className={`${inputClassName} ${error ? 'custom-MultiSelectError' : 'custom-MultiSelectNoError'} `}
             />
           )}
         />

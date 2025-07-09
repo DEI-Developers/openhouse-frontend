@@ -56,7 +56,7 @@ const CustomModal = ({
                   className={`relative transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ${className}`}
                 >
                   {onToggleModal && (
-                    <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
+                    <div className="absolute top-0 right-0 pt-4 pr-4 block">
                       <button
                         type="button"
                         onClick={onToggleModal}

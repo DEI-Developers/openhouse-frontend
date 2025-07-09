@@ -169,7 +169,7 @@ const Participants = () => {
 
       <Breadcrumb pageName="Participantes" />
 
-      <div className="flex justify-between items-center mb-4 mt-1">
+      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
         <h1 className="text-primary text-3xl font-bold">Participantes</h1>
         {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
           <div className="flex gap-2">
@@ -313,6 +313,17 @@ const ContactInfo = ({data}) => {
         {`${formatPhoneNumber(data.phoneNumber)}`}
       </a>
       <p className="text-xs text-gray-500 font-normal">{data.institute}</p>
+      <p className="text-xs text-gray-500 font-normal">
+        {new Date(data.createdAt).toLocaleDateString('es-SV', {
+          timeZone: 'America/El_Salvador',
+          day: 'numeric',
+          month: 'long', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })}
+      </p>
     </div>
   );
 };

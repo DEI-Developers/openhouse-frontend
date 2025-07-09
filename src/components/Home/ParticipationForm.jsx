@@ -27,7 +27,7 @@ const ParticipationForm = ({
   titleClassName = 'font-bold text-3xl text-center text-primary tracking-wide',
   submitButtonClassName = 'w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg',
 }) => {
-  const {data} = useQuery({
+  const {data, refetch} = useQuery({
     queryKey: ['publicCatalogs'],
     queryFn: getPublicCatalogs,
     refetchOnWindowFocus: false,
@@ -40,6 +40,9 @@ const ParticipationForm = ({
 
   const onSuccess = (code) => {
     setSuccessfulCode(code);
+    refetch(); // Refrescar los catálogos públicos después de enviar el formulario
+    reset(initialFormData); // Reiniciar el formulario a sus valores iniciales
+    setSubscribedTo([]); // Limpiar los eventos seleccionados
   };
 
   const onError = (error) => {
@@ -198,7 +201,7 @@ const ParticipationForm = ({
             </div>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
               <CustomInput
-                type="text"
+                type="email"
                 name="email"
                 required
                 label="¿Cuál es tu correo electrónico?"
@@ -211,7 +214,7 @@ const ParticipationForm = ({
                 noPaste
               />
               <CustomInput
-                type="text"
+                type="email"
                 name="confirmEmail"
                 required
                 label="¿Podrías confirmar tu correo electrónico?"
