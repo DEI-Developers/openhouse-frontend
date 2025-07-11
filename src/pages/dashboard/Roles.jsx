@@ -57,7 +57,7 @@ const Roles = () => {
       <CustomModal
         isOpen={isOpenForm}
         onToggleModal={onCloseForm}
-        className="p-0 w-full sm:max-w-2xl"
+        className="p-0 w-full sm:max-w-4xl lg:max-w-5xl"
       >
         <RoleForm
           initialData={currentData}
