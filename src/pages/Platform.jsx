@@ -11,6 +11,9 @@ import {
   Events,
   Participants,
   Welcome,
+  Careers,
+  Faculties,
+  Permissions,
 } from './dashboard';
 
 const Platform = () => {
@@ -45,15 +48,26 @@ const Platform = () => {
                 {flatMenu.includes('Roles') && (
                   <Route path="/roles" element={<Roles />} />
                 )}
+                {flatMenu.includes('Permisos') && (
+                  <Route path="/permisos" element={<Permissions />} />
+                )}
                 {flatMenu.includes('Usuarios') && (
                   <Route path="/usuarios" element={<Users />} />
                 )}
                 {flatMenu.includes('Eventos') && (
-                  <Route path="/eventos" element={<Events />} />
+                  <>
+                    <Route path="/eventos" element={<Events />} />
+                    <Route path="/carreras" element={<Careers />} />
+                    <Route path="/facultades" element={<Faculties />} />
+                  </>
                 )}
                 {flatMenu.includes('Participantes') && (
                   <Route path="/participantes" element={<Participants />} />
                 )}
+                {/* {flatMenu.includes('Carreras') && (
+                )}
+                {flatMenu.includes('Facultades') && (
+                )} */}
                 <Route path="*" element={<Navigate replace to="/404" />} />
               </Routes>
             </Suspense>
