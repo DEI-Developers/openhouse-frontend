@@ -1,30 +1,23 @@
 /* eslint-disable prettier/prettier */
 import {empty} from '@utils/helpers';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {BiEditAlt} from 'react-icons/bi';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {HiOutlineTrash} from 'react-icons/hi';
 import {HiOutlineUser, HiOutlineMail, HiOutlinePhone} from 'react-icons/hi';
 import {HiOutlineViewGrid, HiOutlineViewList} from 'react-icons/hi';
+import {HiOutlineQrCode} from 'react-icons/hi2';
 import {useAuth} from '@context/AuthContext';
 import useBooleanBox from '@hooks/useBooleanBox';
 import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
-import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import ParticipationForm from '@components/Home/ParticipationForm';
-import {
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
-import {
-  deleteParticipant, 
-  getParticipants,
-  getParticipantsWithAdvancedFilter,
-  getParticipantsWithComplexFilter
-} from '@services/Participants';
+import ParticipantQRModal from '@components/Dashboard/ParticipantQRModal';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import AdvancedCustomTable from '@components/UI/Table/AdvancedCustomTable';
 import ParticipantsCardView from '@components/Dashboard/ParticipantsCardView';
@@ -38,6 +31,8 @@ const Participants = () => {
   const {isOpen, onToggleBox, onClose} = useBooleanBox();
   const [participantIdToDelete, setParticipantIdToDelete] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
+  const [selectedParticipantForQR, setSelectedParticipantForQR] =
+    useState(null);
 
   const onDelete = useMutation({
     mutationFn: deleteParticipant,
@@ -78,9 +73,14 @@ const Participants = () => {
     onClose();
   };
 
+  const handleShowQR = (participant) => {
+    setSelectedParticipantForQR(participant);
+  };
+
   const customActions = getCustomActions(
     onEdit,
     setParticipantIdToDelete,
+    handleShowQR,
     permissions.includes(Permissions.MANAGE_PARTICIPANTS)
   );
 
@@ -279,6 +279,12 @@ const Participants = () => {
           />
         </CustomModal>
       )}
+
+      <ParticipantQRModal
+        participant={selectedParticipantForQR}
+        isOpen={!!selectedParticipantForQR}
+        onClose={() => setSelectedParticipantForQR(null)}
+      />
     </div>
   );
 };
@@ -300,25 +306,42 @@ const initialFormData = {
   withParent: '0',
 };
 
-const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
-  if (!userHasPermissionsToManage) return [];
-
-  return [
+const getCustomActions = (
+  onEdit,
+  onDelete,
+  onShowQR,
+  userHasPermissionsToManage
+) => {
+  const actions = [
     {
       id: 1,
       label: '',
-      tooltip: 'Editar',
-      Icon: BiEditAlt,
-      onClick: onEdit,
-    },
-    {
-      id: 2,
-      label: '',
-      tooltip: 'Borrar',
-      Icon: HiOutlineTrash,
-      onClick: (data) => onDelete(data.id),
+      tooltip: 'Ver QR',
+      Icon: HiOutlineQrCode,
+      onClick: onShowQR,
     },
   ];
+
+  if (userHasPermissionsToManage) {
+    actions.push(
+      {
+        id: 2,
+        label: '',
+        tooltip: 'Editar',
+        Icon: BiEditAlt,
+        onClick: onEdit,
+      },
+      {
+        id: 3,
+        label: '',
+        tooltip: 'Borrar',
+        Icon: HiOutlineTrash,
+        onClick: (data) => onDelete(data.id),
+      }
+    );
+  }
+
+  return actions;
 };
 
 const columns = [
@@ -656,7 +679,5 @@ const formatPhoneNumber = (phone) => {
 
   return phone;
 };
-
-
 
 export default Participants;
