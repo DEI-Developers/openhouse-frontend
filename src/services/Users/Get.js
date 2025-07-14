@@ -1,22 +1,5 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
-// import users from '../../../dummy_data/usuarios.json';
-
-// const getUsers = (page, rowsPerPage, filter) => {
-//   console.log('Proccess', import.meta.env.VITE_BASE_URL);
-//   return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       const response = {
-//         rows: users,
-//         nRows: 100,
-//         nPages: 10,
-//         currentPage: 1,
-//       };
-//       resolve(response);
-//       // reject(new Error("Error fetching users"));
-//     }, 3000);
-//   });
-// };
 
 const getUsers = async (pageNumber, pageSize, searchedWord, filters = null) => {
   const params = {

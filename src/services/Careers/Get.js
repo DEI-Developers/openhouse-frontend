@@ -18,7 +18,6 @@ const getCareers = async (
   const queryParams = parseUrlParams(params, []);
   const response = await apiInstance.get(`/carrers?${queryParams}`);
 
-  console.log(response.data);
   return {
     rows: response.data.data.map((career) => ({
       ...career,

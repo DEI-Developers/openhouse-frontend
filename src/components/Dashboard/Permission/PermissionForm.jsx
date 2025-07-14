@@ -17,7 +17,6 @@ const PermissionForm = ({initialData, onCreate, onUpdate, onClose}) => {
   const {errors, isSubmitting} = formState;
 
   useEffect(() => {
-    console.log('initialData en PermissionForm:', initialData);
     reset(initialData);
   }, [initialData, reset]);
 

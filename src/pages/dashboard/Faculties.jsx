@@ -119,7 +119,7 @@ const getColumns = (onRemoveCareer) => [
         <div className="flex flex-wrap gap-2">
           {rowData.careers.map((career, index) => {
             const careerName = typeof career === 'string' ? career : career.name || career.label;
-            const careerId = typeof career === 'object' ? career.id : index;
+            const careerId = typeof career === 'object' ? (career.id || career.value) : career;
             
             return (
               <span
@@ -129,7 +129,13 @@ const getColumns = (onRemoveCareer) => [
                 {careerName}
                 <button
                   type="button"
-                  onClick={() => onRemoveCareer.mutate({facultyId: rowData.id, careerId})}
+                  onClick={() => {
+                    if (careerId) {
+                      onRemoveCareer.mutate({facultyId: rowData.id, careerId});
+                    } else {
+                      console.error('No se pudo obtener el ID de la carrera:', career);
+                    }
+                  }}
                   className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-blue-400 hover:bg-blue-200 hover:text-blue-600 rounded-full focus:outline-none"
                   title="Eliminar carrera"
                 >

@@ -17,7 +17,6 @@ const getFaculties = async (
 
   const queryParams = parseUrlParams(params, []);
   const response = await apiInstance.get(`/faculties?${queryParams}`);
-  console.log(response.data);
 
   return {
     rows: response.data.data.map((faculty) => ({

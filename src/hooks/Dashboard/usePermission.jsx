@@ -14,7 +14,6 @@ const usePermission = () => {
   };
 
   const onEdit = (data) => {
-    console.log('Datos recibidos en onEdit:', data);
     setCurrentPermission(data);
     onToggleBox();
   };

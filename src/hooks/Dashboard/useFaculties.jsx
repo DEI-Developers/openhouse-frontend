@@ -48,6 +48,12 @@ const useFaculties = () => {
     mutationFn: removeCareerFromFaculty,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['faculties'] });
+      // Aquí podrías agregar una notificación de éxito si tienes un sistema de notificaciones
+      console.log('Carrera eliminada exitosamente de la facultad');
+    },
+    onError: (error) => {
+      // Aquí podrías agregar una notificación de error si tienes un sistema de notificaciones
+      console.error('Error al eliminar la carrera de la facultad:', error);
     },
   });
 

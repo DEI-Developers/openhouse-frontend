@@ -128,8 +128,6 @@ const getGroupedPermissions = (permissions) => {
   const groups = {};
 
   permissions.forEach((permission) => {
-    // Determinar el tipo basado en el valor del permiso
-    console.log(permission);
     let type = 'general';
 
     if (

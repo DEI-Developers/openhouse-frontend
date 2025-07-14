@@ -28,7 +28,6 @@ const CustomSelect = ({
       >
         <option value="">Seleccionar...</option>
         {options.map((option) => {
-          console.log(option, register);
           return (
             <option key={option.value} value={option.value}>
               {option.label}

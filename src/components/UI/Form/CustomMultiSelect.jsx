@@ -52,7 +52,6 @@ const CustomMultiSelect = ({
               defaultValue={defaultValue}
               value={field.value}
               onChange={(selectedOption) => {
-                console.log('Nueva selección:', selectedOption);
                 field.onChange(selectedOption);
               }}
               components={animatedComponents}
