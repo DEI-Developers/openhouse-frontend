@@ -29,8 +29,6 @@ const UserForm = ({
   const currentFaculty = watch('faculty');
 
   const onSubmit = (data) => {
-    console.log(data);
-    console.log('La data de faculty es: ', data.faculty?.value);
     const updatedData = {
       ...data,
       facultyId: data.faculty?.value ?? null,
@@ -42,8 +40,6 @@ const UserForm = ({
       career: undefined,
       password: empty(data.id) ? data.password : undefined,
     };
-    console.log(updatedData);
-    console.log('La data de faculty es: ', updatedData.faculty?.value);
 
     const mutation = !empty(data.id) ? onUpdate : onCreate;
 

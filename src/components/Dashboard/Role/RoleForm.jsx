@@ -49,15 +49,27 @@ const RoleForm = ({initialData, permissions, onCreate, onUpdate, onClose}) => {
           containerClassName="w-full mb-4"
         />
 
-        <div className="grid lg:grid-cols-2 gap-2">
-          {permissions.map((permission) => (
-            <CustomSwitch
-              key={permission.value}
-              setValue={setValue}
-              value={permission.value}
-              label={permission.name}
-              currentPermissions={currentPermissions}
-            />
+        <div className="grid lg:grid-cols-2 gap-6">
+          {getGroupedPermissions(permissions).map((group) => (
+            <div
+              key={group.type}
+              className="border border-gray-200 rounded-lg p-4"
+            >
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 capitalize">
+                {group.type.replace('_', ' ')}
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                {group.permissions.map((permission) => (
+                  <CustomSwitch
+                    key={permission.value}
+                    setValue={setValue}
+                    value={permission.value}
+                    label={permission.name}
+                    currentPermissions={currentPermissions}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
         <div className="flex flex-col lg:flex-row lg:justify-end lg:space-x-4 space-y-2 mt-4">
@@ -100,16 +112,77 @@ const CustomSwitch = ({label, value, setValue, currentPermissions}) => {
       <Switch
         checked={currentPermissions.includes(value)}
         onChange={onChange}
-        className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 data-checked:bg-primary"
+        className="group relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 data-checked:bg-primary"
       >
         <span
           aria-hidden="true"
-          className="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out group-data-checked:translate-x-5"
+          className="pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out group-data-checked:translate-x-4"
         />
       </Switch>
-      <span className="ml-3 text-xs font-medium text-gray-900">{label}</span>
+      <span className="ml-2 text-xs font-medium text-gray-900">{label}</span>
     </Field>
   );
+};
+
+const getGroupedPermissions = (permissions) => {
+  const groups = {};
+
+  permissions.forEach((permission) => {
+    let type = 'general';
+
+    if (
+      permission.value.includes('users') ||
+      permission.value.includes('user')
+    ) {
+      type = 'gestión de usuarios';
+    } else if (
+      permission.value.includes('roles') ||
+      permission.value.includes('role')
+    ) {
+      type = 'gestión de roles';
+    } else if (
+      permission.value.includes('events') ||
+      permission.value.includes('event')
+    ) {
+      type = 'gestión de eventos';
+    } else if (
+      permission.value.includes('participants') ||
+      permission.value.includes('participant')
+    ) {
+      type = 'gestión de participantes';
+    } else if (
+      permission.value.includes('statistics') ||
+      permission.value.includes('statistic')
+    ) {
+      type = 'estadísticas';
+    } else if (
+      permission.value.includes('faculties') ||
+      permission.value.includes('faculty')
+    ) {
+      type = 'Facultades';
+    } else if (
+      permission.value.includes('careers') ||
+      permission.value.includes('career')
+    ) {
+      type = 'Carreras';
+    } else if (
+      permission.value.includes('permissions') ||
+      permission.value.includes('permission')
+    ) {
+      type = 'Permisos';
+    }
+
+    if (!groups[type]) {
+      groups[type] = {
+        type,
+        permissions: [],
+      };
+    }
+
+    groups[type].permissions.push(permission);
+  });
+
+  return Object.values(groups);
 };
 
 const schema = yup.object().shape({

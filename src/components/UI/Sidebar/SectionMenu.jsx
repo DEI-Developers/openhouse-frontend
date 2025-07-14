@@ -1,9 +1,9 @@
 import {Link, useLocation} from 'react-router-dom';
 import {GoHome} from 'react-icons/go';
-import {PiHandshake} from 'react-icons/pi';
+import {PiBuilding, PiGraduationCap, PiHandshake, PiLockOpen} from 'react-icons/pi';
 import {HiOutlineUsers} from 'react-icons/hi2';
 import {IoLockOpenOutline} from 'react-icons/io5';
-import {IoCalendarClearOutline} from 'react-icons/io5';
+import {HiOutlineAcademicCap} from 'react-icons/hi2';
 
 const MenuItem = ({item, isActive, onClick}) => {
   const Icon = getIconByName(item.Icon);
@@ -53,8 +53,14 @@ const getIconByName = (name) => {
       return HiOutlineUsers;
     case 'IoLockOpenOutline':
       return IoLockOpenOutline;
-    case 'IoCalendarClearOutline':
-      return IoCalendarClearOutline;
+    case 'PiLockOpen':
+      return PiLockOpen;
+    case 'PiBuilding':
+      return PiBuilding;
+    case 'HiOutlineAcademicCap':
+      return HiOutlineAcademicCap;
+    case 'PiGraduationCap':
+      return PiGraduationCap;
     default:
       return GoHome;
   }
