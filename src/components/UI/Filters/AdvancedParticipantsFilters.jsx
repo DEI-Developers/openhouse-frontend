@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {HiOutlinePlus, HiOutlineTrash} from 'react-icons/hi';
 import {BiSearch} from 'react-icons/bi';
-import useCatalogs from '@hooks/Dashboard/useCatalogs';
 import SelectFilter from './SelectFilter';
 
 const AdvancedParticipantsFilters = ({
@@ -9,7 +8,6 @@ const AdvancedParticipantsFilters = ({
   onClearFilters,
   currentFilters = null,
 }) => {
-  const {faculties, careers, events} = useCatalogs();
   const [filterGroups, setFilterGroups] = useState([
     {
       id: Date.now(),
@@ -110,9 +108,10 @@ const AdvancedParticipantsFilters = ({
 
     if (Object.keys(activeGeneralFilters).length > 0) {
       allGroups.unshift({
-        id: 'general',
+        id: 0,
         filters: activeGeneralFilters,
         operator: 'AND',
+        selectedField: '',
       });
     }
 
@@ -196,68 +195,6 @@ const AdvancedParticipantsFilters = ({
         </div>
       </div>
 
-      {/* Filtros Generales */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-gray-900 mb-3">
-          Filtros Generales
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-2">
-              Evento
-            </label>
-            <SelectFilter
-              value={
-                events.find((event) => event.value === generalFilters.event) ||
-                null
-              }
-              options={events}
-              onChange={(option) =>
-                updateGeneralFilter('event', option?.value || null)
-              }
-              placeholder="Seleccionar evento"
-              customClassName="h-10"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-2">
-              Facultad
-            </label>
-            <SelectFilter
-              value={
-                faculties.find(
-                  (faculty) => faculty.value === generalFilters.faculty
-                ) || null
-              }
-              options={faculties}
-              onChange={(option) =>
-                updateGeneralFilter('faculty', option?.value || null)
-              }
-              placeholder="Seleccionar facultad"
-              customClassName="h-10"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-2">
-              Carrera
-            </label>
-            <SelectFilter
-              value={
-                careers.find(
-                  (career) => career.value === generalFilters.career
-                ) || null
-              }
-              options={careers}
-              onChange={(option) =>
-                updateGeneralFilter('career', option?.value || null)
-              }
-              placeholder="Seleccionar carrera"
-              customClassName="h-10"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Operador global */}
       {filterGroups.length > 1 && (
         <div className="flex items-center space-x-2">
@@ -265,7 +202,9 @@ const AdvancedParticipantsFilters = ({
             Operador global entre grupos:
           </span>
           <SelectFilter
-            value={operators.find((op) => op.value === globalOperator)}
+            setDefaultValue={operators.find(
+              (op) => op.value === globalOperator
+            )}
             options={operators}
             onChange={(option) => setGlobalOperator(option?.value || 'AND')}
             customClassName="w-32 h-10"
@@ -295,7 +234,9 @@ const AdvancedParticipantsFilters = ({
 
                 <div className="flex items-center space-x-2">
                   <SelectFilter
-                    value={operators.find((op) => op.value === group.operator)}
+                    setDefaultValue={operators.find(
+                      (op) => op.value === group.operator
+                    )}
                     options={operators}
                     onChange={(option) =>
                       updateFilterGroup(
@@ -325,7 +266,7 @@ const AdvancedParticipantsFilters = ({
                   Campo a filtrar
                 </label>
                 <SelectFilter
-                  value={filterFields.find(
+                  setDefaultValue={filterFields.find(
                     (field) => field.value === group.selectedField
                   )}
                   options={filterFields}

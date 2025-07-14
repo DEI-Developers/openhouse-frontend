@@ -7,7 +7,7 @@ import {useQuery} from '@tanstack/react-query';
 import {
   getParticipants,
   getParticipantsWithAdvancedFilter,
-  getParticipantsWithComplexFilter
+  getParticipantsWithComplexFilter,
 } from '@services/Participants';
 
 import Loader from '../Loader';
@@ -56,7 +56,7 @@ const AdvancedCustomTable = ({
         );
       }
     }
-    
+
     // Fallback al método original
     return permissions.length > 0
       ? fetchData(permissions, page, rowsPerPage, searchedWord, filters)
@@ -65,11 +65,11 @@ const AdvancedCustomTable = ({
 
   const {isLoading, isError, error, data, refetch} = useQuery({
     queryKey: [
-      queryKey, 
-      searchedWord, 
-      page, 
-      JSON.stringify(filters), 
-      JSON.stringify(advancedFilters)
+      queryKey,
+      searchedWord,
+      page,
+      JSON.stringify(filters),
+      JSON.stringify(advancedFilters),
     ],
     queryFn: fetchDataWithFilters,
     refetchOnWindowFocus: false,
@@ -104,13 +104,22 @@ const AdvancedCustomTable = ({
       {/* Filtros avanzados */}
       {useAdvancedFiltering && (
         <div className="space-y-4 mb-6">
+          {/* Filtros generales siempre visibles cuando se usa filtrado avanzado */}
+          {CustomFilters && (
+            <CustomFilters
+              onSearchAction={(newWord) => setSearchedWord(newWord)}
+              onApplyFilters={handleApplyAdvancedFilters}
+              onClearFilters={handleClearAdvancedFilters}
+            />
+          )}
+
           <button
             onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
             className="flex items-center px-4 py-2 text-sm font-medium text-primary border border-primary rounded-md hover:bg-primary hover:text-white transition-colors"
           >
             {isAdvancedFiltersOpen ? 'Ocultar' : 'Mostrar'} filtros avanzados
           </button>
-          
+
           {isAdvancedFiltersOpen && (
             <AdvancedParticipantsFilters
               onApplyAdvancedFilters={handleApplyAdvancedFilters}
@@ -203,13 +212,15 @@ const AdvancedCustomTable = ({
         {!isLoading && !isError && (data?.rows ?? []).length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500">
-              <p className="text-lg font-medium">No se encontraron participantes</p>
+              <p className="text-lg font-medium">
+                No se encontraron participantes
+              </p>
               <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
             </div>
           </div>
         )}
       </div>
-      
+
       <Pagination
         nRows={nRows}
         currentPage={page}

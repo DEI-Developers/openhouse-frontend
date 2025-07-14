@@ -12,12 +12,18 @@ const SearchInput = ({onCustomAction, customContainerClassName}) => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       onCustomAction(value);
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onCustomAction(value);
+  };
+
   return (
-    <div className={`flex rounded-md shadow-xs ${customContainerClassName}`}>
+    <form onSubmit={handleSubmit} className={`flex rounded-md shadow-xs ${customContainerClassName}`}>
       <div className="relative flex grow items-stretch focus-within:z-10">
         <input
           type="text"
@@ -40,7 +46,7 @@ const SearchInput = ({onCustomAction, customContainerClassName}) => {
           </button>
         )}
       </div>
-    </div>
+    </form>
   );
 };
 
