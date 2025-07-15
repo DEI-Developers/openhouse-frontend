@@ -161,7 +161,7 @@ const ParticipantsCardView = ({customActions, permissions}) => {
               {/* Header con acciones */}
               <div className="flex justify-between items-start mb-4 min-w-0">
                 <div className="flex-1 min-w-0 pr-2">
-                  <div className="relative group/tooltip">
+                  <div className="relative group/tooltip pb-3">
                     <h3 className="text-lg font-semibold text-gray-900 truncate cursor-help">
                       {participant.name}
                     </h3>
