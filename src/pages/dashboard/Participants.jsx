@@ -14,7 +14,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
-import ParticipationForm from '@components/Home/ParticipationForm';
+import AdminParticipationForm from '@components/Dashboard/AdminParticipationForm';
 import ParticipantQRModal from '@components/Dashboard/ParticipantQRModal';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {deleteParticipant, getParticipants} from '@services/Participants';
@@ -265,9 +265,8 @@ const Participants = () => {
           onToggleModal={onCloseForm}
           className="p-0 w-full sm:max-w-6xl"
         >
-          <ParticipationForm
+          <AdminParticipationForm
             onCloseForm={onCloseForm}
-            submitButtonLabel="Guardar"
             initialData={currentData}
             titleClassName="text-xl font-bold leading-6 text-primary mb-4"
             titleLabel={
@@ -275,7 +274,6 @@ const Participants = () => {
                 ? 'Editar participante'
                 : 'Agregar participante'
             }
-            submitButtonClassName="inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-secondary sm:ml-3 sm:w-auto"
           />
         </CustomModal>
       )}
