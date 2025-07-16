@@ -2,7 +2,6 @@ import apiInstance from '@utils/instances/ApiInstance';
 
 const updateParticipantWithAttendance = async (formData) => {
   try {
-    console.log(formData);
     const response = await apiInstance.put(
       `/participants/admin/update-with-attendance/${formData.id}`,
       Object.fromEntries(

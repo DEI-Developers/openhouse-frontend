@@ -4,18 +4,9 @@ const AdminEvent = ({event, isSubscribed, currentCareer, onClick}) => {
   const disableEvent = carrerNotFound;
 
   const onVerifyDisponibility = () => {
-    console.log('AdminEvent onClick called');
-    console.log('Event:', event);
-    console.log('Current career:', currentCareer);
-    console.log('Event careers:', event?.careers);
-    console.log('Career not found:', carrerNotFound);
-    
-    // En modo administrador, permitir inscripción aún si está lleno
     if (!event?.careers.includes(currentCareer)) {
-      console.log('Career not found in event, returning early');
       return;
     }
-    console.log('Calling onClick with event value:', event.value);
     onClick();
   };
 
@@ -27,15 +18,18 @@ const AdminEvent = ({event, isSubscribed, currentCareer, onClick}) => {
         </p>
       );
     }
-    
+
     if (event.isFull) {
       return (
         <p className="text-orange-600 italic pb-1 pt-2">
-          Evento lleno - <span className="text-blue-600 font-semibold">Inscripción administrativa permitida</span>
+          Evento lleno -{' '}
+          <span className="text-blue-600 font-semibold">
+            Inscripción administrativa permitida
+          </span>
         </p>
       );
     }
-    
+
     return <p className="text-green-600 italic pb-1 pt-2">Cupos disponibles</p>;
   };
 

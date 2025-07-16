@@ -82,7 +82,6 @@ const AdminParticipationForm = ({
   }, [currentFaculty, data]);
 
   const events = useMemo(() => {
-    console.log(data?.events);
     return (
       data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
     );
@@ -132,21 +131,19 @@ const AdminParticipationForm = ({
   };
 
   const onEnrollment = (eventId) => {
-    console.log('onEnrollment called with eventId:', eventId);
-    console.log('Current subscribedTo before update:', subscribedTo);
-    
     setSubscribedTo((prev) => {
-      console.log('Previous subscribedTo:', prev);
       if (prev?.includes(eventId)) {
         const newSubscribed = prev.filter((id) => id !== eventId);
-        console.log('Removing event, new subscribedTo:', newSubscribed);
         return newSubscribed;
       }
 
       const newSubscribed = [...prev, eventId];
-      console.log('Adding event, new subscribedTo:', newSubscribed);
       return newSubscribed;
     });
+  };
+
+  const onRefreshEvents = () => {
+    refetch(); // Recargar los catálogos públicos que incluyen los eventos
   };
 
   const onSearchByPhoneNumber = async (phoneNumber) => {
@@ -334,6 +331,7 @@ const AdminParticipationForm = ({
             subscribed={subscribedTo}
             currentCareer={currentCareer}
             onEnrollment={onEnrollment}
+            onRefreshEvents={onRefreshEvents}
           />
           {!empty(errorMessage) && (
             <CustomErrorAlert
