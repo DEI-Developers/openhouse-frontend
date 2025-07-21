@@ -452,9 +452,21 @@ const FacultyCareerRow = ({data}) => {
   const renderAccompanimentBadges = (item) => {
     const withParent = item.withParent;
     const parentStudiedAtUCA = item.parentStudiedAtUCA;
+    const attended = item.attended;
 
     return (
       <div className="flex flex-wrap gap-1 mt-2">
+        {/* Badge de asistencia */}
+        <span
+          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+            attended
+              ? 'bg-emerald-100 text-emerald-800'
+              : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {attended ? 'Asistió' : 'No asistió'}
+        </span>
+
         <span
           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
             withParent
@@ -612,53 +624,6 @@ const BadgeMedio = ({medio, compact = false}) => {
       className={`flex justify-center item-center px-3 py-2 rounded-lg ${customClassName}`}
     >
       <p className="font-bold text-center">{medio}</p>
-    </div>
-  );
-};
-
-const AccompanimentInfo = ({data}) => {
-  const subscribedTo = data?.subscribedTo ?? [];
-
-  if (subscribedTo.length === 0) {
-    return <div className="text-gray-500 text-sm">-</div>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {subscribedTo.map((item, index) => {
-        const withParent = item.withParent;
-        const parentStudiedAtUCA = item.parentStudiedAtUCA;
-
-        return (
-          <div key={index} className="text-sm">
-            <div className="flex flex-col gap-1">
-              <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  withParent
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
-              >
-                {withParent ? 'Con acompañante' : 'Sin acompañante'}
-              </span>
-
-              {withParent && (
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    parentStudiedAtUCA
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-orange-100 text-orange-800'
-                  }`}
-                >
-                  {parentStudiedAtUCA
-                    ? 'Familiar estudió en UCA'
-                    : 'Familiar no estudió en UCA'}
-                </span>
-              )}
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 };

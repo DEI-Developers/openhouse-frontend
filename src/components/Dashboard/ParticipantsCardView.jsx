@@ -446,9 +446,22 @@ const InscriptionsSection = ({participant, onShowAll}) => {
 const AccompanimentBadges = ({item}) => {
   const withParent = item.withParent;
   const parentStudiedAtUCA = item.parentStudiedAtUCA;
+  const attended = item.attended;
+  console.log(item)
 
   return (
     <div className="flex flex-wrap gap-1 mt-2">
+      {/* Badge de asistencia */}
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          attended
+            ? 'bg-emerald-100 text-emerald-800'
+            : 'bg-red-100 text-red-800'
+        }`}
+      >
+        {attended ? 'Asistió' : 'No asistió'}
+      </span>
+
       <span
         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           withParent
