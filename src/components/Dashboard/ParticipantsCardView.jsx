@@ -19,6 +19,8 @@ import AdvancedParticipantsFilters from '@components/UI/Filters/AdvancedParticip
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import {useAuth} from '@context/AuthContext';
+import BadgeMedio from '@components/UI/Badges/BadgeMedio';
+import {formatPhoneNumber} from '@utils/helpers/formatters';
 
 const ParticipantsCardView = ({customActions, permissions}) => {
   const {permissions: userPermissions} = useAuth();
@@ -79,33 +81,6 @@ const ParticipantsCardView = ({customActions, permissions}) => {
   };
 
   const allParticipants = data?.pages?.flatMap((page) => page.rows) || [];
-
-  const formatPhoneNumber = (phone) => {
-    if (!phone) return '-';
-    const match = phone.match(/^(\d{3})(\d{4})(\d{4})$/);
-    if (match) {
-      const [, countryCode, firstPart, secondPart] = match;
-      return `+${countryCode} ${firstPart}-${secondPart}`;
-    }
-    return phone;
-  };
-
-  const BadgeMedio = ({medio}) => {
-    const customClassName =
-      medio === 'WhatsApp'
-        ? 'bg-green-100 text-green-600'
-        : medio === 'Formulario'
-          ? 'bg-blue-100 text-blue-600'
-          : 'bg-red-100 text-red-600';
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${customClassName}`}
-      >
-        {medio}
-      </span>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -177,7 +152,7 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                       {participant.name}
                     </div>
                   </div>
-                  <BadgeMedio medio={participant.medio} />
+                  <BadgeMedio medio={participant.medio} compact />
                 </div>
 
                 {customActions.length > 0 && (

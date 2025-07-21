@@ -5,7 +5,6 @@ import {BiEditAlt} from 'react-icons/bi';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {HiOutlineTrash} from 'react-icons/hi';
-import {HiOutlineUser, HiOutlineMail, HiOutlinePhone} from 'react-icons/hi';
 import {HiOutlineViewGrid, HiOutlineViewList} from 'react-icons/hi';
 import {HiOutlineQrCode} from 'react-icons/hi2';
 import {useAuth} from '@context/AuthContext';
@@ -21,6 +20,10 @@ import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import AdvancedCustomTable from '@components/UI/Table/AdvancedCustomTable';
 import ParticipantsCardView from '@components/Dashboard/ParticipantsCardView';
+import BadgeMedio from '@components/UI/Badges/BadgeMedio';
+import ParticipantContactInfo from '@components/Dashboard/Participants/ParticipantContactInfo';
+import ParticipantInscriptions from '@components/Dashboard/Participants/ParticipantInscriptions';
+import {formatPhoneNumber} from '@utils/helpers/formatters';
 import * as XLSX from 'xlsx';
 import {saveAs} from 'file-saver';
 
@@ -346,12 +349,12 @@ const columns = [
   {
     title: 'Persona',
     field: 'name',
-    render: (rowData) => <ContactInfo data={rowData} />,
+    render: (rowData) => <ParticipantContactInfo data={rowData} />,
   },
   {
     title: 'Facultad / Carrera de interés',
     field: 'permissions',
-    render: (rowData) => <FacultyCareerRow data={rowData} />,
+    render: (rowData) => <ParticipantInscriptions data={rowData} />,
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
@@ -390,257 +393,5 @@ const columns = [
     ),
   },
 ];
-
-const ContactInfo = ({data}) => {
-  return (
-    <div className="max-w-80 space-y-2">
-      <div className="flex items-center gap-2">
-        <HiOutlineUser className="text-gray-500 text-sm flex-shrink-0" />
-        <p
-          className="font-semibold text-gray-900 text-base leading-tight truncate"
-          title={data.name}
-        >
-          {data.name}
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <HiOutlineMail className="text-gray-500 text-sm flex-shrink-0" />
-        <a
-          href={`mailto:${data.email}`}
-          className="text-gray-600 text-sm font-normal leading-relaxed hover:text-blue-600 transition-colors duration-200"
-        >
-          {data.email}
-        </a>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <HiOutlinePhone className="text-gray-500 text-sm flex-shrink-0" />
-        <div className="flex gap-2">
-          <a
-            href={`tel:+${data.phoneNumber}`}
-            className="text-blue-600 text-sm cursor-pointer hover:underline hover:text-blue-800 transition-colors duration-200"
-          >
-            {`${formatPhoneNumber(data.phoneNumber)}`}
-          </a>
-          <span className="text-gray-400">|</span>
-          <a
-            rel="noreferrer"
-            target="_blank"
-            href={`https://wa.me/+${data.phoneNumber}`}
-            className="text-green-600 text-sm cursor-pointer hover:underline hover:text-green-800 transition-colors duration-200"
-          >
-            WhatsApp
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const FacultyCareerRow = ({data}) => {
-  const subscribedTo = data?.subscribedTo ?? [];
-  const [showAllModal, setShowAllModal] = useState(false);
-
-  if (subscribedTo.length === 0) {
-    return <div className="text-gray-500 text-sm">Sin inscripciones</div>;
-  }
-
-  const firstItem = subscribedTo[0];
-  const additionalCount = subscribedTo.length - 1;
-
-  const renderAccompanimentBadges = (item) => {
-    const withParent = item.withParent;
-    const parentStudiedAtUCA = item.parentStudiedAtUCA;
-    const attended = item.attended;
-
-    return (
-      <div className="flex flex-wrap gap-1 mt-2">
-        {/* Badge de asistencia */}
-        <span
-          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-            attended
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-red-100 text-red-800'
-          }`}
-        >
-          {attended ? 'Asistió' : 'No asistió'}
-        </span>
-
-        <span
-          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-            withParent
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
-        >
-          {withParent ? 'Con acompañante' : 'Sin acompañante'}
-        </span>
-
-        {withParent && (
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              parentStudiedAtUCA
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-orange-100 text-orange-800'
-            }`}
-          >
-            {parentStudiedAtUCA
-              ? 'Familiar estudió en UCA'
-              : 'Familiar no estudió en UCA'}
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <>
-      <div className="space-y-2">
-        <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
-          <div className="flex flex-col gap-1">
-            <h4 className="font-semibold text-gray-900 text-sm">
-              {firstItem.faculty?.name ?? 'N/A'}
-            </h4>
-            <p className="text-xs text-gray-500 font-medium">
-              Evento:{' '}
-              {new Date(firstItem.event?.date).toLocaleDateString('es-SV', {
-                timeZone: 'UTC',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-            {!empty(firstItem.career) && (
-              <div className="mt-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {firstItem.career?.name}
-                </span>
-              </div>
-            )}
-            {renderAccompanimentBadges(firstItem)}
-          </div>
-        </div>
-
-        {additionalCount > 0 && (
-          <button
-            onClick={() => setShowAllModal(true)}
-            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200"
-          >
-            +{additionalCount} más
-          </button>
-        )}
-      </div>
-
-      {showAllModal && (
-        <CustomModal
-          isOpen={showAllModal}
-          onToggleModal={() => setShowAllModal(false)}
-          className="p-6 w-full sm:max-w-4xl"
-        >
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Todas las inscripciones de {data.name}
-            </h3>
-          </div>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {subscribedTo.map((item, index) => (
-              <div
-                key={index + new Date().getTime()}
-                className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500"
-              >
-                <div className="flex flex-col gap-1">
-                  <h4 className="font-semibold text-gray-900 text-sm">
-                    {item.faculty?.name ?? 'N/A'}
-                  </h4>
-                  <p className="text-xs text-gray-500 font-medium">
-                    Evento:{' '}
-                    {new Date(item.event?.date).toLocaleDateString('es-SV', {
-                      timeZone: 'UTC',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                  {!empty(item.career) && (
-                    <div className="mt-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {item.career?.name}
-                      </span>
-                    </div>
-                  )}
-                  {renderAccompanimentBadges(item)}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => setShowAllModal(false)}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-            >
-              Cerrar
-            </button>
-          </div>
-        </CustomModal>
-      )}
-    </>
-  );
-};
-
-// const ExtraInfo = ({data}) => {
-//   return (
-//     <ul className="list-disc list-inside">
-//       <li className="text-xs text-gray-500 font-normal">
-//         {data.parentUca ? 'Acompaña familiar' : 'Sin acompañamiento'}
-//       </li>
-//       <li className="text-xs text-gray-500 font-normal">
-//         {data.means ? 'Recorrido por App' : 'Recorrido guiado'}
-//       </li>
-//     </ul>
-//   );
-// };
-
-const BadgeMedio = ({medio, compact = false}) => {
-  const customClassName =
-    medio === 'WhatsApp'
-      ? 'bg-green-100 text-green-600'
-      : medio === 'Formulario'
-        ? 'bg-blue-100 text-blue-600'
-        : 'bg-red-100 text-red-600';
-
-  if (compact) {
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${customClassName}`}
-      >
-        {medio}
-      </span>
-    );
-  }
-
-  return (
-    <div
-      className={`flex justify-center item-center px-3 py-2 rounded-lg ${customClassName}`}
-    >
-      <p className="font-bold text-center">{medio}</p>
-    </div>
-  );
-};
-
-const formatPhoneNumber = (phone) => {
-  if (!phone) {
-    return '-';
-  }
-
-  const match = phone.match(/^(\d{3})(\d{4})(\d{4})$/);
-
-  if (match) {
-    const [, countryCode, firstPart, secondPart] = match;
-    return `+${countryCode} ${firstPart}-${secondPart}`;
-  }
-
-  return phone;
-};
 
 export default Participants;
