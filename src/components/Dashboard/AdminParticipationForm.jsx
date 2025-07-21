@@ -82,6 +82,7 @@ const AdminParticipationForm = ({
   }, [currentFaculty, data]);
 
   const events = useMemo(() => {
+    console.log(data?.events);
     return (
       data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
     );
@@ -111,10 +112,6 @@ const AdminParticipationForm = ({
   }, [subscribedTo]);
 
   const onSubmit = async (data, withAttendance = false) => {
-    if (subscribedTo?.length === 0) {
-      setErrorMessage('Debes seleccionar al menos 1 evento');
-      return;
-    }
     setErrorMessage('');
 
     const updatedData = {
