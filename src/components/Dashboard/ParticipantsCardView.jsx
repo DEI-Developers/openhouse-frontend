@@ -19,13 +19,19 @@ import AdvancedParticipantsFilters from '@components/UI/Filters/AdvancedParticip
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import {useAuth} from '@context/AuthContext';
+import BadgeMedio from '@components/UI/Badges/BadgeMedio';
+import {formatPhoneNumber} from '@utils/helpers/formatters';
+import Permissions from '@utils/Permissions';
 
-const ParticipantsCardView = ({customActions, permissions}) => {
+const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) => {
   const {permissions: userPermissions} = useAuth();
   const [currentFilters, setCurrentFilters] = useState(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [showInscriptionsModal, setShowInscriptionsModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+
+  // Verificar si el usuario tiene permisos para ver toda la información de contacto
+  const canViewAllParticipants = userPermissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
 
   const fetchParticipants = async ({pageParam = 1}) => {
     if (currentFilters) {
@@ -79,33 +85,6 @@ const ParticipantsCardView = ({customActions, permissions}) => {
   };
 
   const allParticipants = data?.pages?.flatMap((page) => page.rows) || [];
-
-  const formatPhoneNumber = (phone) => {
-    if (!phone) return '-';
-    const match = phone.match(/^(\d{3})(\d{4})(\d{4})$/);
-    if (match) {
-      const [, countryCode, firstPart, secondPart] = match;
-      return `+${countryCode} ${firstPart}-${secondPart}`;
-    }
-    return phone;
-  };
-
-  const BadgeMedio = ({medio}) => {
-    const customClassName =
-      medio === 'WhatsApp'
-        ? 'bg-green-100 text-green-600'
-        : medio === 'Formulario'
-          ? 'bg-blue-100 text-blue-600'
-          : 'bg-red-100 text-red-600';
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${customClassName}`}
-      >
-        {medio}
-      </span>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -177,7 +156,7 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                       {participant.name}
                     </div>
                   </div>
-                  <BadgeMedio medio={participant.medio} />
+                  <BadgeMedio medio={participant.medio} compact />
                 </div>
 
                 {customActions.length > 0 && (
@@ -197,48 +176,52 @@ const ParticipantsCardView = ({customActions, permissions}) => {
               </div>
 
               {/* Información de contacto */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                    Contacto
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <HiOutlineMail className="text-gray-400 w-4 h-4 flex-shrink-0" />
-                      <a
-                        href={`mailto:${participant.email}`}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors truncate"
-                        title={participant.email}
-                      >
-                        {participant.email}
-                      </a>
-                    </div>
+              {canViewAllParticipants && (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      Contacto
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <HiOutlineMail className="text-gray-400 w-4 h-4 flex-shrink-0" />
+                        <a
+                          href={`mailto:${participant.email}`}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors truncate"
+                          title={participant.email}
+                        >
+                          {participant.email}
+                        </a>
+                      </div>
 
-                    <div className="flex items-center space-x-2">
-                      <HiOutlinePhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
-                      <div className="flex space-x-2 text-sm">
-                        <a
-                          href={`tel:+${participant.phoneNumber}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {formatPhoneNumber(participant.phoneNumber)}
-                        </a>
-                        <span className="text-gray-400">|</span>
-                        <a
-                          href={`https://wa.me/+${participant.phoneNumber}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-green-600 hover:underline"
-                        >
-                          WhatsApp
-                        </a>
+                      <div className="flex items-center space-x-2">
+                        <HiOutlinePhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
+                        <div className="flex space-x-2 text-sm">
+                          <a
+                            href={`tel:+${participant.phoneNumber}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {formatPhoneNumber(participant.phoneNumber)}
+                          </a>
+                          <span className="text-gray-400">|</span>
+                          <a
+                            href={`https://wa.me/+${participant.phoneNumber}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-green-600 hover:underline"
+                          >
+                            WhatsApp
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Información académica */}
-                <div className="pt-3 border-t border-gray-100">
+              {/* Información académica */}
+              <div className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}>
+                <div>
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">
                     Información Académica
                   </h4>
@@ -274,13 +257,15 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                 </h4>
                 {participant.subscribedTo &&
                 participant.subscribedTo.length > 0 ? (
-                  <InscriptionsSection
-                    participant={participant}
-                    onShowAll={() => {
-                      setSelectedParticipant(participant);
-                      setShowInscriptionsModal(true);
-                    }}
-                  />
+                  <InscriptionsSection 
+                participant={participant} 
+                onShowAll={() => {
+                  setSelectedParticipant(participant);
+                  setShowInscriptionsModal(true);
+                }}
+                permissions={permissions}
+                onDeleteAttendance={onDeleteAttendance}
+              />
                 ) : (
                   <p className="text-sm text-gray-500">Sin inscripciones</p>
                 )}
@@ -370,7 +355,13 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                       </span>
                     </div>
                   )}
-                  <AccompanimentBadges item={item} />
+                  <AccompanimentBadges 
+                    item={item} 
+                    participant={selectedParticipant}
+                    permissions={permissions}
+                    onDeleteAttendance={onDeleteAttendance}
+                    showDeleteButton={true}
+                  />
                 </div>
               </div>
             ))}
@@ -393,7 +384,7 @@ const ParticipantsCardView = ({customActions, permissions}) => {
 };
 
 // Componente para mostrar las inscripciones en las fichas
-const InscriptionsSection = ({participant, onShowAll}) => {
+const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAttendance}) => {
   const subscribedTo = participant?.subscribedTo ?? [];
 
   if (subscribedTo.length === 0) {
@@ -426,7 +417,13 @@ const InscriptionsSection = ({participant, onShowAll}) => {
               </span>
             </div>
           )}
-          <AccompanimentBadges item={firstItem} />
+          <AccompanimentBadges 
+            item={firstItem} 
+            participant={participant}
+            permissions={permissions}
+            onDeleteAttendance={onDeleteAttendance}
+            showDeleteButton={true}
+          />
         </div>
       </div>
 
@@ -443,12 +440,50 @@ const InscriptionsSection = ({participant, onShowAll}) => {
 };
 
 // Componente para mostrar badges de acompañamiento
-const AccompanimentBadges = ({item}) => {
+const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance, showDeleteButton = false}) => {
   const withParent = item.withParent;
   const parentStudiedAtUCA = item.parentStudiedAtUCA;
+  const attended = item.attended;
+  console.log(item)
+
+  const handleDeleteAttendance = () => {
+    if (onDeleteAttendance && participant && item.event) {
+      onDeleteAttendance({
+        participantId: participant.id,
+        participantName: participant.name,
+        eventId: item.event.id,
+        eventDate: item.event.date,
+        facultyName: item.faculty?.name || 'N/A'
+      });
+    }
+  };
+
+  const canDeleteAttendance = showDeleteButton && 
+                             attended && 
+                             permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
 
   return (
     <div className="flex flex-wrap gap-1 mt-2">
+      {/* Badge de asistencia con X para eliminar */}
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          attended
+            ? 'bg-emerald-100 text-emerald-800'
+            : 'bg-red-100 text-red-800'
+        }`}
+      >
+        {attended ? 'Asistió' : 'No asistió'}
+        {canDeleteAttendance && (
+          <button
+            onClick={handleDeleteAttendance}
+            className="ml-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-200 rounded-full p-0.5 transition-colors duration-200"
+            title="Eliminar asistencia"
+          >
+            ×
+          </button>
+        )}
+      </span>
+
       <span
         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           withParent

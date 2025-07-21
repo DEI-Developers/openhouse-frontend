@@ -9,7 +9,7 @@ const getParticipants = async (
   searchedWord,
   filters = {}
 ) => {
-  const isAdmin = permissions.includes(Permissions.MANAGE_PARTICIPANTS);
+  const isAdmin = permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
   const params = {
     pageNumber,
     pageSize,
