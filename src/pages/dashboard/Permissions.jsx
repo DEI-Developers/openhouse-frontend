@@ -13,9 +13,12 @@ import CustomModal from '@components/UI/Modal/CustomModal';
 import PermissionForm from '@components/Dashboard/Permission/PermissionForm';
 import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
+import {useAuth} from '@context/AuthContext';
+import Permissions from '@utils/Permissions';
 
-const Permissions = () => {
+const PermissionsPage = () => {
   const columns = getColumns();
+  const {permissions} = useAuth();
   const [permissionIdToDelete, setPermissionIdToDelete] = useState(null);
   const [permissionToHardDelete, setPermissionToHardDelete] = useState(null);
   const {
@@ -47,7 +50,8 @@ const Permissions = () => {
     setPermissionIdToDelete,
     handleHardDelete,
     handleRestore,
-    showDeleted
+    showDeleted,
+    permissions
   );
 
   // Wrapper para fetchData que incluye el parámetro showDeleted
@@ -67,10 +71,10 @@ const Permissions = () => {
         filters,
         true // includeDeleted = true
       );
-      
+
       // Filtrar solo los permisos que tienen deletedAt (soft deleted)
-      const deletedRows = result.rows.filter(row => row.deletedAt);
-      
+      const deletedRows = result.rows.filter((row) => row.deletedAt);
+
       return {
         ...result,
         rows: deletedRows,
@@ -112,27 +116,31 @@ const Permissions = () => {
               >
                 Activos
               </button>
-              <button
-                onClick={() => !showDeleted && toggleShowDeleted()}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  showDeleted
-                    ? 'bg-red-500 text-white'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Eliminados
-              </button>
+              {permissions.includes(Permissions.HARD_DELETE_PERMISSION) && (
+                <button
+                  onClick={() => !showDeleted && toggleShowDeleted()}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    showDeleted
+                      ? 'bg-red-500 text-white'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Eliminados
+                </button>
+              )}
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onToggleForm()}
-            className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
-          >
-            <AiOutlinePlus className="mr-2" />
-            <span>Agregar permiso</span>
-          </button>
+          {permissions.includes(Permissions.CREATE_PERMISSIONS) && (
+            <button
+              type="button"
+              onClick={() => onToggleForm()}
+              className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
+            >
+              <AiOutlinePlus className="mr-2" />
+              <span>Agregar permiso</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -186,41 +194,52 @@ const getCustomActions = (
   onDelete,
   onHardDelete,
   onRestore,
-  showDeleted
-) => [
-  {
-    id: 1,
-    label: '',
-    tooltip: 'Editar',
-    Icon: BiEditAlt,
-    onClick: onEdit,
-    ruleToHide: (data) => showDeleted && data.deletedAt, // Ocultar editar si está eliminado
-  },
-  {
-    id: 2,
-    label: '',
-    tooltip: 'Eliminar',
-    Icon: HiOutlineTrash,
-    onClick: (data) => onDelete(data.id),
-    ruleToHide: (data) => showDeleted && data.deletedAt, // Ocultar eliminar si ya está eliminado
-  },
-  {
-    id: 3,
-    label: '',
-    tooltip: 'Restaurar',
-    Icon: MdRestore,
-    onClick: (data) => onRestore(data.id), // Cambio aquí: usar la función en lugar de mutate directo
-    ruleToHide: (data) => !showDeleted || !data.deletedAt, // Solo mostrar si está eliminado
-  },
-  {
-    id: 4,
-    label: '',
-    tooltip: 'Eliminar Permanentemente',
-    Icon: MdDeleteForever,
-    onClick: (data) => onHardDelete(data.id),
-    ruleToHide: (data) => !showDeleted || !data.deletedAt, // Solo mostrar si está eliminado
-  },
-];
+  showDeleted,
+  permissions = []
+) => {
+  const acciones = [];
+  if (permissions.includes(Permissions.UPDATE_PERMISSION)) {
+    acciones.push({
+      id: 1,
+      label: '',
+      tooltip: 'Editar',
+      Icon: BiEditAlt,
+      onClick: onEdit,
+      ruleToHide: (data) => showDeleted && data.deletedAt, // Ocultar editar si está eliminado
+    });
+  }
+  if (permissions.includes(Permissions.DELETE_PERMISSION)) {
+    acciones.push({
+      id: 2,
+      label: '',
+      tooltip: 'Eliminar',
+      Icon: HiOutlineTrash,
+      onClick: (data) => onDelete(data.id),
+      ruleToHide: (data) => showDeleted && data.deletedAt, // Ocultar eliminar si ya está eliminado
+    });
+  }
+  if (permissions.includes(Permissions.UPDATE_PERMISSION)) {
+    acciones.push({
+      id: 3,
+      label: '',
+      tooltip: 'Restaurar',
+      Icon: MdRestore,
+      onClick: (data) => onRestore(data.id), // Cambio aquí: usar la función en lugar de mutate directo
+      ruleToHide: (data) => !showDeleted || !data.deletedAt, // Solo mostrar si está eliminado
+    });
+  }
+  if (permissions.includes(Permissions.HARD_DELETE_PERMISSION)) {
+    acciones.push({
+      id: 4,
+      label: '',
+      tooltip: 'Eliminar Permanentemente',
+      Icon: MdDeleteForever,
+      onClick: (data) => onHardDelete(data.id),
+      ruleToHide: (data) => !showDeleted || !data.deletedAt, // Solo mostrar si está eliminado
+    });
+  }
+  return acciones;
+};
 
 const getColumns = () => [
   {
@@ -318,4 +337,4 @@ const getColumns = () => [
   },
 ];
 
-export default Permissions;
+export default PermissionsPage;
