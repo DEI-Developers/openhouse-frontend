@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import {empty} from '@utils/helpers';
 import {useForm} from 'react-hook-form';
+import {useEffect} from 'react';
 import {Field, Switch} from '@headlessui/react';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
@@ -22,6 +23,23 @@ const EventForm = ({initialData, onCreate, onUpdate, onClose, faculties}) => {
 
   const {errors, isSubmitting} = formState;
   const selectableCareers = getCareers(currentFaculties, faculties);
+
+  // Efecto para seleccionar automáticamente todas las carreras cuando se selecciona una facultad
+  useEffect(() => {
+    if (currentFaculties && currentFaculties.length > 0) {
+      // Obtener todas las carreras de las facultades seleccionadas
+      const allCareersFromSelectedFaculties = getCareers(currentFaculties, faculties);
+      const careerValues = allCareersFromSelectedFaculties.map(career => career.value);
+      
+      // Solo actualizar si hay carreras disponibles y son diferentes a las actuales
+      if (careerValues.length > 0) {
+        setValue('careers', careerValues);
+      }
+    } else {
+      // Si no hay facultades seleccionadas, limpiar las carreras
+      setValue('careers', []);
+    }
+  }, [currentFaculties, faculties, setValue]);
 
   const onSubmit = (data) => {
     const updatedData = {
