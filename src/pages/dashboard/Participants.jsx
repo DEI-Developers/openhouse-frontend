@@ -1,12 +1,9 @@
 /* eslint-disable prettier/prettier */
 import {empty} from '@utils/helpers';
 import React, {useState} from 'react';
-import {BiEditAlt} from 'react-icons/bi';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
-import {HiOutlineTrash} from 'react-icons/hi';
 import {HiOutlineViewGrid, HiOutlineViewList} from 'react-icons/hi';
-import {HiOutlineQrCode} from 'react-icons/hi2';
 import {useAuth} from '@context/AuthContext';
 import useBooleanBox from '@hooks/useBooleanBox';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -20,12 +17,12 @@ import {deleteParticipant, getParticipants} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import AdvancedCustomTable from '@components/UI/Table/AdvancedCustomTable';
 import ParticipantsCardView from '@components/Dashboard/ParticipantsCardView';
-import BadgeMedio from '@components/UI/Badges/BadgeMedio';
-import ParticipantContactInfo from '@components/Dashboard/Participants/ParticipantContactInfo';
-import ParticipantInscriptions from '@components/Dashboard/Participants/ParticipantInscriptions';
-import {formatPhoneNumber} from '@utils/helpers/formatters';
-import * as XLSX from 'xlsx';
-import {saveAs} from 'file-saver';
+import {useParticipantExcelExport} from '@hooks/Dashboard/useParticipantExcelExport';
+import {
+  initialFormData,
+  getCustomActions,
+  columns,
+} from './Participants/participantsConfig';
 
 const Participants = () => {
   const {permissions} = useAuth();
@@ -37,6 +34,10 @@ const Participants = () => {
   const [selectedParticipantForQR, setSelectedParticipantForQR] =
     useState(null);
 
+  // Hook personalizado para la exportación a Excel
+  const {isExporting, exportError, handleExportToExcel, clearExportError} =
+    useParticipantExcelExport();
+
   const onDelete = useMutation({
     mutationFn: deleteParticipant,
     onSuccess: () => {
@@ -44,6 +45,10 @@ const Participants = () => {
     },
   });
 
+  /**
+   * Maneja la edición de un participante
+   * Prepara los datos del participante para el formulario de edición
+   */
   const onEdit = (data) => {
     const updatedData = {
       id: data.id,
@@ -71,113 +76,42 @@ const Participants = () => {
     onToggleBox();
   };
 
+  /**
+   * Cierra el formulario y resetea los datos
+   */
   const onCloseForm = () => {
     setCurrentParticipant(initialFormData);
     onClose();
   };
 
+  /**
+   * Muestra el modal con el código QR del participante
+   */
   const handleShowQR = (participant) => {
     setSelectedParticipantForQR(participant);
   };
 
+  /**
+   * Maneja la descarga del archivo Excel
+   * Utiliza el hook personalizado para la exportación
+   */
+  const handleDownloadExcel = async () => {
+    await handleExportToExcel(permissions);
+
+    // Si hay un error, se podría mostrar una notificación aquí
+    if (exportError) {
+      console.error('Error en la exportación:', exportError);
+      // Aquí se podría integrar con un sistema de notificaciones
+    }
+  };
+
+  // Generar acciones personalizadas para la tabla
   const customActions = getCustomActions(
     onEdit,
     setParticipantIdToDelete,
     handleShowQR,
     permissions.includes(Permissions.MANAGE_PARTICIPANTS)
   );
-
-  const handleDownloadExcel = async () => {
-    try {
-      const response = await getParticipants(permissions);
-      const participants = response.rows || [];
-
-      const participantsSheet = [];
-      const eventSheets = {}; // { "Nombre evento - fecha": [inscripciones...] }
-
-      participants.forEach((p) => {
-        // Agregar participante a hoja general
-        participantsSheet.push({
-          Nombre: p.name,
-          Email: p.email,
-          Teléfono: formatPhoneNumber(p.phoneNumber),
-          Instituto: p.institute,
-          Medio: p.medio,
-          Redes: p.networksLabel,
-          'Registrado en': new Date(p.createdAt).toLocaleString('es-SV'),
-        });
-
-        // Categorizar inscripciones por evento
-        if (Array.isArray(p.subscribedTo)) {
-          p.subscribedTo.forEach((sub) => {
-            const eventName = sub.event?.name || 'Evento desconocido';
-            const eventDate = new Date(sub.event?.date).toLocaleDateString(
-              'es-SV',
-              {
-                timeZone: 'UTC',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              }
-            );
-
-            // Nombre seguro para la hoja de Excel (máx. 31 caracteres)
-            const rawSheetName = `${eventDate} - ${eventName}`;
-            // Reemplazar caracteres prohibidos en nombres de hoja de Excel
-            const safeSheetName = rawSheetName
-              .replace(/[:\\\/\?\*\[\]]/g, '-')
-              .slice(0, 31);
-
-            const row = {
-              Nombre: p.name,
-              Email: p.email,
-              Teléfono: formatPhoneNumber(p.phoneNumber),
-              Instituto: p.institute,
-              Facultad: sub.faculty?.name ?? 'N/A',
-              Carrera: sub.career?.name ?? 'N/A',
-              Evento: eventName,
-              medio: p.medio,
-              Redes: p.networksLabel,
-              FechaEvento: eventDate,
-              Asistió: sub.attended ? 'Sí' : 'No',
-              'Acompañado por familiar': sub.withParent ? 'Sí' : 'No',
-              'Familiar estudió en UCA': sub.parentStudiedAtUCA ? 'Sí' : 'No',
-              FechaInscripción: new Date(sub.subscribedAt).toLocaleString(
-                'es-SV'
-              ),
-            };
-
-            if (!eventSheets[safeSheetName]) {
-              eventSheets[safeSheetName] = [];
-            }
-            eventSheets[safeSheetName].push(row);
-          });
-        }
-      });
-
-      // Crear el archivo Excel
-      const wb = XLSX.utils.book_new();
-
-      // Hoja general
-      const wsParticipants = XLSX.utils.json_to_sheet(participantsSheet);
-      XLSX.utils.book_append_sheet(wb, wsParticipants, 'Participantes');
-
-      // Hojas por evento
-      Object.entries(eventSheets).forEach(([sheetName, rows]) => {
-        const ws = XLSX.utils.json_to_sheet(rows);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      });
-
-      const excelBuffer = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
-      const blob = new Blob([excelBuffer], {
-        type: 'application/octet-stream',
-      });
-
-      saveAs(blob, 'participantes-por-evento.xlsx');
-    } catch (error) {
-      console.error('Error exportando Excel:', error);
-    }
-  };
 
   return (
     <div>
@@ -219,9 +153,14 @@ const Participants = () => {
               <button
                 type="button"
                 onClick={handleDownloadExcel}
-                className="btn bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700"
+                disabled={isExporting}
+                className={`btn px-4 py-2.5 rounded-lg text-white ${
+                  isExporting
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 hover:bg-green-700'
+                }`}
               >
-                Descargar Excel
+                {isExporting ? 'Exportando...' : 'Descargar Excel'}
               </button>
               <button
                 type="button"
@@ -289,109 +228,4 @@ const Participants = () => {
     </div>
   );
 };
-
-const initialFormData = {
-  id: null,
-  name: '',
-  email: '',
-  confirmEmail: '',
-  phoneNumber: '',
-  institute: '',
-  networks: '',
-  medio: 'Formulario',
-
-  subscribedTo: [],
-  faculty: '',
-  career: null,
-  parentStudiedAtUCA: null,
-  withParent: '0',
-};
-
-const getCustomActions = (
-  onEdit,
-  onDelete,
-  onShowQR,
-  userHasPermissionsToManage
-) => {
-  const actions = [
-    {
-      id: 1,
-      label: '',
-      tooltip: 'Ver QR',
-      Icon: HiOutlineQrCode,
-      onClick: onShowQR,
-    },
-  ];
-
-  if (userHasPermissionsToManage) {
-    actions.push(
-      {
-        id: 2,
-        label: '',
-        tooltip: 'Editar',
-        Icon: BiEditAlt,
-        onClick: onEdit,
-      },
-      {
-        id: 3,
-        label: '',
-        tooltip: 'Borrar',
-        Icon: HiOutlineTrash,
-        onClick: (data) => onDelete(data.id),
-      }
-    );
-  }
-
-  return actions;
-};
-
-const columns = [
-  {
-    title: 'Persona',
-    field: 'name',
-    render: (rowData) => <ParticipantContactInfo data={rowData} />,
-  },
-  {
-    title: 'Facultad / Carrera de interés',
-    field: 'permissions',
-    render: (rowData) => <ParticipantInscriptions data={rowData} />,
-    stackedColumn: true,
-    className: 'hidden lg:table-cell',
-  },
-  {
-    title: 'Institución',
-    field: 'institute',
-    className: 'hidden lg:table-cell',
-  },
-  {
-    title: 'Como se dio cuenta',
-    field: 'networksLabel',
-    className: 'hidden lg:table-cell',
-  },
-  {
-    title: 'Medio',
-    field: 'medio',
-    stackedColumn: true,
-    className: 'hidden lg:table-cell',
-    render: (rowData) => <BadgeMedio medio={rowData.medio} />,
-  },
-  {
-    title: 'Fecha',
-    field: 'createdAt',
-    className: 'hidden lg:table-cell',
-    render: (rowData) => (
-      <div className="text-sm text-gray-600">
-        {new Date(rowData.createdAt).toLocaleDateString('es-SV', {
-          timeZone: 'America/El_Salvador',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
-      </div>
-    ),
-  },
-];
-
 export default Participants;
