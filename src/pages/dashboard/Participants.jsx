@@ -110,7 +110,7 @@ const Participants = () => {
     onEdit,
     setParticipantIdToDelete,
     handleShowQR,
-    permissions.includes(Permissions.MANAGE_PARTICIPANTS)
+    permissions
   );
 
   // Generar columnas con permisos

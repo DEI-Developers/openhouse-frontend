@@ -10,7 +10,7 @@ const getParticipantsWithComplexFilter = async (
   sortColumn = 'createdAt',
   sortOrder = 'desc'
 ) => {
-  const isAdmin = permissions.includes(Permissions.MANAGE_PARTICIPANTS);
+  const isAdmin = permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
   
   const params = new URLSearchParams({
     globalOperator,

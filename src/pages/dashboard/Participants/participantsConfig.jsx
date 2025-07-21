@@ -6,6 +6,7 @@ import {HiOutlineQrCode} from 'react-icons/hi2';
 import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import ParticipantContactInfo from '@components/Dashboard/Participants/ParticipantContactInfo';
 import ParticipantInscriptions from '@components/Dashboard/Participants/ParticipantInscriptions';
+import Permissions from '@utils/Permissions';
 
 /**
  * Datos iniciales del formulario de participantes
@@ -33,15 +34,10 @@ export const initialFormData = {
  * @param {Function} onEdit - Función para editar un participante
  * @param {Function} onDelete - Función para eliminar un participante
  * @param {Function} onShowQR - Función para mostrar el código QR del participante
- * @param {boolean} userHasPermissionsToManage - Si el usuario tiene permisos para gestionar participantes
+ * @param {Array} permissions - Array de permisos del usuario actual
  * @returns {Array} Array de objetos con las acciones disponibles
  */
-export const getCustomActions = (
-  onEdit,
-  onDelete,
-  onShowQR,
-  userHasPermissionsToManage
-) => {
+export const getCustomActions = (onEdit, onDelete, onShowQR, permissions) => {
   const actions = [
     {
       id: 1,
@@ -52,23 +48,24 @@ export const getCustomActions = (
     },
   ];
 
-  if (userHasPermissionsToManage) {
-    actions.push(
-      {
-        id: 2,
-        label: '',
-        tooltip: 'Editar',
-        Icon: BiEditAlt,
-        onClick: onEdit,
-      },
-      {
-        id: 3,
-        label: '',
-        tooltip: 'Borrar',
-        Icon: HiOutlineTrash,
-        onClick: (data) => onDelete(data.id),
-      }
-    );
+  if (permissions.includes(Permissions.CREATE_PARTICIPANT)) {
+    actions.push({
+      id: 2,
+      label: '',
+      tooltip: 'Editar',
+      Icon: BiEditAlt,
+      onClick: onEdit,
+    });
+  }
+
+  if (permissions.includes(Permissions.DELETE_PARTICIPANT)) {
+    actions.push({
+      id: 3,
+      label: '',
+      tooltip: 'Borrar',
+      Icon: HiOutlineTrash,
+      onClick: (data) => onDelete(data.id),
+    });
   }
 
   return actions;
@@ -84,7 +81,9 @@ export const getColumns = (permissions = []) => [
   {
     title: 'Persona',
     field: 'name',
-    render: (rowData) => <ParticipantContactInfo data={rowData} permissions={permissions} />,
+    render: (rowData) => (
+      <ParticipantContactInfo data={rowData} permissions={permissions} />
+    ),
   },
   {
     title: 'Facultad / Carrera de interés',
