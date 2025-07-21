@@ -126,75 +126,83 @@ const Participants = () => {
         <h1 className="text-primary text-3xl font-bold">Participantes</h1>
         <div className="flex gap-2 items-center">
           {/* Toggle de vista */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('table')}
-              className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'table'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <HiOutlineViewList className="mr-2" />
-              Tabla
-            </button>
-            <button
-              onClick={() => setViewMode('card')}
-              className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'card'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <HiOutlineViewGrid className="mr-2" />
-              Fichas
-            </button>
-          </div>
-
-          {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
-            <>
+          {(permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) ||
+            permissions.includes(Permissions.VIEW_CAREER_PARTICIPANTS) ||
+            permissions.includes(Permissions.VIEW_FACULTY_PARTICIPANTS)) && (
+            <div className="flex bg-gray-100 rounded-lg p-1">
               <button
-                type="button"
-                onClick={handleDownloadExcel}
-                disabled={isExporting}
-                className={`btn px-4 py-2.5 rounded-lg text-white ${
-                  isExporting
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700'
+                onClick={() => setViewMode('table')}
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'table'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {isExporting ? 'Exportando...' : 'Descargar Excel'}
+                <HiOutlineViewList className="mr-2" />
+                Tabla
               </button>
               <button
-                type="button"
-                onClick={onToggleBox}
-                className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+                onClick={() => setViewMode('card')}
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'card'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
               >
-                <AiOutlinePlus className="mr-2" />
-                <span>Agregar participante</span>
+                <HiOutlineViewGrid className="mr-2" />
+                Fichas
               </button>
-            </>
+            </div>
+          )}
+
+          {permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) && (
+            <button
+              type="button"
+              onClick={handleDownloadExcel}
+              disabled={isExporting}
+              className={`btn px-4 py-2.5 rounded-lg text-white ${
+                isExporting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              {isExporting ? 'Exportando...' : 'Descargar Excel'}
+            </button>
+          )}
+
+          {permissions.includes(Permissions.CREATE_PARTICIPANT) && (
+            <button
+              type="button"
+              onClick={onToggleBox}
+              className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+            >
+              <AiOutlinePlus className="mr-2" />
+              <span>Agregar participante</span>
+            </button>
           )}
         </div>
       </div>
 
-      {viewMode === 'table' ? (
-        <AdvancedCustomTable
-          columns={columns}
-          queryKey="participants"
-          defaultRowsPerPage={10}
-          customActions={customActions}
-          fetchData={getParticipants}
-          CustomFilters={ParticipantsFilters}
-          permissions={permissions}
-          useAdvancedFiltering={true}
-        />
-      ) : (
-        <ParticipantsCardView
-          customActions={customActions}
-          permissions={permissions}
-        />
-      )}
+      {(permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) ||
+        permissions.includes(Permissions.VIEW_CAREER_PARTICIPANTS) ||
+        permissions.includes(Permissions.VIEW_FACULTY_PARTICIPANTS)) &&
+        (viewMode === 'table' ? (
+          <AdvancedCustomTable
+            columns={columns}
+            queryKey="participants"
+            defaultRowsPerPage={10}
+            customActions={customActions}
+            fetchData={getParticipants}
+            CustomFilters={ParticipantsFilters}
+            permissions={permissions}
+            useAdvancedFiltering={true}
+          />
+        ) : (
+          <ParticipantsCardView
+            customActions={customActions}
+            permissions={permissions}
+          />
+        ))}
 
       <DeleteDialog
         isOpen={!empty(participantIdToDelete)}
@@ -204,7 +212,7 @@ const Participants = () => {
         onDelete={() => onDelete.mutate(participantIdToDelete)}
       />
 
-      {permissions.includes(Permissions.MANAGE_PARTICIPANTS) && (
+      {permissions.includes(Permissions.CREATE_PARTICIPANT) && (
         <CustomModal
           isOpen={isOpen}
           onToggleModal={onCloseForm}
