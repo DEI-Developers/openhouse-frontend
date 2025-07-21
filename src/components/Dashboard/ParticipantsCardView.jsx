@@ -21,6 +21,7 @@ import CustomModal from '@components/UI/Modal/CustomModal';
 import {useAuth} from '@context/AuthContext';
 import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import {formatPhoneNumber} from '@utils/helpers/formatters';
+import Permissions from '@utils/Permissions';
 
 const ParticipantsCardView = ({customActions, permissions}) => {
   const {permissions: userPermissions} = useAuth();
@@ -28,6 +29,9 @@ const ParticipantsCardView = ({customActions, permissions}) => {
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [showInscriptionsModal, setShowInscriptionsModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+
+  // Verificar si el usuario tiene permisos para ver toda la información de contacto
+  const canViewAllParticipants = userPermissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
 
   const fetchParticipants = async ({pageParam = 1}) => {
     if (currentFilters) {
@@ -172,48 +176,52 @@ const ParticipantsCardView = ({customActions, permissions}) => {
               </div>
 
               {/* Información de contacto */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                    Contacto
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <HiOutlineMail className="text-gray-400 w-4 h-4 flex-shrink-0" />
-                      <a
-                        href={`mailto:${participant.email}`}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors truncate"
-                        title={participant.email}
-                      >
-                        {participant.email}
-                      </a>
-                    </div>
+              {canViewAllParticipants && (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      Contacto
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <HiOutlineMail className="text-gray-400 w-4 h-4 flex-shrink-0" />
+                        <a
+                          href={`mailto:${participant.email}`}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors truncate"
+                          title={participant.email}
+                        >
+                          {participant.email}
+                        </a>
+                      </div>
 
-                    <div className="flex items-center space-x-2">
-                      <HiOutlinePhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
-                      <div className="flex space-x-2 text-sm">
-                        <a
-                          href={`tel:+${participant.phoneNumber}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {formatPhoneNumber(participant.phoneNumber)}
-                        </a>
-                        <span className="text-gray-400">|</span>
-                        <a
-                          href={`https://wa.me/+${participant.phoneNumber}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-green-600 hover:underline"
-                        >
-                          WhatsApp
-                        </a>
+                      <div className="flex items-center space-x-2">
+                        <HiOutlinePhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
+                        <div className="flex space-x-2 text-sm">
+                          <a
+                            href={`tel:+${participant.phoneNumber}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {formatPhoneNumber(participant.phoneNumber)}
+                          </a>
+                          <span className="text-gray-400">|</span>
+                          <a
+                            href={`https://wa.me/+${participant.phoneNumber}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-green-600 hover:underline"
+                          >
+                            WhatsApp
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Información académica */}
-                <div className="pt-3 border-t border-gray-100">
+              {/* Información académica */}
+              <div className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}>
+                <div>
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">
                     Información Académica
                   </h4>

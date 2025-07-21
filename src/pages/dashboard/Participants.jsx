@@ -21,7 +21,7 @@ import {useParticipantExcelExport} from '@hooks/Dashboard/useParticipantExcelExp
 import {
   initialFormData,
   getCustomActions,
-  columns,
+  getColumns,
 } from './Participants/participantsConfig';
 
 const Participants = () => {
@@ -35,7 +35,7 @@ const Participants = () => {
     useState(null);
 
   // Hook personalizado para la exportación a Excel
-  const {isExporting, exportError, handleExportToExcel, clearExportError} =
+  const {isExporting, exportError, handleExportToExcel} =
     useParticipantExcelExport();
 
   const onDelete = useMutation({
@@ -112,6 +112,9 @@ const Participants = () => {
     handleShowQR,
     permissions.includes(Permissions.MANAGE_PARTICIPANTS)
   );
+
+  // Generar columnas con permisos
+  const columns = getColumns(permissions);
 
   return (
     <div>

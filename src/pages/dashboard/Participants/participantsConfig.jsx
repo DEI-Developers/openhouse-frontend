@@ -77,6 +77,61 @@ export const getCustomActions = (
 /**
  * Configuración de columnas para la tabla de participantes
  * Define cómo se muestran los datos en cada columna de la tabla
+ * @param {Array} permissions - Array de permisos del usuario actual
+ * @returns {Array} Array de objetos con la configuración de columnas
+ */
+export const getColumns = (permissions = []) => [
+  {
+    title: 'Persona',
+    field: 'name',
+    render: (rowData) => <ParticipantContactInfo data={rowData} permissions={permissions} />,
+  },
+  {
+    title: 'Facultad / Carrera de interés',
+    field: 'permissions',
+    render: (rowData) => <ParticipantInscriptions data={rowData} />,
+    stackedColumn: true,
+    className: 'hidden lg:table-cell',
+  },
+  {
+    title: 'Institución',
+    field: 'institute',
+    className: 'hidden lg:table-cell',
+  },
+  {
+    title: 'Como se dio cuenta',
+    field: 'networksLabel',
+    className: 'hidden lg:table-cell',
+  },
+  {
+    title: 'Medio',
+    field: 'medio',
+    stackedColumn: true,
+    className: 'hidden lg:table-cell',
+    render: (rowData) => <BadgeMedio medio={rowData.medio} />,
+  },
+  {
+    title: 'Fecha',
+    field: 'createdAt',
+    className: 'hidden lg:table-cell',
+    render: (rowData) => (
+      <div className="text-sm text-gray-600">
+        {new Date(rowData.createdAt).toLocaleDateString('es-SV', {
+          timeZone: 'America/El_Salvador',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
+      </div>
+    ),
+  },
+];
+
+/**
+ * Configuración de columnas para la tabla de participantes (versión legacy)
+ * @deprecated Usar getColumns(permissions) en su lugar
  */
 export const columns = [
   {
