@@ -10,10 +10,15 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
+import DeleteAttendanceDialog from '@components/Dashboard/DeleteAttendanceDialog';
 import AdminParticipationForm from '@components/Dashboard/AdminParticipationForm';
 import ParticipantQRModal from '@components/Dashboard/ParticipantQRModal';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {deleteParticipant, getParticipants} from '@services/Participants';
+import {
+  deleteParticipant,
+  deleteParticipantAttendance,
+  getParticipants,
+} from '@services/Participants';
 import ParticipantsFilters from '@components/UI/Filters/ParticipantsFilters';
 import AdvancedCustomTable from '@components/UI/Table/AdvancedCustomTable';
 import ParticipantsCardView from '@components/Dashboard/ParticipantsCardView';
@@ -30,6 +35,7 @@ const Participants = () => {
   const [currentData, setCurrentParticipant] = useState(initialFormData);
   const {isOpen, onToggleBox, onClose} = useBooleanBox();
   const [participantIdToDelete, setParticipantIdToDelete] = useState(null);
+  const [attendanceToDelete, setAttendanceToDelete] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
   const [selectedParticipantForQR, setSelectedParticipantForQR] =
     useState(null);
@@ -42,6 +48,17 @@ const Participants = () => {
     mutationFn: deleteParticipant,
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['participants']});
+    },
+  });
+
+  const onDeleteAttendance = useMutation({
+    mutationFn: async (attendanceData) => {
+      console.log(attendanceData);
+      await deleteParticipantAttendance(attendanceData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['participants']});
+      setAttendanceToDelete(null);
     },
   });
 
@@ -92,6 +109,15 @@ const Participants = () => {
   };
 
   /**
+   * Maneja la eliminación de asistencia de un participante
+   * Prepara los datos para el diálogo de confirmación
+   */
+  const handleDeleteAttendance = (attendanceData) => {
+    console.log(attendanceData);
+    setAttendanceToDelete(attendanceData);
+  };
+
+  /**
    * Maneja la descarga del archivo Excel
    * Utiliza el hook personalizado para la exportación
    */
@@ -113,8 +139,8 @@ const Participants = () => {
     permissions
   );
 
-  // Generar columnas con permisos
-  const columns = getColumns(permissions);
+  // Generar columnas con permisos y función de eliminar asistencia
+  const columns = getColumns(permissions, handleDeleteAttendance);
 
   return (
     <div>
@@ -201,6 +227,7 @@ const Participants = () => {
           <ParticipantsCardView
             customActions={customActions}
             permissions={permissions}
+            onDeleteAttendance={handleDeleteAttendance}
           />
         ))}
 
@@ -210,6 +237,18 @@ const Participants = () => {
         isSuccess={onDelete.isSuccess}
         onClose={() => setParticipantIdToDelete(null)}
         onDelete={() => onDelete.mutate(participantIdToDelete)}
+      />
+
+      <DeleteAttendanceDialog
+        isOpen={!empty(attendanceToDelete)}
+        isLoading={onDeleteAttendance.isPending}
+        isSuccess={onDeleteAttendance.isSuccess}
+        onClose={() => setAttendanceToDelete(null)}
+        onDelete={() => {
+          console.log(attendanceToDelete);
+          onDeleteAttendance.mutate(attendanceToDelete);
+        }}
+        participantData={attendanceToDelete}
       />
 
       {permissions.includes(Permissions.CREATE_PARTICIPANT) && (

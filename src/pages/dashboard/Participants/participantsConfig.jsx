@@ -75,9 +75,10 @@ export const getCustomActions = (onEdit, onDelete, onShowQR, permissions) => {
  * Configuración de columnas para la tabla de participantes
  * Define cómo se muestran los datos en cada columna de la tabla
  * @param {Array} permissions - Array de permisos del usuario actual
+ * @param {Function} onDeleteAttendance - Función para eliminar asistencia
  * @returns {Array} Array de objetos con la configuración de columnas
  */
-export const getColumns = (permissions = []) => [
+export const getColumns = (permissions = [], onDeleteAttendance = null) => [
   {
     title: 'Persona',
     field: 'name',
@@ -88,7 +89,13 @@ export const getColumns = (permissions = []) => [
   {
     title: 'Facultad / Carrera de interés',
     field: 'permissions',
-    render: (rowData) => <ParticipantInscriptions data={rowData} />,
+    render: (rowData) => (
+      <ParticipantInscriptions
+        data={rowData}
+        permissions={permissions}
+        onDeleteAttendance={onDeleteAttendance}
+      />
+    ),
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
@@ -130,9 +137,11 @@ export const getColumns = (permissions = []) => [
 
 /**
  * Configuración de columnas para la tabla de participantes (versión legacy)
- * @deprecated Usar getColumns(permissions) en su lugar
+ * @deprecated Usar getColumns(permissions, onDeleteAttendance) en su lugar
+ * @param {Array} permissions - Array de permisos del usuario actual
+ * @param {Function} onDeleteAttendance - Función para eliminar asistencia
  */
-export const columns = [
+export const getColumnsLegacy = (permissions = [], onDeleteAttendance = null) => [
   {
     title: 'Persona',
     field: 'name',
@@ -141,7 +150,13 @@ export const columns = [
   {
     title: 'Facultad / Carrera de interés',
     field: 'permissions',
-    render: (rowData) => <ParticipantInscriptions data={rowData} />,
+    render: (rowData) => (
+      <ParticipantInscriptions
+        data={rowData}
+        permissions={permissions}
+        onDeleteAttendance={onDeleteAttendance}
+      />
+    ),
     stackedColumn: true,
     className: 'hidden lg:table-cell',
   },
@@ -180,3 +195,8 @@ export const columns = [
     ),
   },
 ];
+
+/**
+ * @deprecated Usar getColumns(permissions, onDeleteAttendance) en su lugar
+ */
+export const columns = getColumnsLegacy();

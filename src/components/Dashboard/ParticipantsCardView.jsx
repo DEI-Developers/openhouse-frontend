@@ -23,7 +23,7 @@ import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import {formatPhoneNumber} from '@utils/helpers/formatters';
 import Permissions from '@utils/Permissions';
 
-const ParticipantsCardView = ({customActions, permissions}) => {
+const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) => {
   const {permissions: userPermissions} = useAuth();
   const [currentFilters, setCurrentFilters] = useState(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -257,13 +257,15 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                 </h4>
                 {participant.subscribedTo &&
                 participant.subscribedTo.length > 0 ? (
-                  <InscriptionsSection
-                    participant={participant}
-                    onShowAll={() => {
-                      setSelectedParticipant(participant);
-                      setShowInscriptionsModal(true);
-                    }}
-                  />
+                  <InscriptionsSection 
+                participant={participant} 
+                onShowAll={() => {
+                  setSelectedParticipant(participant);
+                  setShowInscriptionsModal(true);
+                }}
+                permissions={permissions}
+                onDeleteAttendance={onDeleteAttendance}
+              />
                 ) : (
                   <p className="text-sm text-gray-500">Sin inscripciones</p>
                 )}
@@ -353,7 +355,13 @@ const ParticipantsCardView = ({customActions, permissions}) => {
                       </span>
                     </div>
                   )}
-                  <AccompanimentBadges item={item} />
+                  <AccompanimentBadges 
+                    item={item} 
+                    participant={selectedParticipant}
+                    permissions={permissions}
+                    onDeleteAttendance={onDeleteAttendance}
+                    showDeleteButton={true}
+                  />
                 </div>
               </div>
             ))}
@@ -376,7 +384,7 @@ const ParticipantsCardView = ({customActions, permissions}) => {
 };
 
 // Componente para mostrar las inscripciones en las fichas
-const InscriptionsSection = ({participant, onShowAll}) => {
+const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAttendance}) => {
   const subscribedTo = participant?.subscribedTo ?? [];
 
   if (subscribedTo.length === 0) {
@@ -409,7 +417,13 @@ const InscriptionsSection = ({participant, onShowAll}) => {
               </span>
             </div>
           )}
-          <AccompanimentBadges item={firstItem} />
+          <AccompanimentBadges 
+            item={firstItem} 
+            participant={participant}
+            permissions={permissions}
+            onDeleteAttendance={onDeleteAttendance}
+            showDeleteButton={true}
+          />
         </div>
       </div>
 
@@ -426,15 +440,31 @@ const InscriptionsSection = ({participant, onShowAll}) => {
 };
 
 // Componente para mostrar badges de acompañamiento
-const AccompanimentBadges = ({item}) => {
+const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance, showDeleteButton = false}) => {
   const withParent = item.withParent;
   const parentStudiedAtUCA = item.parentStudiedAtUCA;
   const attended = item.attended;
   console.log(item)
 
+  const handleDeleteAttendance = () => {
+    if (onDeleteAttendance && participant && item.event) {
+      onDeleteAttendance({
+        participantId: participant.id,
+        participantName: participant.name,
+        eventId: item.event.id,
+        eventDate: item.event.date,
+        facultyName: item.faculty?.name || 'N/A'
+      });
+    }
+  };
+
+  const canDeleteAttendance = showDeleteButton && 
+                             attended && 
+                             permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
+
   return (
     <div className="flex flex-wrap gap-1 mt-2">
-      {/* Badge de asistencia */}
+      {/* Badge de asistencia con X para eliminar */}
       <span
         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           attended
@@ -443,6 +473,15 @@ const AccompanimentBadges = ({item}) => {
         }`}
       >
         {attended ? 'Asistió' : 'No asistió'}
+        {canDeleteAttendance && (
+          <button
+            onClick={handleDeleteAttendance}
+            className="ml-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-200 rounded-full p-0.5 transition-colors duration-200"
+            title="Eliminar asistencia"
+          >
+            ×
+          </button>
+        )}
       </span>
 
       <span

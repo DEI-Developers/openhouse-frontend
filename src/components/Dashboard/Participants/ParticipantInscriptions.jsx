@@ -1,10 +1,20 @@
 import React, {useState} from 'react';
 import {empty} from '@utils/helpers';
+import Permissions from '@utils/Permissions';
 import CustomModal from '@components/UI/Modal/CustomModal';
 
-const ParticipantInscriptions = ({data}) => {
+const ParticipantInscriptions = ({
+  data,
+  permissions = [],
+  onDeleteAttendance,
+}) => {
   const subscribedTo = data?.subscribedTo ?? [];
   const [showAllModal, setShowAllModal] = useState(false);
+
+  // Verificar si el usuario tiene permisos para eliminar asistencia
+  const canDeleteAttendance = permissions.includes(
+    Permissions.DELETE_PARTICIPANT_ATTENDANCE
+  );
 
   if (subscribedTo.length === 0) {
     return <div className="text-gray-500 text-sm">Sin inscripciones</div>;
@@ -13,14 +23,33 @@ const ParticipantInscriptions = ({data}) => {
   const firstItem = subscribedTo[0];
   const additionalCount = subscribedTo.length - 1;
 
-  const renderAccompanimentBadges = (item) => {
+  const handleDeleteAttendance = (item) => {
+    if (onDeleteAttendance && item.attended) {
+      console.log(item);
+      onDeleteAttendance({
+        participantId: data.id,
+        eventId: item.event?._id || item.event,
+        participantName: data.name,
+        eventName: `${item.faculty?.name} - ${new Date(
+          item.event?.date
+        ).toLocaleDateString('es-SV', {
+          timeZone: 'UTC',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })}`,
+      });
+    }
+  };
+
+  const renderAccompanimentBadges = (item, showDeleteButton = false) => {
     const withParent = item.withParent;
     const parentStudiedAtUCA = item.parentStudiedAtUCA;
     const attended = item.attended;
 
     return (
-      <div className="flex flex-wrap gap-1 mt-2">
-        {/* Badge de asistencia */}
+      <div className="flex flex-wrap gap-1 mt-2 items-center">
+        {/* Badge de asistencia con X para eliminar */}
         <span
           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
             attended
@@ -29,6 +58,15 @@ const ParticipantInscriptions = ({data}) => {
           }`}
         >
           {attended ? 'Asistió' : 'No asistió'}
+          {showDeleteButton && canDeleteAttendance && attended && (
+            <button
+              onClick={() => handleDeleteAttendance(item)}
+              className="ml-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-200 rounded-full p-0.5 transition-colors duration-200"
+              title="Eliminar asistencia"
+            >
+              ×
+            </button>
+          )}
         </span>
 
         <span
@@ -82,7 +120,7 @@ const ParticipantInscriptions = ({data}) => {
                 </span>
               </div>
             )}
-            {renderAccompanimentBadges(firstItem)}
+            {renderAccompanimentBadges(firstItem, true)}
           </div>
         </div>
 
@@ -133,7 +171,7 @@ const ParticipantInscriptions = ({data}) => {
                       </span>
                     </div>
                   )}
-                  {renderAccompanimentBadges(item)}
+                  {renderAccompanimentBadges(item, true)}
                 </div>
               </div>
             ))}
