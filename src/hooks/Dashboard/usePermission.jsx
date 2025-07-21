@@ -17,6 +17,11 @@ const usePermission = () => {
   const [showDeleted, setShowDeleted] = useState(false);
   const {createMutationConfig} = useFormWithToast();
 
+  const invalidateAllPermissionQueries = () => {
+    queryClient.invalidateQueries({queryKey: ['permissions']});
+    queryClient.invalidateQueries({queryKey: ['permissions-with-deleted']});
+  };
+
   const onToggleForm = (data = initialData) => {
     setCurrentPermission(data);
     onToggleBox();
@@ -33,7 +38,7 @@ const usePermission = () => {
       'Permiso creado exitosamente',
       'Error al crear el permiso',
       () => {
-        queryClient.invalidateQueries({queryKey: ['permissions']});
+        invalidateAllPermissionQueries();
         onClose();
       }
     )
@@ -45,7 +50,7 @@ const usePermission = () => {
       'Permiso actualizado exitosamente',
       'Error al actualizar el permiso',
       () => {
-        queryClient.invalidateQueries({queryKey: ['permissions']});
+        invalidateAllPermissionQueries();
         onClose();
       }
     )
@@ -57,7 +62,7 @@ const usePermission = () => {
       'Permiso eliminado exitosamente',
       'Error al eliminar el permiso',
       () => {
-        queryClient.invalidateQueries({queryKey: ['permissions']});
+        invalidateAllPermissionQueries();
       }
     )
   );
@@ -68,7 +73,7 @@ const usePermission = () => {
       'Permiso eliminado permanentemente',
       'Error al eliminar permanentemente el permiso',
       () => {
-        queryClient.invalidateQueries({queryKey: ['permissions']});
+        invalidateAllPermissionQueries();
       }
     )
   );
@@ -79,14 +84,14 @@ const usePermission = () => {
       'Permiso restaurado exitosamente',
       'Error al restaurar el permiso',
       () => {
-        queryClient.invalidateQueries({queryKey: ['permissions']});
+        invalidateAllPermissionQueries();
       }
     )
   );
 
   const toggleShowDeleted = () => {
     setShowDeleted(!showDeleted);
-    queryClient.invalidateQueries({queryKey: ['permissions']});
+    invalidateAllPermissionQueries();
   };
 
   return {

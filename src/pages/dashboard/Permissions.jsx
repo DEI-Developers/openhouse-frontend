@@ -33,28 +33,60 @@ const Permissions = () => {
     toggleShowDeleted,
   } = usePermission();
 
+  // Funciones wrapper para manejar las acciones con invalidación correcta
+  const handleRestore = (id) => {
+    onRestore.mutate(id);
+  };
+
+  const handleHardDelete = (id) => {
+    setPermissionToHardDelete(id);
+  };
+
   const customActions = getCustomActions(
     onEdit,
     setPermissionIdToDelete,
-    setPermissionToHardDelete,
-    onRestore,
+    handleHardDelete,
+    handleRestore,
     showDeleted
   );
 
   // Wrapper para fetchData que incluye el parámetro showDeleted
-  const fetchPermissionsData = (
+  const fetchPermissionsData = async (
     pageNumber,
     pageSize,
     searchedWord,
     filters = null
   ) => {
-    return getPermissions(
-      pageNumber,
-      pageSize,
-      searchedWord,
-      filters,
-      showDeleted
-    );
+    if (showDeleted) {
+      // Cuando showDeleted es true, obtenemos todos los permisos (incluidos eliminados)
+      // y luego filtramos solo los eliminados
+      const result = await getPermissions(
+        pageNumber,
+        pageSize,
+        searchedWord,
+        filters,
+        true // includeDeleted = true
+      );
+      
+      // Filtrar solo los permisos que tienen deletedAt (soft deleted)
+      const deletedRows = result.rows.filter(row => row.deletedAt);
+      
+      return {
+        ...result,
+        rows: deletedRows,
+        nRows: deletedRows.length,
+        nPages: Math.ceil(deletedRows.length / pageSize),
+      };
+    } else {
+      // Cuando showDeleted es false, solo obtenemos permisos activos
+      return getPermissions(
+        pageNumber,
+        pageSize,
+        searchedWord,
+        filters,
+        false // includeDeleted = false
+      );
+    }
   };
 
   return (
@@ -63,22 +95,40 @@ const Permissions = () => {
 
       <Breadcrumb pageName="Permisos" />
 
-      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
+      <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
         <h1 className="text-primary text-3xl font-bold">Gestión de Permisos</h1>
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={showDeleted}
-              onChange={toggleShowDeleted}
-              className="rounded border-gray-300 text-primary focus:ring-primary"
-            />
-            <span>Mostrar eliminados</span>
-          </label>
+          {/* Toggle mejorado para mostrar eliminados */}
+          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <span className="text-sm font-medium text-gray-700">Vista:</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => showDeleted && toggleShowDeleted()}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  !showDeleted
+                    ? 'bg-primary text-white'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Activos
+              </button>
+              <button
+                onClick={() => !showDeleted && toggleShowDeleted()}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  showDeleted
+                    ? 'bg-red-500 text-white'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Eliminados
+              </button>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={() => onToggleForm()}
-            className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
+            className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
           >
             <AiOutlinePlus className="mr-2" />
             <span>Agregar permiso</span>
@@ -131,7 +181,13 @@ const Permissions = () => {
   );
 };
 
-const getCustomActions = (onEdit, onDelete, onHardDelete, onRestore, showDeleted) => [
+const getCustomActions = (
+  onEdit,
+  onDelete,
+  onHardDelete,
+  onRestore,
+  showDeleted
+) => [
   {
     id: 1,
     label: '',
@@ -153,7 +209,7 @@ const getCustomActions = (onEdit, onDelete, onHardDelete, onRestore, showDeleted
     label: '',
     tooltip: 'Restaurar',
     Icon: MdRestore,
-    onClick: (data) => onRestore.mutate(data.id),
+    onClick: (data) => onRestore(data.id), // Cambio aquí: usar la función en lugar de mutate directo
     ruleToHide: (data) => !showDeleted || !data.deletedAt, // Solo mostrar si está eliminado
   },
   {
@@ -169,13 +225,15 @@ const getCustomActions = (onEdit, onDelete, onHardDelete, onRestore, showDeleted
 const getColumns = () => [
   {
     title: 'Estado',
-    field: 'deletedAt',
+    field: 'status', // Cambio de 'deletedAt' a 'status' para evitar duplicados
     render: (rowData) => (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        rowData.deletedAt 
-          ? 'bg-red-100 text-red-800' 
-          : 'bg-green-100 text-green-800'
-      }`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          rowData.deletedAt
+            ? 'bg-red-100 text-red-800'
+            : 'bg-green-100 text-green-800'
+        }`}
+      >
         {rowData.deletedAt ? 'Eliminado' : 'Activo'}
       </span>
     ),
@@ -184,11 +242,13 @@ const getColumns = () => [
     title: 'Valor',
     field: 'value',
     render: (rowData) => (
-      <span className={`font-mono text-sm px-2 py-1 rounded ${
-        rowData.deletedAt 
-          ? 'bg-red-50 text-red-700 line-through' 
-          : 'bg-gray-100'
-      }`}>
+      <span
+        className={`font-mono text-sm px-2 py-1 rounded ${
+          rowData.deletedAt
+            ? 'bg-red-50 text-red-700 line-through'
+            : 'bg-gray-100'
+        }`}
+      >
         {rowData.value}
       </span>
     ),
@@ -208,11 +268,13 @@ const getColumns = () => [
     title: 'Tipo',
     field: 'type',
     render: (rowData) => (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-        rowData.deletedAt 
-          ? 'bg-red-100 text-red-800' 
-          : 'bg-blue-100 text-blue-800'
-      }`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+          rowData.deletedAt
+            ? 'bg-red-100 text-red-800'
+            : 'bg-blue-100 text-blue-800'
+        }`}
+      >
         {rowData.type}
       </span>
     ),
