@@ -4,6 +4,7 @@ import {Suspense} from 'react';
 import {BrowserRouter} from 'react-router-dom';
 import ErrorBoundary from '@pages/ErrorBoundary';
 import {AuthProvider} from '@context/AuthContext';
+import {ToastProvider} from '@context/ToastContext';
 import {HelmetProvider} from 'react-helmet-async';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import AppRouter from './Router';
@@ -18,9 +19,11 @@ function App() {
         <BrowserRouter basename={basePath}>
           <Suspense fallback={<div>Loading...</div>}>
             <QueryClientProvider client={queryClient}>
-              <ErrorBoundary>
-                <AppRouter />
-              </ErrorBoundary>
+              <ToastProvider>
+                <ErrorBoundary>
+                  <AppRouter />
+                </ErrorBoundary>
+              </ToastProvider>
             </QueryClientProvider>
           </Suspense>
         </BrowserRouter>

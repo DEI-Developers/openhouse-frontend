@@ -1,13 +1,14 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
 
-const getPermissions = async (pageNumber, pageSize, searchedWord, filters = null) => {
+const getPermissions = async (pageNumber, pageSize, searchedWord, filters = null, includeDeleted = false) => {
   const params = {
     pageNumber,
     pageSize,
     sortColumn: 'createdAt',
     sortOrder: 'desc',
     searchWord: !empty(searchedWord) ? searchedWord : undefined,
+    includeDeleted: includeDeleted,
   };
 
   const queryParams = parseUrlParams(params, []);

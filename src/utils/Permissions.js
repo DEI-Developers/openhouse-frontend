@@ -10,4 +10,11 @@ export default {
   VIEW_FACULTY_PARTICIPANTS: 'view_faculty_participants',
   VIEW_ALL_PARTICIPANTS: 'view_all_participants',
   VIEW_CAREER_PARTICIPANTS: 'view_career_participants',
+  HARD_DELETE_PARTICIPANT: 'hard_delete_participant',
+  CREATE_PERMISSIONS: 'create_permissions',
+  GET_PERMISSIONS: 'get_permissions',
+  GET_PERMISSION: 'get_permission',
+  UPDATE_PERMISSION: 'update_permission',
+  DELETE_PERMISSION: 'delete_permission',
+  HARD_DELETE_PERMISSION: 'hard_delete_permission',
 };

@@ -9,6 +9,10 @@ const DeleteDialog = ({
   isSuccess = false,
   onDelete,
   onClose,
+  title = "Eliminar registro",
+  message = "¿Estás seguro de que deseas eliminar este registro? Esta acción es irreversible y no podrás recuperar la información.",
+  confirmText = "Eliminar",
+  confirmButtonClass = "border-transparent bg-red-600 text-white shadow-xs hover:bg-red-700 focus:ring-red-500",
 }) => {
   useEffect(() => {
     if (isSuccess) {
@@ -32,12 +36,11 @@ const DeleteDialog = ({
           </div>
           <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
             <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Eliminar registro
+              {title}
             </h3>
             <div className="mt-2">
               <p className="text-sm text-gray-500">
-                ¿Estás seguro de que deseas eliminar este registro? Esta acción
-                es irreversible y no podrás recuperar la información.
+                {message}
               </p>
             </div>
           </div>
@@ -47,10 +50,10 @@ const DeleteDialog = ({
       <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
         <SubmitButton
           type="button"
-          label="Eliminar"
+          label={confirmText}
           loading={isLoading}
           onClick={onDelete}
-          className={`${buttonClassName} border-transparent bg-red-600 text-white shadow-xs hover:bg-red-700  focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm`}
+          className={`${buttonClassName} ${confirmButtonClass} sm:ml-3 sm:w-auto sm:text-sm`}
         />
 
         <button
