@@ -19,6 +19,7 @@ import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
 import AdminEvents from '../Dashboard/AdminEvents';
 import SuccessModal from '../Home/SuccessModal';
 import getPublicCatalogs from '@services/getPublicCatalogs';
+import Permissions from '@utils/Permissions';
 
 const AdminParticipationForm = ({
   onCloseForm = null,
@@ -341,16 +342,18 @@ const AdminParticipationForm = ({
 
           <div className="sm:flex sm:flex-row-reverse gap-3">
             {/* Botón Guardar con asistencia */}
-            <button
-              type="button"
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-              disabled={onCreate.isPending || onUpdate.isPending}
-              className="inline-flex w-full justify-center items-center rounded-md bg-green-600 px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-green-700 sm:w-auto disabled:opacity-50"
-            >
-              {onCreate.isPending || onUpdate.isPending
-                ? 'Guardando...'
-                : submitWithAttendanceButtonLabel}
-            </button>
+            {permissions.includes(Permissions.CREATE_PARTICIPANT) && (
+              <button
+                type="button"
+                onClick={handleSubmit((data) => onSubmit(data, true))}
+                disabled={onCreate.isPending || onUpdate.isPending}
+                className="inline-flex w-full justify-center items-center rounded-md bg-green-600 px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-green-700 sm:w-auto disabled:opacity-50"
+              >
+                {onCreate.isPending || onUpdate.isPending
+                  ? 'Guardando...'
+                  : submitWithAttendanceButtonLabel}
+              </button>
+            )}
 
             {/* Botón Guardar normal */}
             <SubmitButton
