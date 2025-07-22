@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {
   HiOutlineUser,
@@ -7,8 +7,6 @@ import {
   HiOutlineAcademicCap,
   HiOutlineGlobeAlt,
 } from 'react-icons/hi';
-import {BiEditAlt} from 'react-icons/bi';
-import {HiOutlineTrash} from 'react-icons/hi';
 import {empty} from '@utils/helpers';
 import {
   getParticipants,
@@ -22,8 +20,13 @@ import {useAuth} from '@context/AuthContext';
 import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import {formatPhoneNumber} from '@utils/helpers/formatters';
 import Permissions from '@utils/Permissions';
+import {number} from 'yup';
 
-const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) => {
+const ParticipantsCardView = ({
+  customActions,
+  permissions,
+  onDeleteAttendance,
+}) => {
   const {permissions: userPermissions} = useAuth();
   const [currentFilters, setCurrentFilters] = useState(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -31,7 +34,9 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
   const [selectedParticipant, setSelectedParticipant] = useState(null);
 
   // Verificar si el usuario tiene permisos para ver toda la información de contacto
-  const canViewAllParticipants = userPermissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
+  const canViewAllParticipants = userPermissions.includes(
+    Permissions.VIEW_ALL_PARTICIPANTS
+  );
 
   const fetchParticipants = async ({pageParam = 1}) => {
     if (currentFilters) {
@@ -41,7 +46,7 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
           currentFilters.filters,
           currentFilters.operator,
           pageParam,
-          12 // pageSize para cards
+          15 // pageSize para cards - máximo 15 por bloque
         );
       } else if (currentFilters.type === 'complex') {
         return await getParticipantsWithComplexFilter(
@@ -49,12 +54,12 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
           currentFilters.filterGroups,
           currentFilters.globalOperator,
           pageParam,
-          12
+          15
         );
       }
     }
 
-    return await getParticipants(userPermissions, pageParam, 12, '', {});
+    return await getParticipants(userPermissions, pageParam, 15, '', {});
   };
 
   const {
@@ -69,7 +74,13 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
     queryFn: fetchParticipants,
     getNextPageParam: (lastPage) => {
       if (lastPage.currentPage < lastPage.nPages) {
-        return lastPage.currentPage + 1;
+        return Number(lastPage.currentPage) + 1;
+      }
+      return undefined;
+    },
+    getPreviousPageParam: (lastPage) => {
+      if (lastPage.currentPage > 1) {
+        return Number(lastPage.currentPage) - 1;
       }
       return undefined;
     },
@@ -85,6 +96,25 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
   };
 
   const allParticipants = data?.pages?.flatMap((page) => page.rows) || [];
+
+  // Hook para scroll infinito automático
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.pageYOffset;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // Cargar más datos cuando esté cerca del final (200px antes)
+    if (scrollTop + windowHeight >= documentHeight - 200) {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   if (isLoading) {
     return (
@@ -130,7 +160,7 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
       </div>
 
       {/* Grid de tarjetas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {allParticipants.map((participant) => (
           <div
             key={participant.id}
@@ -220,7 +250,9 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
               )}
 
               {/* Información académica */}
-              <div className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}>
+              <div
+                className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}
+              >
                 <div>
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">
                     Información Académica
@@ -257,15 +289,15 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
                 </h4>
                 {participant.subscribedTo &&
                 participant.subscribedTo.length > 0 ? (
-                  <InscriptionsSection 
-                participant={participant} 
-                onShowAll={() => {
-                  setSelectedParticipant(participant);
-                  setShowInscriptionsModal(true);
-                }}
-                permissions={permissions}
-                onDeleteAttendance={onDeleteAttendance}
-              />
+                  <InscriptionsSection
+                    participant={participant}
+                    onShowAll={() => {
+                      setSelectedParticipant(participant);
+                      setShowInscriptionsModal(true);
+                    }}
+                    permissions={permissions}
+                    onDeleteAttendance={onDeleteAttendance}
+                  />
                 ) : (
                   <p className="text-sm text-gray-500">Sin inscripciones</p>
                 )}
@@ -288,16 +320,23 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
         ))}
       </div>
 
-      {/* Botón cargar más */}
-      {hasNextPage && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
-          </button>
+      {/* Indicador de carga para scroll infinito */}
+      {isFetchingNextPage && (
+        <div className="flex justify-center mt-8 mb-8">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <span className="text-sm">Cargando más participantes...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Mensaje cuando se han cargado todos los datos */}
+      {!hasNextPage && allParticipants.length > 0 && (
+        <div className="flex justify-center mt-8 mb-8">
+          <div className="text-gray-500 text-sm">
+            Has visto todos los participantes ({allParticipants.length} en
+            total)
+          </div>
         </div>
       )}
 
@@ -355,8 +394,8 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
                       </span>
                     </div>
                   )}
-                  <AccompanimentBadges 
-                    item={item} 
+                  <AccompanimentBadges
+                    item={item}
                     participant={selectedParticipant}
                     permissions={permissions}
                     onDeleteAttendance={onDeleteAttendance}
@@ -384,7 +423,12 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
 };
 
 // Componente para mostrar las inscripciones en las fichas
-const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAttendance}) => {
+const InscriptionsSection = ({
+  participant,
+  onShowAll,
+  permissions,
+  onDeleteAttendance,
+}) => {
   const subscribedTo = participant?.subscribedTo ?? [];
 
   if (subscribedTo.length === 0) {
@@ -417,8 +461,8 @@ const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAtten
               </span>
             </div>
           )}
-          <AccompanimentBadges 
-            item={firstItem} 
+          <AccompanimentBadges
+            item={firstItem}
             participant={participant}
             permissions={permissions}
             onDeleteAttendance={onDeleteAttendance}
@@ -440,11 +484,16 @@ const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAtten
 };
 
 // Componente para mostrar badges de acompañamiento
-const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance, showDeleteButton = false}) => {
+const AccompanimentBadges = ({
+  item,
+  participant,
+  permissions,
+  onDeleteAttendance,
+  showDeleteButton = false,
+}) => {
   const withParent = item.withParent;
   const parentStudiedAtUCA = item.parentStudiedAtUCA;
   const attended = item.attended;
-  console.log(item)
 
   const handleDeleteAttendance = () => {
     if (onDeleteAttendance && participant && item.event) {
@@ -453,14 +502,15 @@ const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance
         participantName: participant.name,
         eventId: item.event.id,
         eventDate: item.event.date,
-        facultyName: item.faculty?.name || 'N/A'
+        facultyName: item.faculty?.name || 'N/A',
       });
     }
   };
 
-  const canDeleteAttendance = showDeleteButton && 
-                             attended && 
-                             permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
+  const canDeleteAttendance =
+    showDeleteButton &&
+    attended &&
+    permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
 
   return (
     <div className="flex flex-wrap gap-1 mt-2">
