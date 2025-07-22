@@ -13,12 +13,14 @@ import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import FacultyForm from '@components/Dashboard/Faculty/FacultyForm';
 import CustomTable from '@components/UI/Table/CustomTable';
+import FacultiesCardView from '@components/Dashboard/FacultiesCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
 const Faculties = () => {
   const [facultyIdToDelete, setFacultyIdToDelete] = useState(null);
   const [facultyToHardDelete, setFacultyToHardDelete] = useState(null);
-  const { careers } = useCatalogs();
+  const [viewMode, setViewMode] = useState('table'); // 'table' o 'card'
+  const {careers} = useCatalogs();
   const {
     onEdit,
     onCreate,
@@ -70,10 +72,10 @@ const Faculties = () => {
         filters,
         true // includeDeleted = true
       );
-      
+
       // Filtrar solo las facultades que tienen deletedAt (soft deleted)
-      const deletedRows = result.rows.filter(row => row.deletedAt);
-      
+      const deletedRows = result.rows.filter((row) => row.deletedAt);
+
       return {
         ...result,
         rows: deletedRows,
@@ -99,11 +101,12 @@ const Faculties = () => {
       <Breadcrumb pageName="Facultades" />
 
       <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
-        <h1 className="text-primary text-3xl font-bold">Gestión de Facultades</h1>
-        <div className="flex items-center gap-4">
+        <h1 className="text-primary text-3xl font-bold">
+          Gestión de Facultades
+        </h1>
+        <div className="flex items-center gap-4 justify-between w-full md:w-auto">
           {/* Toggle mejorado para mostrar eliminados */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <span className="text-sm font-medium text-gray-700">Vista:</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => showDeleted && toggleShowDeleted()}
@@ -133,18 +136,42 @@ const Faculties = () => {
             onClick={onToggleForm}
             className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
           >
-            <AiOutlinePlus className="mr-2" />
-            <span>Agregar facultad</span>
+            <AiOutlinePlus className="md:mr-2" />
+            <span className="hidden md:block">Agregar facultad</span>
           </button>
         </div>
       </div>
 
-      <CustomTable
-        columns={columns}
-        queryKey={showDeleted ? 'faculties-with-deleted' : 'faculties'}
-        customActions={customActions}
-        fetchData={fetchFacultiesData}
-      />
+      {/* Renderizado condicional: tabla en pantallas grandes, tarjetas en md y abajo */}
+      <div className="hidden md:block">
+        {viewMode === 'table' ? (
+          <CustomTable
+            columns={columns}
+            queryKey={showDeleted ? 'faculties-with-deleted' : 'faculties'}
+            customActions={customActions}
+            fetchData={fetchFacultiesData}
+          />
+        ) : (
+          <FacultiesCardView
+            showDeleted={showDeleted}
+            onEdit={onEdit}
+            onDelete={setFacultyIdToDelete}
+            onHardDelete={handleHardDelete}
+            onRestore={handleRestore}
+          />
+        )}
+      </div>
+
+      {/* Vista de tarjetas para móviles (siempre) */}
+      <div className="block md:hidden">
+        <FacultiesCardView
+          showDeleted={showDeleted}
+          onEdit={onEdit}
+          onDelete={setFacultyIdToDelete}
+          onHardDelete={handleHardDelete}
+          onRestore={handleRestore}
+        />
+      </div>
 
       <DeleteDialog
         isOpen={!empty(facultyIdToDelete)}
@@ -257,20 +284,24 @@ const getColumns = (onRemoveCareer, showDeleted) => [
     render: (rowData) => {
       if (!rowData.careers || rowData.careers.length === 0) {
         return (
-          <span className={`text-sm italic ${
-            rowData.deletedAt ? 'text-red-400' : 'text-gray-500'
-          }`}>
+          <span
+            className={`text-sm italic ${
+              rowData.deletedAt ? 'text-red-400' : 'text-gray-500'
+            }`}
+          >
             Sin carreras
           </span>
         );
       }
-      
+
       return (
         <div className="flex flex-wrap gap-2">
           {rowData.careers.map((career, index) => {
-            const careerName = typeof career === 'string' ? career : career.name || career.label;
-            const careerId = typeof career === 'object' ? (career.id || career.value) : career;
-            
+            const careerName =
+              typeof career === 'string' ? career : career.name || career.label;
+            const careerId =
+              typeof career === 'object' ? career.id || career.value : career;
+
             return (
               <span
                 key={careerId || index}
@@ -286,15 +317,25 @@ const getColumns = (onRemoveCareer, showDeleted) => [
                     type="button"
                     onClick={() => {
                       if (careerId) {
-                        onRemoveCareer.mutate({facultyId: rowData.id, careerId});
+                        onRemoveCareer.mutate({
+                          facultyId: rowData.id,
+                          careerId,
+                        });
                       } else {
-                        console.error('No se pudo obtener el ID de la carrera:', career);
+                        console.error(
+                          'No se pudo obtener el ID de la carrera:',
+                          career
+                        );
                       }
                     }}
                     className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-blue-400 hover:bg-blue-200 hover:text-blue-600 rounded-full focus:outline-none"
                     title="Eliminar carrera"
                   >
-                    <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 8 8">
+                    <svg
+                      className="w-2 h-2"
+                      fill="currentColor"
+                      viewBox="0 0 8 8"
+                    >
                       <path d="M1.41 0L0 1.41 2.59 4 0 6.59 1.41 8 4 5.41 6.59 8 8 6.59 5.41 4 8 1.41 6.59 0 4 2.59 1.41 0z" />
                     </svg>
                   </button>
