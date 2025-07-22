@@ -5,7 +5,8 @@ const getCareers = async (
   pageNumber,
   pageSize,
   searchedWord,
-  filters = null
+  filters = null,
+  includeDeleted = false
 ) => {
   const params = {
     pageNumber,
@@ -13,6 +14,7 @@ const getCareers = async (
     sortColumn: 'createdAt',
     sortOrder: 'desc',
     searchWord: !empty(searchedWord) ? searchedWord : undefined,
+    includeDeleted,
   };
 
   const queryParams = parseUrlParams(params, []);
