@@ -20,7 +20,6 @@ import {useAuth} from '@context/AuthContext';
 import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import {formatPhoneNumber} from '@utils/helpers/formatters';
 import Permissions from '@utils/Permissions';
-import {number} from 'yup';
 
 const ParticipantsCardView = ({
   customActions,

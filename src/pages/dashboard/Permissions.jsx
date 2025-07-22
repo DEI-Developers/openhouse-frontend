@@ -4,7 +4,9 @@ import React, {useState} from 'react';
 import {BiEditAlt} from 'react-icons/bi';
 import {getPermissions} from '@services/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
-import {HiOutlineTrash} from 'react-icons/hi';
+import {
+  HiOutlineTrash,
+} from 'react-icons/hi';
 import {MdDeleteForever, MdRestore} from 'react-icons/md';
 import usePermission from '@hooks/Dashboard/usePermission';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -12,6 +14,7 @@ import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import PermissionForm from '@components/Dashboard/Permission/PermissionForm';
 import CustomTable from '@components/UI/Table/CustomTable';
+import PermissionsCardView from '@components/Dashboard/PermissionsCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import {useAuth} from '@context/AuthContext';
 import Permissions from '@utils/Permissions';
@@ -21,6 +24,7 @@ const PermissionsPage = () => {
   const {permissions} = useAuth();
   const [permissionIdToDelete, setPermissionIdToDelete] = useState(null);
   const [permissionToHardDelete, setPermissionToHardDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('table'); // 'table' o 'card'
   const {
     onEdit,
     onCreate,
@@ -101,10 +105,9 @@ const PermissionsPage = () => {
 
       <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
         <h1 className="text-primary text-3xl font-bold">Gestión de Permisos</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-between w-full md:w-auto">
           {/* Toggle mejorado para mostrar eliminados */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <span className="text-sm font-medium text-gray-700">Vista:</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => showDeleted && toggleShowDeleted()}
@@ -137,19 +140,43 @@ const PermissionsPage = () => {
               onClick={() => onToggleForm()}
               className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
             >
-              <AiOutlinePlus className="mr-2" />
-              <span>Agregar permiso</span>
+              <AiOutlinePlus className="md:mr-2" />
+              <span className="hidden md:block">Agregar permiso</span>
             </button>
           )}
         </div>
       </div>
 
-      <CustomTable
-        columns={columns}
-        queryKey={showDeleted ? 'permissions-with-deleted' : 'permissions'}
-        customActions={customActions}
-        fetchData={fetchPermissionsData}
-      />
+      {/* Renderizado condicional: tabla en pantallas grandes, tarjetas en md y abajo */}
+      <div className="hidden md:block">
+        {viewMode === 'table' ? (
+          <CustomTable
+            columns={columns}
+            queryKey={showDeleted ? 'permissions-with-deleted' : 'permissions'}
+            customActions={customActions}
+            fetchData={fetchPermissionsData}
+          />
+        ) : (
+          <PermissionsCardView
+            showDeleted={showDeleted}
+            onEdit={onEdit}
+            onDelete={setPermissionIdToDelete}
+            onHardDelete={handleHardDelete}
+            onRestore={handleRestore}
+          />
+        )}
+      </div>
+
+      {/* Vista de tarjetas para móviles (siempre) */}
+      <div className="block md:hidden">
+        <PermissionsCardView
+          showDeleted={showDeleted}
+          onEdit={onEdit}
+          onDelete={setPermissionIdToDelete}
+          onHardDelete={handleHardDelete}
+          onRestore={handleRestore}
+        />
+      </div>
 
       <DeleteDialog
         isOpen={!empty(permissionIdToDelete)}

@@ -4,7 +4,11 @@ import React, {useState} from 'react';
 import {getCareers} from '@services/Careers';
 import {BiEditAlt} from 'react-icons/bi';
 import {AiOutlinePlus} from 'react-icons/ai';
-import {HiOutlineTrash} from 'react-icons/hi';
+import {
+  HiOutlineTrash,
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+} from 'react-icons/hi';
 import {MdDeleteForever, MdRestore} from 'react-icons/md';
 import useCareers from '@hooks/Dashboard/useCareers';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -12,11 +16,13 @@ import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import CareerForm from '@components/Dashboard/Career/CareerForm';
 import CustomTable from '@components/UI/Table/CustomTable';
+import CareersCardView from '@components/Dashboard/CareersCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
 const Careers = () => {
   const [careerIdToDelete, setCareerIdToDelete] = useState(null);
   const [careerToHardDelete, setCareerToHardDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('table'); // 'table' o 'card'
   const {
     onEdit,
     onCreate,
@@ -67,10 +73,10 @@ const Careers = () => {
         filters,
         true // includeDeleted = true
       );
-      
+
       // Filtrar solo las carreras que tienen deletedAt (soft deleted)
-      const deletedRows = result.rows.filter(row => row.deletedAt);
-      
+      const deletedRows = result.rows.filter((row) => row.deletedAt);
+
       return {
         ...result,
         rows: deletedRows,
@@ -97,10 +103,9 @@ const Careers = () => {
 
       <div className="flex justify-between items-center mb-4 mt-1 flex-wrap gap-4">
         <h1 className="text-primary text-3xl font-bold">Gestión de Carreras</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-between w-full md:w-auto">
           {/* Toggle mejorado para mostrar eliminados */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <span className="text-sm font-medium text-gray-700">Vista:</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => showDeleted && toggleShowDeleted()}
@@ -130,18 +135,42 @@ const Careers = () => {
             onClick={onToggleForm}
             className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
           >
-            <AiOutlinePlus className="mr-2" />
-            <span>Agregar carrera</span>
+            <AiOutlinePlus className="md:mr-2" />
+            <span className="hidden md:block">Agregar carrera</span>
           </button>
         </div>
       </div>
 
-      <CustomTable
-        columns={columns}
-        queryKey={showDeleted ? 'careers-with-deleted' : 'careers'}
-        customActions={customActions}
-        fetchData={fetchCareersData}
-      />
+      {/* Renderizado condicional: tabla en pantallas grandes, tarjetas en md y abajo */}
+      <div className="hidden md:block">
+        {viewMode === 'table' ? (
+          <CustomTable
+            columns={columns}
+            queryKey={showDeleted ? 'careers-with-deleted' : 'careers'}
+            customActions={customActions}
+            fetchData={fetchCareersData}
+          />
+        ) : (
+          <CareersCardView
+            showDeleted={showDeleted}
+            onEdit={onEdit}
+            onDelete={setCareerIdToDelete}
+            onHardDelete={handleHardDelete}
+            onRestore={handleRestore}
+          />
+        )}
+      </div>
+
+      {/* Vista de tarjetas para móviles (siempre) */}
+      <div className="block md:hidden">
+        <CareersCardView
+          showDeleted={showDeleted}
+          onEdit={onEdit}
+          onDelete={setCareerIdToDelete}
+          onHardDelete={handleHardDelete}
+          onRestore={handleRestore}
+        />
+      </div>
 
       <DeleteDialog
         isOpen={!empty(careerIdToDelete)}
