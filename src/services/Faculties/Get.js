@@ -5,7 +5,8 @@ const getFaculties = async (
   pageNumber,
   pageSize,
   searchedWord,
-  filters = null
+  filters = null,
+  includeDeleted = false
 ) => {
   const params = {
     pageNumber,
@@ -13,6 +14,7 @@ const getFaculties = async (
     sortColumn: 'createdAt',
     sortOrder: 'desc',
     searchWord: !empty(searchedWord) ? searchedWord : undefined,
+    includeDeleted: includeDeleted,
   };
 
   const queryParams = parseUrlParams(params, []);

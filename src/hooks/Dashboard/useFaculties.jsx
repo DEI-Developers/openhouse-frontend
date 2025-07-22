@@ -1,12 +1,26 @@
 import { useState } from 'react';
 import useBooleanBox from '@hooks/useBooleanBox';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createFaculty, deleteFaculty, updateFaculty, removeCareerFromFaculty } from '@services/Faculties';
+import { 
+  createFaculty, 
+  deleteFaculty, 
+  updateFaculty, 
+  removeCareerFromFaculty,
+  hardDeleteFaculty,
+  restoreFaculty
+} from '@services/Faculties';
 
 const useFaculties = () => {
   const queryClient = useQueryClient();
   const { isOpen, onToggleBox, onClose } = useBooleanBox();
   const [currentData, setCurrentFaculty] = useState(initialData);
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  // Función para invalidar todas las queries de facultades
+  const invalidateAllFacultyQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ['faculties'] });
+    queryClient.invalidateQueries({ queryKey: ['faculties-with-deleted'] });
+  };
 
   const onToggleForm = (data) => {
     setCurrentFaculty(initialData);
@@ -24,7 +38,7 @@ const useFaculties = () => {
   const onCreate = useMutation({
     mutationFn: createFaculty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['faculties'] });
+      invalidateAllFacultyQueries();
       onClose();
     },
   });
@@ -32,7 +46,7 @@ const useFaculties = () => {
   const onUpdate = useMutation({
     mutationFn: updateFaculty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['faculties'] });
+      invalidateAllFacultyQueries();
       onClose();
     },
   });
@@ -40,33 +54,54 @@ const useFaculties = () => {
   const onDelete = useMutation({
     mutationFn: deleteFaculty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['faculties'] });
+      invalidateAllFacultyQueries();
+    },
+  });
+
+  const onHardDelete = useMutation({
+    mutationFn: hardDeleteFaculty,
+    onSuccess: () => {
+      invalidateAllFacultyQueries();
+    },
+  });
+
+  const onRestore = useMutation({
+    mutationFn: restoreFaculty,
+    onSuccess: () => {
+      invalidateAllFacultyQueries();
     },
   });
 
   const onRemoveCareer = useMutation({
     mutationFn: removeCareerFromFaculty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['faculties'] });
-      // Aquí podrías agregar una notificación de éxito si tienes un sistema de notificaciones
+      invalidateAllFacultyQueries();
       console.log('Carrera eliminada exitosamente de la facultad');
     },
     onError: (error) => {
-      // Aquí podrías agregar una notificación de error si tienes un sistema de notificaciones
       console.error('Error al eliminar la carrera de la facultad:', error);
     },
   });
+
+  const toggleShowDeleted = () => {
+    setShowDeleted(prev => !prev);
+    invalidateAllFacultyQueries();
+  };
 
   return {
     onEdit,
     onCreate,
     onUpdate,
     onDelete,
+    onHardDelete,
+    onRestore,
     onRemoveCareer,
     onToggleForm,
     onCloseForm: onClose,
     isOpenForm: isOpen,
     currentData,
+    showDeleted,
+    toggleShowDeleted,
   };
 };
 
