@@ -1,11 +1,13 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {useInfiniteQuery} from '@tanstack/react-query';
+import React, {useState, useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {
   HiOutlineUser,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineAcademicCap,
   HiOutlineGlobeAlt,
+  HiChevronLeft,
+  HiChevronRight,
 } from 'react-icons/hi';
 import {empty} from '@utils/helpers';
 import {
@@ -31,89 +33,115 @@ const ParticipantsCardView = ({
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [showInscriptionsModal, setShowInscriptionsModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
   // Verificar si el usuario tiene permisos para ver toda la información de contacto
   const canViewAllParticipants = userPermissions.includes(
     Permissions.VIEW_ALL_PARTICIPANTS
   );
 
-  const fetchParticipants = async ({pageParam = 1}) => {
+  const fetchParticipants = async (page = 1) => {
     if (currentFilters) {
       if (currentFilters.type === 'simple') {
         return await getParticipantsWithAdvancedFilter(
           userPermissions,
           currentFilters.filters,
           currentFilters.operator,
-          pageParam,
-          15 // pageSize para cards - máximo 15 por bloque
+          page,
+          pageSize
         );
       } else if (currentFilters.type === 'complex') {
         return await getParticipantsWithComplexFilter(
           userPermissions,
           currentFilters.filterGroups,
           currentFilters.globalOperator,
-          pageParam,
-          15
+          page,
+          pageSize
         );
       }
     }
 
-    return await getParticipants(userPermissions, pageParam, 15, '', {});
+    return await getParticipants(userPermissions, page, pageSize, '', {});
   };
 
   const {
     data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: ['participants-cards', currentFilters],
-    queryFn: fetchParticipants,
-    getNextPageParam: (lastPage) => {
-      if (lastPage.currentPage < lastPage.nPages) {
-        return Number(lastPage.currentPage) + 1;
-      }
-      return undefined;
-    },
-    getPreviousPageParam: (lastPage) => {
-      if (lastPage.currentPage > 1) {
-        return Number(lastPage.currentPage) - 1;
-      }
-      return undefined;
-    },
-    initialPageParam: 1,
+  } = useQuery({
+    queryKey: ['participants-cards', currentFilters, currentPage],
+    queryFn: () => fetchParticipants(currentPage),
   });
 
   const handleApplyAdvancedFilters = (filters) => {
     setCurrentFilters(filters);
+    setCurrentPage(1); // Reset to first page when applying filters
   };
 
   const handleClearFilters = () => {
     setCurrentFilters(null);
+    setCurrentPage(1); // Reset to first page when clearing filters
   };
 
-  const allParticipants = data?.pages?.flatMap((page) => page.rows) || [];
+  const participants = data?.rows || [];
+  const totalPages = data?.nPages || 1;
 
-  // Hook para scroll infinito automático
-  const handleScroll = useCallback(() => {
-    const scrollTop = window.pageYOffset;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
+  // Función para renderizar los botones de paginación
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisiblePages = 5;
 
-    // Cargar más datos cuando esté cerca del final (200px antes)
-    if (scrollTop + windowHeight >= documentHeight - 200) {
-      if (hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    // Botón "Anterior"
+    buttons.push(
+      <button
+        key="prev"
+        onClick={() => setCurrentPage(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <HiChevronLeft className="h-5 w-5" />
+      </button>
+    );
+
+    // Botones de páginas
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => setCurrentPage(i)}
+          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+            i === currentPage
+              ? 'z-10 bg-primary border-primary text-white'
+              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Botón "Siguiente"
+    buttons.push(
+      <button
+        key="next"
+        onClick={() => setCurrentPage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <HiChevronRight className="h-5 w-5" />
+      </button>
+    );
+
+    return buttons;
+  };
 
   if (isLoading) {
     return (
@@ -160,7 +188,7 @@ const ParticipantsCardView = ({
 
       {/* Grid de tarjetas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {allParticipants.map((participant) => (
+        {participants.map((participant) => (
           <div
             key={participant.id}
             className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 group relative flex flex-col h-full"
@@ -319,28 +347,25 @@ const ParticipantsCardView = ({
         ))}
       </div>
 
-      {/* Indicador de carga para scroll infinito */}
-      {isFetchingNextPage && (
-        <div className="flex justify-center mt-8 mb-8">
-          <div className="flex items-center space-x-2 text-gray-600">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="text-sm">Cargando más participantes...</span>
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center space-y-4 mt-8">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-700">
+              Página {currentPage} de {totalPages}
+            </span>
           </div>
-        </div>
-      )}
-
-      {/* Mensaje cuando se han cargado todos los datos */}
-      {!hasNextPage && allParticipants.length > 0 && (
-        <div className="flex justify-center mt-8 mb-8">
-          <div className="text-gray-500 text-sm">
-            Has visto todos los participantes ({allParticipants.length} en
-            total)
+          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            {renderPaginationButtons()}
+          </nav>
+          <div className="text-sm text-gray-500">
+            Mostrando {participants.length} de {data?.totalRows || 0} participantes
           </div>
         </div>
       )}
 
       {/* Mensaje cuando no hay resultados */}
-      {allParticipants.length === 0 && !isLoading && (
+      {participants.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <div className="text-gray-500">
             <HiOutlineUser className="mx-auto h-12 w-12 mb-4" />
