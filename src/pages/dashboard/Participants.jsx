@@ -3,7 +3,11 @@ import {empty} from '@utils/helpers';
 import React, {useState} from 'react';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
-import {HiOutlineViewGrid, HiOutlineViewList} from 'react-icons/hi';
+import {
+  HiOutlineDownload,
+  HiOutlineViewGrid,
+  HiOutlineViewList,
+} from 'react-icons/hi';
 import {useAuth} from '@context/AuthContext';
 import useBooleanBox from '@hooks/useBooleanBox';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -149,13 +153,13 @@ const Participants = () => {
       <Breadcrumb pageName="Participantes" />
 
       <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
-        <h1 className="text-primary text-3xl font-bold">Participantes</h1>
+        <h1 className="text-primary text-2xl md:text-3xl font-bold">Participantes</h1>
         <div className="flex gap-2 items-center">
-          {/* Toggle de vista */}
+          {/* Toggle de vista - Solo visible en desktop */}
           {(permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) ||
             permissions.includes(Permissions.VIEW_CAREER_PARTICIPANTS) ||
             permissions.includes(Permissions.VIEW_FACULTY_PARTICIPANTS)) && (
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="hidden md:flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('table')}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -186,13 +190,16 @@ const Participants = () => {
               type="button"
               onClick={handleDownloadExcel}
               disabled={isExporting}
-              className={`btn px-4 py-2.5 rounded-lg text-white ${
+              className={`btn flex justify-center items-center px-4 py-2.5 rounded-lg text-white ${
                 isExporting
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-green-600 hover:bg-green-700'
               }`}
             >
-              {isExporting ? 'Exportando...' : 'Descargar Excel'}
+              <HiOutlineDownload className="md:mr-2" />
+              <span className="hidden md:inline">
+                {isExporting ? 'Exportando...' : 'Descargar Excel'}
+              </span>
             </button>
           )}
 
@@ -202,8 +209,8 @@ const Participants = () => {
               onClick={onToggleBox}
               className="btn flex justify-center items-center bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-secondary"
             >
-              <AiOutlinePlus className="mr-2" />
-              <span>Agregar participante</span>
+              <AiOutlinePlus className="md:mr-2" />
+              <span className="hidden md:inline">Agregar participante</span>
             </button>
           )}
         </div>
@@ -211,25 +218,40 @@ const Participants = () => {
 
       {(permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) ||
         permissions.includes(Permissions.VIEW_CAREER_PARTICIPANTS) ||
-        permissions.includes(Permissions.VIEW_FACULTY_PARTICIPANTS)) &&
-        (viewMode === 'table' ? (
-          <AdvancedCustomTable
-            columns={columns}
-            queryKey="participants"
-            defaultRowsPerPage={10}
-            customActions={customActions}
-            fetchData={getParticipants}
-            CustomFilters={ParticipantsFilters}
-            permissions={permissions}
-            useAdvancedFiltering={true}
-          />
-        ) : (
-          <ParticipantsCardView
-            customActions={customActions}
-            permissions={permissions}
-            onDeleteAttendance={handleDeleteAttendance}
-          />
-        ))}
+        permissions.includes(Permissions.VIEW_FACULTY_PARTICIPANTS)) && (
+        <>
+          {/* Vista de tabla - Solo visible en desktop */}
+          <div className="hidden md:block">
+            {viewMode === 'table' ? (
+              <AdvancedCustomTable
+                columns={columns}
+                queryKey="participants"
+                defaultRowsPerPage={10}
+                customActions={customActions}
+                fetchData={getParticipants}
+                CustomFilters={ParticipantsFilters}
+                permissions={permissions}
+                useAdvancedFiltering={true}
+              />
+            ) : (
+              <ParticipantsCardView
+                customActions={customActions}
+                permissions={permissions}
+                onDeleteAttendance={handleDeleteAttendance}
+              />
+            )}
+          </div>
+
+          {/* Vista de cards - Solo visible en móvil */}
+          <div className="block md:hidden">
+            <ParticipantsCardView
+              customActions={customActions}
+              permissions={permissions}
+              onDeleteAttendance={handleDeleteAttendance}
+            />
+          </div>
+        </>
+      )}
 
       <DeleteDialog
         isOpen={!empty(participantIdToDelete)}

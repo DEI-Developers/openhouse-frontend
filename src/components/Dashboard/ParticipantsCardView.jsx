@@ -1,14 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {useInfiniteQuery} from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 import {
   HiOutlineUser,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineAcademicCap,
   HiOutlineGlobeAlt,
+  HiChevronLeft,
+  HiChevronRight,
 } from 'react-icons/hi';
-import {BiEditAlt} from 'react-icons/bi';
-import {HiOutlineTrash} from 'react-icons/hi';
 import {empty} from '@utils/helpers';
 import {
   getParticipants,
@@ -23,68 +23,125 @@ import BadgeMedio from '@components/UI/Badges/BadgeMedio';
 import {formatPhoneNumber} from '@utils/helpers/formatters';
 import Permissions from '@utils/Permissions';
 
-const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) => {
+const ParticipantsCardView = ({
+  customActions,
+  permissions,
+  onDeleteAttendance,
+}) => {
   const {permissions: userPermissions} = useAuth();
   const [currentFilters, setCurrentFilters] = useState(null);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [showInscriptionsModal, setShowInscriptionsModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
   // Verificar si el usuario tiene permisos para ver toda la información de contacto
-  const canViewAllParticipants = userPermissions.includes(Permissions.VIEW_ALL_PARTICIPANTS);
+  const canViewAllParticipants = userPermissions.includes(
+    Permissions.VIEW_ALL_PARTICIPANTS
+  );
 
-  const fetchParticipants = async ({pageParam = 1}) => {
+  const fetchParticipants = async (page = 1) => {
     if (currentFilters) {
       if (currentFilters.type === 'simple') {
         return await getParticipantsWithAdvancedFilter(
           userPermissions,
           currentFilters.filters,
           currentFilters.operator,
-          pageParam,
-          12 // pageSize para cards
+          page,
+          pageSize
         );
       } else if (currentFilters.type === 'complex') {
         return await getParticipantsWithComplexFilter(
           userPermissions,
           currentFilters.filterGroups,
           currentFilters.globalOperator,
-          pageParam,
-          12
+          page,
+          pageSize
         );
       }
     }
 
-    return await getParticipants(userPermissions, pageParam, 12, '', {});
+    return await getParticipants(userPermissions, page, pageSize, '', {});
   };
 
   const {
     data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: ['participants-cards', currentFilters],
-    queryFn: fetchParticipants,
-    getNextPageParam: (lastPage) => {
-      if (lastPage.currentPage < lastPage.nPages) {
-        return lastPage.currentPage + 1;
-      }
-      return undefined;
-    },
-    initialPageParam: 1,
+  } = useQuery({
+    queryKey: ['participants-cards', currentFilters, currentPage],
+    queryFn: () => fetchParticipants(currentPage),
   });
 
   const handleApplyAdvancedFilters = (filters) => {
     setCurrentFilters(filters);
+    setCurrentPage(1); // Reset to first page when applying filters
   };
 
   const handleClearFilters = () => {
     setCurrentFilters(null);
+    setCurrentPage(1); // Reset to first page when clearing filters
   };
 
-  const allParticipants = data?.pages?.flatMap((page) => page.rows) || [];
+  const participants = data?.rows || [];
+  const totalPages = data?.nPages || 1;
+
+  // Función para renderizar los botones de paginación
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Botón "Anterior"
+    buttons.push(
+      <button
+        key="prev"
+        onClick={() => setCurrentPage(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <HiChevronLeft className="h-5 w-5" />
+      </button>
+    );
+
+    // Botones de páginas
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => setCurrentPage(i)}
+          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+            i === currentPage
+              ? 'z-10 bg-primary border-primary text-white'
+              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Botón "Siguiente"
+    buttons.push(
+      <button
+        key="next"
+        onClick={() => setCurrentPage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <HiChevronRight className="h-5 w-5" />
+      </button>
+    );
+
+    return buttons;
+  };
 
   if (isLoading) {
     return (
@@ -130,8 +187,8 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
       </div>
 
       {/* Grid de tarjetas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full">
-        {allParticipants.map((participant) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {participants.map((participant) => (
           <div
             key={participant.id}
             className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 group relative flex flex-col h-full"
@@ -220,7 +277,9 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
               )}
 
               {/* Información académica */}
-              <div className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}>
+              <div
+                className={`space-y-4 ${canViewAllParticipants ? 'pt-3 border-t border-gray-100' : ''}`}
+              >
                 <div>
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">
                     Información Académica
@@ -257,15 +316,15 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
                 </h4>
                 {participant.subscribedTo &&
                 participant.subscribedTo.length > 0 ? (
-                  <InscriptionsSection 
-                participant={participant} 
-                onShowAll={() => {
-                  setSelectedParticipant(participant);
-                  setShowInscriptionsModal(true);
-                }}
-                permissions={permissions}
-                onDeleteAttendance={onDeleteAttendance}
-              />
+                  <InscriptionsSection
+                    participant={participant}
+                    onShowAll={() => {
+                      setSelectedParticipant(participant);
+                      setShowInscriptionsModal(true);
+                    }}
+                    permissions={permissions}
+                    onDeleteAttendance={onDeleteAttendance}
+                  />
                 ) : (
                   <p className="text-sm text-gray-500">Sin inscripciones</p>
                 )}
@@ -288,21 +347,25 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
         ))}
       </div>
 
-      {/* Botón cargar más */}
-      {hasNextPage && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
-          </button>
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center space-y-4 mt-8">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-700">
+              Página {currentPage} de {totalPages}
+            </span>
+          </div>
+          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            {renderPaginationButtons()}
+          </nav>
+          <div className="text-sm text-gray-500">
+            Mostrando {participants.length} de {data?.totalRows || 0} participantes
+          </div>
         </div>
       )}
 
       {/* Mensaje cuando no hay resultados */}
-      {allParticipants.length === 0 && !isLoading && (
+      {participants.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <div className="text-gray-500">
             <HiOutlineUser className="mx-auto h-12 w-12 mb-4" />
@@ -355,8 +418,8 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
                       </span>
                     </div>
                   )}
-                  <AccompanimentBadges 
-                    item={item} 
+                  <AccompanimentBadges
+                    item={item}
                     participant={selectedParticipant}
                     permissions={permissions}
                     onDeleteAttendance={onDeleteAttendance}
@@ -384,7 +447,12 @@ const ParticipantsCardView = ({customActions, permissions, onDeleteAttendance}) 
 };
 
 // Componente para mostrar las inscripciones en las fichas
-const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAttendance}) => {
+const InscriptionsSection = ({
+  participant,
+  onShowAll,
+  permissions,
+  onDeleteAttendance,
+}) => {
   const subscribedTo = participant?.subscribedTo ?? [];
 
   if (subscribedTo.length === 0) {
@@ -417,8 +485,8 @@ const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAtten
               </span>
             </div>
           )}
-          <AccompanimentBadges 
-            item={firstItem} 
+          <AccompanimentBadges
+            item={firstItem}
             participant={participant}
             permissions={permissions}
             onDeleteAttendance={onDeleteAttendance}
@@ -440,11 +508,16 @@ const InscriptionsSection = ({participant, onShowAll, permissions, onDeleteAtten
 };
 
 // Componente para mostrar badges de acompañamiento
-const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance, showDeleteButton = false}) => {
+const AccompanimentBadges = ({
+  item,
+  participant,
+  permissions,
+  onDeleteAttendance,
+  showDeleteButton = false,
+}) => {
   const withParent = item.withParent;
   const parentStudiedAtUCA = item.parentStudiedAtUCA;
   const attended = item.attended;
-  console.log(item)
 
   const handleDeleteAttendance = () => {
     if (onDeleteAttendance && participant && item.event) {
@@ -453,14 +526,15 @@ const AccompanimentBadges = ({item, participant, permissions, onDeleteAttendance
         participantName: participant.name,
         eventId: item.event.id,
         eventDate: item.event.date,
-        facultyName: item.faculty?.name || 'N/A'
+        facultyName: item.faculty?.name || 'N/A',
       });
     }
   };
 
-  const canDeleteAttendance = showDeleteButton && 
-                             attended && 
-                             permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
+  const canDeleteAttendance =
+    showDeleteButton &&
+    attended &&
+    permissions?.includes(Permissions.DELETE_PARTICIPANT_ATTENDANCE);
 
   return (
     <div className="flex flex-wrap gap-1 mt-2">

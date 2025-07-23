@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {HiOutlinePlus, HiOutlineTrash} from 'react-icons/hi';
-import {BiSearch} from 'react-icons/bi';
+import {BiSearch, BiTrash} from 'react-icons/bi';
 import SelectFilter from './SelectFilter';
 
 const AdvancedParticipantsFilters = ({
@@ -181,16 +181,17 @@ const AdvancedParticipantsFilters = ({
         <div className="flex space-x-2">
           <button
             onClick={handleClearFilters}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="px-3 flex items-center justify-center py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
-            Limpiar
+            <BiTrash className="md:mr-2" />
+            <span className="hidden md:inline">Limpiar</span>
           </button>
           <button
             onClick={handleApplyFilters}
             className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-secondary transition-colors"
           >
-            <BiSearch className="mr-2" />
-            Buscar
+            <BiSearch className="md:mr-2" />
+            <span className="hidden md:inline">Buscar</span>
           </button>
         </div>
       </div>
@@ -233,22 +234,6 @@ const AdvancedParticipantsFilters = ({
                 </span>
 
                 <div className="flex items-center space-x-2">
-                  <SelectFilter
-                    setDefaultValue={operators.find(
-                      (op) => op.value === group.operator
-                    )}
-                    options={operators}
-                    onChange={(option) =>
-                      updateFilterGroup(
-                        group.id,
-                        'operator',
-                        option?.value || 'AND'
-                      )
-                    }
-                    customClassName="w-32 h-10"
-                    placeholder="Operador"
-                  />
-
                   {filterGroups.length > 1 && (
                     <button
                       onClick={() => removeFilterGroup(group.id)}
