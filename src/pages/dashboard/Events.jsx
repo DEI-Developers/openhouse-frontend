@@ -6,7 +6,7 @@ import {getEvents} from '@services/Events';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {HiOutlineTrash, HiViewGrid, HiViewList} from 'react-icons/hi';
-import { useAuth } from '@context/AuthContext';
+import {useAuth} from '@context/AuthContext';
 import useEvents from '@hooks/Dashboard/useEvents';
 import useCatalogs from '@hooks/Dashboard/useCatalogs';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -23,8 +23,21 @@ const Events = () => {
   const {faculties} = useCatalogs();
   const [eventIdToDelete, setEventIdToDelete] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' o 'card'
-  const {onEdit, onCreate, onUpdate, onDelete, onCloseForm, onToggleForm, isOpenForm, currentData} = useEvents();
-  const customActions = getCustomActions(onEdit, setEventIdToDelete, permissions.includes(Permissions.MANAGE_EVENTS));
+  const {
+    onEdit,
+    onCreate,
+    onUpdate,
+    onDelete,
+    onCloseForm,
+    onToggleForm,
+    isOpenForm,
+    currentData,
+  } = useEvents();
+  const customActions = getCustomActions(
+    onEdit,
+    setEventIdToDelete,
+    permissions.includes(Permissions.MANAGE_EVENTS)
+  );
 
   // Detectar si es móvil para forzar vista de tarjeta
   useEffect(() => {
@@ -37,7 +50,7 @@ const Events = () => {
 
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
-    
+
     return () => window.removeEventListener('resize', checkIsMobile);
   }, [viewMode]);
 
@@ -51,7 +64,7 @@ const Events = () => {
 
       <div className="flex justify-between items-center mb-4 mt-1">
         <h1 className="text-primary text-3xl font-bold">Eventos</h1>
-        
+
         <div className="flex items-center space-x-3">
           {/* Selector de vista - solo en desktop */}
           {!isMobile && (
@@ -139,7 +152,6 @@ const Events = () => {
 };
 
 const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
-
   if (!userHasPermissionsToManage) return [];
 
   return [
@@ -157,20 +169,20 @@ const getCustomActions = (onEdit, onDelete, userHasPermissionsToManage) => {
       Icon: HiOutlineTrash,
       onClick: (data) => onDelete(data.id),
     },
-  ]
+  ];
 };
 
 const columns = [
-  {
-    title: 'Evento',
-    field: 'name',
-    className: 'max-w-sm',
-  },
   {
     title: 'Fecha',
     field: 'formatDate',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
+  },
+  {
+    title: 'Evento',
+    field: 'name',
+    className: 'max-w-sm',
   },
   {
     title: 'Facultades',
@@ -215,15 +227,14 @@ const Faculties = ({data}) => {
         </span>
       ))}
     </div>
-  )
-}
-
+  );
+};
 
 const Careers = ({data}) => {
   if (!data || data.length === 0) {
     return <span className="text-gray-400 text-xs">Sin carreras</span>;
   }
-  
+
   return (
     <div className="flex flex-wrap gap-1">
       {data.map((career, index) => (
@@ -235,16 +246,19 @@ const Careers = ({data}) => {
         </span>
       ))}
     </div>
-  )
-}
+  );
+};
 
 const Capacity = ({data}) => {
   return (
     <div className="flex items-center justify-center">
-      <p><span className="font-bold">{data.subscribed?.length ?? 0}</span>/<span>{data.capacity}</span></p>
+      <p>
+        <span className="font-bold">{data.subscribed?.length ?? 0}</span>/
+        <span>{data.capacity}</span>
+      </p>
     </div>
-  )
-}
+  );
+};
 
 const DesertionRate = ({data}) => {
   const rate = data.desertionRate || 0;
@@ -252,14 +266,13 @@ const DesertionRate = ({data}) => {
     <div className="flex items-center justify-center">
       <span className="font-medium">{rate}%</span>
     </div>
-  )
-}
+  );
+};
 
 const BadgeStatus = ({status}) => {
-  const customClassName =
-    status
-      ? 'bg-green-100 text-green-600'
-      : 'bg-red-100 text-red-600';
+  const customClassName = status
+    ? 'bg-green-100 text-green-600'
+    : 'bg-red-100 text-red-600';
 
   return (
     <div

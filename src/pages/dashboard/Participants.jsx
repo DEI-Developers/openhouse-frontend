@@ -57,7 +57,6 @@ const Participants = () => {
 
   const onDeleteAttendance = useMutation({
     mutationFn: async (attendanceData) => {
-      console.log(attendanceData);
       await deleteParticipantAttendance(attendanceData);
     },
     onSuccess: () => {
@@ -117,7 +116,6 @@ const Participants = () => {
    * Prepara los datos para el diálogo de confirmación
    */
   const handleDeleteAttendance = (attendanceData) => {
-    console.log(attendanceData);
     setAttendanceToDelete(attendanceData);
   };
 
@@ -267,7 +265,6 @@ const Participants = () => {
         isSuccess={onDeleteAttendance.isSuccess}
         onClose={() => setAttendanceToDelete(null)}
         onDelete={() => {
-          console.log(attendanceToDelete);
           onDeleteAttendance.mutate(attendanceToDelete);
         }}
         participantData={attendanceToDelete}
