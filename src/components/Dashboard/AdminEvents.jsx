@@ -8,7 +8,6 @@ const AdminEvents = ({
   onEnrollment,
   onRefreshEvents,
 }) => {
-  console.log(events);
 
   // Componente del botón de recarga más sutil
   const RefreshButton = () =>

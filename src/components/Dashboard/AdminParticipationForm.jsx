@@ -83,7 +83,6 @@ const AdminParticipationForm = ({
   }, [currentFaculty, data]);
 
   const events = useMemo(() => {
-    console.log(data?.events);
     return (
       data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
     );

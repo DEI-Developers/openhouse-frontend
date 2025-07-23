@@ -25,7 +25,6 @@ const ParticipantInscriptions = ({
 
   const handleDeleteAttendance = (item) => {
     if (onDeleteAttendance && item.attended) {
-      console.log(item);
       onDeleteAttendance({
         participantId: data.id,
         eventId: item.event?._id || item.event,
