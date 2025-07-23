@@ -7,29 +7,35 @@ import {
   HiChevronLeft,
   HiChevronRight,
   HiOutlineOfficeBuilding,
+  HiX,
 } from 'react-icons/hi';
 import {BiEditAlt} from 'react-icons/bi';
-import {HiOutlineTrash} from 'react-icons/hi2';
+import {HiOutlineExclamationTriangle, HiOutlineTrash} from 'react-icons/hi2';
 import {getEvents} from '@services/Events';
 import EventsFilters from '@components/UI/Filters/EventsFilters';
 
-const EventsCardView = ({
-  customActions,
-  onEdit,
-  onDelete,
-}) => {
+const EventsCardView = ({customActions, onEdit, onDelete}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentFilters, setCurrentFilters] = useState(null);
   const [searchWord, setSearchWord] = useState('');
+  const [showFacultiesDialog, setShowFacultiesDialog] = useState(false);
+  const [showCareersDialog, setShowCareersDialog] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const pageSize = 12;
 
-  const fetchEventsData = async (pageNumber, pageSize, searchedWord, filters = {}) => {
+  const fetchEventsData = async (
+    pageNumber,
+    pageSize,
+    searchedWord,
+    filters = {}
+  ) => {
     return getEvents(pageNumber, pageSize, searchedWord, filters);
   };
 
   const {data, isLoading, refetch} = useQuery({
     queryKey: ['events', 'cards', currentPage, searchWord, currentFilters],
-    queryFn: () => fetchEventsData(currentPage, pageSize, searchWord, currentFilters || {}),
+    queryFn: () =>
+      fetchEventsData(currentPage, pageSize, searchWord, currentFilters || {}),
   });
 
   const events = data?.rows || [];
@@ -55,6 +61,20 @@ const EventsCardView = ({
   const handleApplyFilters = (filters) => {
     setCurrentFilters(filters);
   };
+
+  // Bloquear scroll del fondo cuando se abren diálogos
+  useEffect(() => {
+    if (showFacultiesDialog || showCareersDialog) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup al desmontar el componente
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showFacultiesDialog, showCareersDialog]);
 
   const renderPaginationButtons = () => {
     const buttons = [];
@@ -116,7 +136,7 @@ const EventsCardView = ({
       <div className="space-y-4">
         {/* Filtros skeleton */}
         <div className="bg-gray-200 rounded-lg h-16 animate-pulse"></div>
-        
+
         {/* Grid skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
@@ -138,7 +158,7 @@ const EventsCardView = ({
   return (
     <div className="space-y-4">
       {/* Filtros */}
-      <EventsFilters 
+      <EventsFilters
         onSearchAction={handleSearchAction}
         onApplyFilters={handleApplyFilters}
       />
@@ -188,24 +208,35 @@ const EventsCardView = ({
 
             {/* Información principal */}
             <div className="space-y-3 mb-4">
-              {/* Capacidad */}
+              {/* Capacidad e información compacta */}
               <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center text-gray-600">
-                  <HiOutlineUsers className="w-4 h-4 mr-2" />
-                  <span className="font-medium">Capacidad:</span>
-                </div>
-                <span className="font-semibold">
-                  {event.subscribed?.length || 0}/{event.capacity}
-                </span>
-              </div>
+                <div className="flex items-center space-x-4">
+                  {/* Capacidad */}
+                  <div
+                    className="flex items-center text-gray-600"
+                    title={`Capacidad: ${event.subscribed?.length || 0}/${event.capacity}`}
+                  >
+                    <HiOutlineUsers className="w-4 h-4 mr-1" />
+                    <span className="font-semibold text-xs">
+                      {event.subscribed?.length || 0}/{event.capacity}
+                    </span>
+                  </div>
 
-              {/* Deserción */}
-              {event.desertionRate !== undefined && event.desertionRate !== null && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 font-medium">Deserción:</span>
-                  <span className="font-semibold">{event.desertionRate}%</span>
+                  {/* Deserción */}
+                  {event.desertionRate !== undefined &&
+                    event.desertionRate !== null && (
+                      <div
+                        className="flex items-center text-gray-600"
+                        title={`Tasa de deserción: ${event.desertionRate}%`}
+                      >
+                        <HiOutlineExclamationTriangle className="w-4 h-4 mr-1" />
+                        <span className="font-semibold text-xs">
+                          {event.desertionRate}%
+                        </span>
+                      </div>
+                    )}
                 </div>
-              )}
+              </div>
 
               {/* Facultades */}
               {event.faculties && event.faculties.length > 0 && (
@@ -224,9 +255,15 @@ const EventsCardView = ({
                       </span>
                     ))}
                     {event.faculties.length > 2 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      <button
+                        onClick={() => {
+                          setSelectedEvent(event);
+                          setShowFacultiesDialog(true);
+                        }}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
+                      >
                         +{event.faculties.length - 2} más
-                      </span>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -249,9 +286,15 @@ const EventsCardView = ({
                       </span>
                     ))}
                     {event.careerLabels.length > 3 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      <button
+                        onClick={() => {
+                          setSelectedEvent(event);
+                          setShowCareersDialog(true);
+                        }}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
+                      >
                         +{event.careerLabels.length - 3} más
-                      </span>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -290,6 +333,92 @@ const EventsCardView = ({
       {events.length === 0 && !isLoading && (
         <div className="text-center py-8 text-gray-500">
           No hay eventos disponibles
+        </div>
+      )}
+
+      {/* Diálogo de Facultades */}
+      {showFacultiesDialog && selectedEvent && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFacultiesDialog(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Facultades - {selectedEvent.name}
+              </h3>
+              <button
+                onClick={() => setShowFacultiesDialog(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <HiX className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+              <div className="space-y-3">
+                {selectedEvent.faculties.map((faculty, index) => (
+                  <div
+                    key={faculty.value}
+                    className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors"
+                  >
+                    <HiOutlineOfficeBuilding className="w-5 h-5 mr-3 text-blue-600 flex-shrink-0" />
+                    <span className="text-sm font-medium text-blue-800">
+                      {faculty.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {/* Padding extra al final */}
+              <div className="h-4"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Diálogo de Carreras */}
+      {showCareersDialog && selectedEvent && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowCareersDialog(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Carreras - {selectedEvent.name}
+              </h3>
+              <button
+                onClick={() => setShowCareersDialog(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <HiX className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+              <div className="space-y-3">
+                {selectedEvent.careerLabels.map((career, index) => (
+                  <div
+                    key={career.value || index}
+                    className="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-100 hover:bg-purple-100 transition-colors"
+                  >
+                    <HiOutlineAcademicCap className="w-5 h-5 mr-3 text-purple-600 flex-shrink-0" />
+                    <span className="text-sm font-medium text-purple-800">
+                      {career.name || career}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {/* Padding extra al final */}
+              <div className="h-4"></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

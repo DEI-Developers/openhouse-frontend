@@ -29,8 +29,8 @@ const Events = () => {
   // Detectar si es móvil para forzar vista de tarjeta
   useEffect(() => {
     const checkIsMobile = () => {
-      const isMobile = window.innerWidth < 768; // md breakpoint
-      if (isMobile) {
+      const isMobile = window.innerWidth < 640; // sm breakpoint - solo móviles pequeños
+      if (isMobile && viewMode === 'table') {
         setViewMode('card');
       }
     };
@@ -39,9 +39,9 @@ const Events = () => {
     window.addEventListener('resize', checkIsMobile);
     
     return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
+  }, [viewMode]);
 
-  const isMobile = window.innerWidth < 768;
+  const isMobile = window.innerWidth < 640; // sm breakpoint
 
   return (
     <div>
