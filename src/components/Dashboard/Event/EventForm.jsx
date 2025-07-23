@@ -88,7 +88,18 @@ const EventForm = ({initialData, onCreate, onUpdate, onClose, faculties}) => {
             disabled={isSubmitting}
             register={register}
             error={errors.capacity}
-            containerClassName="w-full lg:w-1/2"
+            containerClassName="w-full lg:w-1/3"
+          />
+
+          <CustomInput
+            type="number"
+            name="desertionRate"
+            label="Tasa de deserción (%)"
+            placeholder="0-100"
+            disabled={isSubmitting}
+            register={register}
+            error={errors.desertionRate}
+            containerClassName="w-full lg:w-1/3"
           />
 
           <CustomToggle
@@ -158,6 +169,12 @@ const schema = yup.object().shape({
     .max(72, 'Máximo 72 caracteres.'),
   date: yup.string().required('Campo obligatorio.'),
   capacity: yup.string().required('Campo obligatorio.'),
+  desertionRate: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) => originalValue === '' ? null : value)
+    .min(0, 'El porcentaje debe ser mayor o igual a 0.')
+    .max(100, 'El porcentaje debe ser menor o igual a 100.'),
 });
 
 const getCareers = (selectedFaculties, faculties) => {
