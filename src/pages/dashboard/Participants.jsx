@@ -151,7 +151,9 @@ const Participants = () => {
       <Breadcrumb pageName="Participantes" />
 
       <div className="flex justify-between items-center mb-4 mt-1 flex-wrap">
-        <h1 className="text-primary text-2xl md:text-3xl font-bold">Participantes</h1>
+        <h1 className="text-primary text-2xl md:text-3xl font-bold">
+          Participantes
+        </h1>
         <div className="flex gap-2 items-center">
           {/* Toggle de vista - Solo visible en desktop */}
           {(permissions.includes(Permissions.VIEW_ALL_PARTICIPANTS) ||
@@ -285,6 +287,7 @@ const Participants = () => {
                 ? 'Editar participante'
                 : 'Agregar participante'
             }
+            permissions={permissions}
           />
         </CustomModal>
       )}
