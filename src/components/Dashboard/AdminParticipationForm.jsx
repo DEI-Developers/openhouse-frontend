@@ -341,6 +341,10 @@ const AdminParticipationForm = ({
 
           <div className="sm:flex sm:flex-row-reverse gap-3">
             {/* Botón Guardar con asistencia */}
+            {console.log(
+              permissions,
+              permissions.includes(Permissions.CREATE_PARTICIPANT)
+            )}
             {permissions.includes(Permissions.CREATE_PARTICIPANT) && (
               <button
                 type="button"
