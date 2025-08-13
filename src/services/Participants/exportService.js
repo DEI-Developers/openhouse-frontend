@@ -43,10 +43,15 @@ const formatEventDate = (date) => {
 /**
  * Procesa los datos de participantes para la hoja general
  * @param {Array} participants - Array de participantes
- * @returns {Array} Array de objetos con datos formateados para Excel
+ * @returns {Array} Array de objetos con datos formateados para Excel ordenados por fecha de inscripción
  */
 const processParticipantsSheet = (participants) => {
-  return participants.map((p) => ({
+  // Ordenar participantes por fecha de inscripción (más recientes primero)
+  const sortedParticipants = [...participants].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  return sortedParticipants.map((p) => ({
     Nombre: p.name,
     Email: p.email,
     Teléfono: formatPhoneNumber(p.phoneNumber),
@@ -90,6 +95,7 @@ const processEventSheets = (participants) => {
           'Acompañado por familiar': sub.withParent ? 'Sí' : 'No',
           'Familiar estudió en UCA': sub.parentStudiedAtUCA ? 'Sí' : 'No',
           FechaInscripción: new Date(sub.subscribedAt).toLocaleString('es-SV'),
+          _subscribedAtRaw: sub.subscribedAt, // Campo auxiliar para ordenamiento
         };
 
         if (!eventSheets[safeSheetName]) {
@@ -98,6 +104,20 @@ const processEventSheets = (participants) => {
         eventSheets[safeSheetName].push(row);
       });
     }
+  });
+
+  // Ordenar las inscripciones dentro de cada evento por fecha de inscripción (más recientes primero)
+  Object.keys(eventSheets).forEach((sheetName) => {
+    eventSheets[sheetName].sort((a, b) => {
+      const dateB = new Date(b._subscribedAtRaw).getTime();
+      const dateA = new Date(a._subscribedAtRaw).getTime();
+      return dateB - dateA;
+    });
+    
+    // Eliminar el campo auxiliar después del ordenamiento
+    eventSheets[sheetName].forEach(row => {
+      delete row._subscribedAtRaw;
+    });
   });
 
   return eventSheets;
