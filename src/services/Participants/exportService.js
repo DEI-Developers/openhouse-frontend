@@ -113,9 +113,9 @@ const processEventSheets = (participants) => {
       const dateA = new Date(a._subscribedAtRaw).getTime();
       return dateB - dateA;
     });
-    
+
     // Eliminar el campo auxiliar después del ordenamiento
-    eventSheets[sheetName].forEach(row => {
+    eventSheets[sheetName].forEach((row) => {
       delete row._subscribedAtRaw;
     });
   });
