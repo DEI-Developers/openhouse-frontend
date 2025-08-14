@@ -58,7 +58,7 @@ export const getCustomActions = (onEdit, onDelete, onShowQR, permissions) => {
     });
   }
 
-  if (permissions.includes(Permissions.DELETE_PARTICIPANT)) {
+  if (permissions.includes(Permissions.DELETE_PARTICIPANTS)) {
     actions.push({
       id: 3,
       label: '',
