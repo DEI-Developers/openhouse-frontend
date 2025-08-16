@@ -9,6 +9,7 @@ import CustomInput from '@components/UI/Form/CustomInput';
 import CustomButton from '@components/UI/Form/CustomButton';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import CustomInputPassword from '@components/UI/Form/CustomInputPassword';
+import OIDCLoginButtons from '@components/Auth/OIDCLoginButtons';
 
 const LoginForm = () => {
   const {onLogin} = useAuth();
@@ -87,6 +88,8 @@ const LoginForm = () => {
           ¿Olvido su contraseña?
         </Link>
       </form>
+      
+      <OIDCLoginButtons />
     </div>
   );
 };

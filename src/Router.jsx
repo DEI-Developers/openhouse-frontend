@@ -9,6 +9,7 @@ import {
   ResetPassword,
   ForgotPassword,
 } from './pages';
+import OIDCCallback from '@components/Auth/OIDCCallback';
 
 const AppRouter = () => {
   return (
@@ -22,6 +23,8 @@ const AppRouter = () => {
           element={<ResetPassword />}
         />
         <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+        <Route path="/oidc/:provider/callback" element={<OIDCCallback />} />
+        <Route path="/auth/oidc/:provider/callback" element={<OIDCCallback />} />
       </Route>
 
       <Route path="/" element={<PrivateRoute />}>
