@@ -91,10 +91,11 @@ const OIDCLoginButtons = () => {
             key={provider.name || provider.id}
             onClick={() => handleOIDCLogin(provider.name || provider.id)}
             className="w-full flex justify-center items-center bg-white border border-gray-300 text-gray-700 text-sm font-medium py-3 rounded-lg hover:bg-gray-50 transition-colors"
+            loading={false}
             label={
               <span className="flex items-center gap-2">
                 {getProviderIcon(provider.name || provider.id)}
-                Continuar con {getProviderName(provider.name || provider.id)}
+                Continuar con {getProviderName(provider.displayName || provider.name || provider.id)}
               </span>
             }
           />
