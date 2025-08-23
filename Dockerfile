@@ -4,15 +4,18 @@ FROM node:22-alpine AS build
 # Creamos carpeta de trabajo
 WORKDIR /app
 
-# Copiamos package.json y package-lock.json (si existe) para instalar dependencias
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
+# Instalamos pnpm globalmente
+RUN npm install -g pnpm
+
+# Copiamos package.json y pnpm-lock.yaml para instalar dependencias
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copiamos el resto de archivos
 COPY . .
 
 # Ejecutamos build de Vite (genera carpeta 'dist')
-RUN npm run build
+RUN pnpm run build
 
 # Etapa de producción
 FROM nginx:alpine
