@@ -32,10 +32,6 @@ RUN pnpm run build
 # Etapa de producción
 FROM nginx:alpine
 
-# Creamos usuario no-root para nginx
-RUN addgroup -g 1001 -S nginx && \
-    adduser -S nginx -u 1001 -G nginx
-
 # Copiamos solo los archivos de build necesarios
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
