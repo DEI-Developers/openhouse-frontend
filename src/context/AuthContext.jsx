@@ -7,6 +7,8 @@ const initialData = {
   menu: [],
   permissions: [],
   isAuthenticated: false,
+  authMethod: null, // 'local' | 'oidc'
+  oidcProviders: [], // Array de proveedores OIDC del usuario
 };
 
 const AuthContext = createContext({
@@ -14,6 +16,7 @@ const AuthContext = createContext({
   loading: true,
   onLogin: (user) => {},
   onLogout: () => {},
+  onOIDCLogin: (userData) => {},
 });
 
 export const AuthProvider = ({children}) => {
@@ -33,6 +36,8 @@ export const AuthProvider = ({children}) => {
               token: token,
               permissions: response.data.permissions,
               isAuthenticated: true,
+              authMethod: response.data.user?.authMethod || 'local',
+              oidcProviders: response.data.user?.oidcProviders || [],
             });
           }
         })
@@ -52,6 +57,21 @@ export const AuthProvider = ({children}) => {
       token: appState.token,
       permissions: appState.permissions,
       isAuthenticated: true,
+      authMethod: appState.user?.authMethod || 'local',
+      oidcProviders: appState.user?.oidcProviders || [],
+    });
+  };
+
+  const onOIDCLogin = (userData) => {
+    localStorage.setItem('appToken', userData.token);
+    setAuthState({
+      user: userData.user,
+      menu: userData.menu,
+      token: userData.token,
+      permissions: userData.permissions,
+      isAuthenticated: true,
+      authMethod: 'oidc',
+      oidcProviders: userData.user?.oidcProviders || [],
     });
   };
 
@@ -61,7 +81,7 @@ export const AuthProvider = ({children}) => {
   };
 
   return (
-    <AuthContext.Provider value={{authState, loading, onLogin, onLogout}}>
+    <AuthContext.Provider value={{authState, loading, onLogin, onLogout, onOIDCLogin}}>
       {children}
     </AuthContext.Provider>
   );
@@ -82,5 +102,7 @@ export const useAuth = () => {
     token: context.authState.token,
     isAuthenticated: context.authState.isAuthenticated,
     permissions: context.authState.permissions,
+    authMethod: context.authState.authMethod,
+    oidcProviders: context.authState.oidcProviders,
   };
 };
