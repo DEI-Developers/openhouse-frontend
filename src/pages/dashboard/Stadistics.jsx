@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {useState} from 'react';
-import Chart from 'react-apexcharts';
+import ReactApexChart from 'react-apexcharts';
 import {useQuery} from '@tanstack/react-query';
 import {getStadistics} from '@services/Stadistics';
 import CustomHeader from '@components/UI/CustomHeader';
@@ -62,7 +62,7 @@ const Stadistics = () => {
             <h4 className="text-sm text-gray-500 mb-1">{item.title}</h4>
             <p className="font-bold text-3xl mb-4">{item.total}</p>
 
-            <Chart
+            <ReactApexChart
               {...item.chartData}
               options={{
                 ...item.chartData.options,
