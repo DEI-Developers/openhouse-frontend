@@ -8,6 +8,7 @@ const getStadistics = async (eventId) => {
 
   const response = await apiInstance.get(`/stadistics/${eventId}`);
 
+  console.log('getStadistics response:', response.data?.data);
   return response.data?.data;
 };
 
