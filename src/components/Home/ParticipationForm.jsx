@@ -26,10 +26,12 @@ const ParticipationForm = ({
   submitButtonLabel = 'Enviar formulario',
   titleClassName = 'font-bold text-3xl text-center text-primary tracking-wide',
   submitButtonClassName = 'w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg',
+  targetAudienceId = null,
 }) => {
   const {data, refetch} = useQuery({
-    queryKey: ['publicCatalogs'],
-    queryFn: getPublicCatalogs,
+    queryKey: ['enrollmentCatalogs', targetAudienceId],
+    queryFn: () => getEnrollmentCatalogs(targetAudienceId),
+    enabled: !!targetAudienceId,
     refetchOnWindowFocus: false,
   });
   const [subscribedTo, setSubscribedTo] = useState(
@@ -64,17 +66,22 @@ const ParticipationForm = ({
 
   const currentFaculty = watch('faculty');
   const currentCareer = watch('career')?.value ?? null;
+  const withParentValue = watch('withParent');
   const {isSubmitting, errors} = formState;
 
   useEffect(() => {
     setSubscribedTo(initialData.subscribedTo);
   }, [currentFaculty]);
 
+  const faculties = useMemo(() => {
+    return data?.targetAudience?.faculties ?? [];
+  }, [data]);
+
   const careers = useMemo(() => {
     return (
-      data?.faculties?.find((f) => f.value === currentFaculty)?.careers ?? []
+      faculties?.find((f) => f.value === currentFaculty)?.careers ?? []
     );
-  }, [currentFaculty, data]);
+  }, [currentFaculty, faculties]);
 
   const events = useMemo(() => {
     return (
@@ -82,6 +89,8 @@ const ParticipationForm = ({
     );
   }, [currentFaculty, data]);
 
+  const showAttendanceSection = data?.targetAudience?.attendanceEnabled ?? true;
+   
   const onCloseModal = () => {
     onClean();
     reset();
@@ -117,6 +126,9 @@ const ParticipationForm = ({
       career: data.career?.id,
       networks: data.networks?.value,
       subscribedTo,
+      withParent:
+        data.withParent !== '' && data.withParent !== null
+          ? data.withParent : undefined,
     };
 
     const mutation = !empty(data.id) ? onUpdate : onCreate;
@@ -229,6 +241,23 @@ const ParticipationForm = ({
             </div>
           </div>
 
+          <div className='w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4'>
+              <CustomInput
+                type="text"
+                name="confirmationCode"
+                required
+                label="Código de confirmación"
+                error={errors.confirmationCode}
+                disabled={isSubmitting}
+                register={register}
+                containerClassName="flex-1"
+                placeholder="Ingresa el código que recibiste"
+                noCopy
+                noPaste
+              />
+              <div className="hidden lg:flex lg:flex-1" />
+          </div>
+
           <div className="mb-6">
             <p className="mb-3 italic font-bold">Queremos saber más de vos</p>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
@@ -236,7 +265,7 @@ const ParticipationForm = ({
                 type="text"
                 name="institute"
                 required
-                label="¿Cuál es el nombre de tu colegio o instituto?"
+                label="¿De que institución provienes?"
                 error={errors.institute}
                 disabled={isSubmitting}
                 register={register}
@@ -267,7 +296,7 @@ const ParticipationForm = ({
                 name="faculty"
                 register={register}
                 options={
-                  data?.faculties?.sort((a, b) =>
+                  faculties?.sort((a, b) =>
                     a.name.localeCompare(b.name)
                   ) ?? []
                 }
@@ -293,6 +322,7 @@ const ParticipationForm = ({
             </div>
           </div>
 
+          {showAttendanceSection && (
           <div className="mb-6">
             <p className="mb-3 italic font-bold">Asistencia</p>
             <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
@@ -312,6 +342,7 @@ const ParticipationForm = ({
               )}
             </div>
           </div>
+          )}
 
           <Events
             events={events}
@@ -368,6 +399,7 @@ const initialFormData = {
   name: '',
   email: '',
   confirmEmail: '',
+  confirmationCode: '',
   phoneNumber: '',
   institute: '',
   networks: '',
@@ -377,7 +409,7 @@ const initialFormData = {
   faculty: '',
   career: null,
   parentStudiedAtUCA: null,
-  withParent: '0',
+  withParent: '',
 };
 
 const schema = yup.object().shape({
@@ -406,7 +438,8 @@ const schema = yup.object().shape({
   medio: yup.string().required('Campo obligatorio.'),
   faculty: yup.string().required('Campo obligatorio.'),
   career: yup.object().required('Campo obligatorio.'),
-  withParent: yup.boolean().required('Campo obligatorio.'),
+  withParent: yup.boolean().nullable().optional(),
+  confirmationCode: yup.string().required('Campo obligatorio.'),
 });
 
 const withParentAndparentStudiedAtUCAOptions = [
