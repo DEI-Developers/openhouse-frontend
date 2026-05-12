@@ -36,6 +36,7 @@ const useTargetAudience = () => {
     const onEdit = (data) => {
         setCurrentData({
             ...data,
+            image: data.image ?? '', 
             faculties: data.faculties || [],
         });
             onToggleBox();
@@ -94,6 +95,7 @@ const useTargetAudience = () => {
 const initialData = {
     id: null,
     name: '',
+    image: '',
     faculties: [],
 };
 

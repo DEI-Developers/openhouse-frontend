@@ -10,6 +10,7 @@ import useCatalogs from '@hooks/Dashboard/useCatalogs';
 
 const schema = yup.object().shape({
   name: yup.string().required('El campo es obligatorio'),
+  image: yup.string().url('Debe ser una URL válida').nullable(), 
   description: yup.string(),
 });
 
@@ -53,7 +54,17 @@ const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
             containerClassName="w-full"
           />
         </div>
- 
+        <div className="mt-4">
+          <CustomInput
+            type="url"
+            name="image"
+            label="URL"
+            disabled={isSubmitting}
+            register={register}
+            error={errors.image}
+            containerClassName="w-full"
+          />
+        </div>
         <div className="mt-4">
           <CustomMultiSelect
             isSearchable

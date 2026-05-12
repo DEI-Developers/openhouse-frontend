@@ -149,7 +149,6 @@ const ParticipationForm = ({
     if (!isValidPhoneNumber(phoneNumber)) {
       reset({
         ...initialFormData,
-        confirmEmail: initialData.email,
         phoneNumber: phoneNumber,
       });
       setSubscribedTo([]);
@@ -221,19 +220,6 @@ const ParticipationForm = ({
                 disabled={isSubmitting}
                 register={register}
                 containerClassName="flex-1"
-                placeholder="00084417@mail.com"
-                noCopy
-                noPaste
-              />
-              <CustomInput
-                type="email"
-                name="confirmEmail"
-                required
-                label="¿Podrías confirmar tu correo electrónico?"
-                error={errors.confirmEmail}
-                disabled={isSubmitting}
-                register={register}
-                containerClassName="flex-1 "
                 placeholder="00084417@mail.com"
                 noCopy
                 noPaste
@@ -398,7 +384,6 @@ const initialFormData = {
   id: null,
   name: '',
   email: '',
-  confirmEmail: '',
   confirmationCode: '',
   phoneNumber: '',
   institute: '',
@@ -417,14 +402,6 @@ const schema = yup.object().shape({
     .string()
     .email('Debe ser un correo electrónico válido')
     .required('Campo obligatorio.'),
-  confirmEmail: yup
-    .string()
-    .email('Debe ser un correo electrónico válido')
-    .required('Campo obligatorio.')
-    .oneOf(
-      [yup.ref('email'), null],
-      'Los correos electrónicos deben coincidir'
-    ),
   phoneNumber: yup
     .string()
     .required('Campo obligatorio')
