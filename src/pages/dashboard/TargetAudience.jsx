@@ -43,7 +43,7 @@ const TargetAudience = () => {
   };
 
   const handleCopyLink = (data) => {
-    const id = data.id ?? data.id;
+    const id = data._id ?? data.id;
     const link = `${window.location.origin}/registro/${id}`;
     navigator.clipboard.writeText(link)
       .then(() => {
@@ -262,10 +262,16 @@ const getColumns = (showDeleted) => [
     render: (rowData) => {
       if (rowData.deletedAt) return '-';
       const id = rowData._id ?? rowData.id;
+      const link = `${window.location.origin}/registro/${id}`;
       return (
-        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+        <a 
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono text-xs text-primary hover:underline bg-gray-100 px-2 py-1 rounded"
+        >
           {`/registro/${id}`}
-        </span>
+        </a>
       );
     },
   },

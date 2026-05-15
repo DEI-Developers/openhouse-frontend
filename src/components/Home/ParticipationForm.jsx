@@ -15,6 +15,7 @@ import {getParticipantByPhoneNumber} from '@services/Participants';
 import CustomRadioGroup from '@components/UI/Form/CustomRadioGroup';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
 import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
+import NotFound from '@pages/404';
 
 import Events from './Events';
 import SuccessModal from './SuccessModal';
@@ -28,12 +29,13 @@ const ParticipationForm = ({
   submitButtonClassName = 'w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg',
   targetAudienceId = null,
 }) => {
-  const {data, refetch} = useQuery({
-    queryKey: ['enrollmentCatalogs', targetAudienceId],
-    queryFn: () => getEnrollmentCatalogs(targetAudienceId),
-    enabled: !!targetAudienceId,
-    refetchOnWindowFocus: false,
+  const {data, refetch, isError} = useQuery({
+  queryKey: ['enrollmentCatalogs', targetAudienceId],
+  queryFn: () => getEnrollmentCatalogs(targetAudienceId),
+  enabled: !!targetAudienceId,
+  refetchOnWindowFocus: false,
   });
+  
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
   );
@@ -169,6 +171,10 @@ const ParticipationForm = ({
       initialData.subscribedTo = suscriptions;
     }
   };
+  
+  if (isError) {
+    return <NotFound />;
+  }
 
   return (
     <div>
