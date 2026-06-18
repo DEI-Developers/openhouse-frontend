@@ -13,15 +13,18 @@ RUN npm install -g pnpm && \
     npm cache clean --force
 
 # Copiamos archivos de dependencias primero (mejor cache layering)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 # Cambiamos propietario de archivos y instalamos dependencias
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Instalamos dependencias y limpiamos caché de pnpm
-RUN pnpm install && \
+# Instalamos dependencias (sin ejecutar builds)
+RUN pnpm install --ignore-scripts && \
     pnpm store prune
+
+# Aprobamos los builds pendientes
+RUN pnpm approve-builds @tailwindcss/oxide esbuild
 
 # Copiamos el resto de archivos (como usuario no-root)
 COPY --chown=nextjs:nodejs . .
