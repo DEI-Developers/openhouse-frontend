@@ -19,9 +19,12 @@ COPY package.json pnpm-lock.yaml .npmrc ./
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Instalamos dependencias y limpiamos caché de pnpm
-RUN pnpm install && \
+# Instalamos dependencias (sin ejecutar builds)
+RUN pnpm install --ignore-scripts && \
     pnpm store prune
+
+# Aprobamos los builds pendientes
+RUN pnpm approve-builds @tailwindcss/oxide esbuild
 
 # Copiamos el resto de archivos (como usuario no-root)
 COPY --chown=nextjs:nodejs . .
