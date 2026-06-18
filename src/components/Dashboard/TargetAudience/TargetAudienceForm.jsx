@@ -1,5 +1,6 @@
 //@ts-nocheck
 import * as yup from 'yup';
+import {useEffect} from 'react';
 import { useForm } from "react-hook-form";
 import {yupResolver} from '@hookform/resolvers/yup';
 import {empty} from '@utils/helpers';
@@ -10,14 +11,14 @@ import useCatalogs from '@hooks/Dashboard/useCatalogs';
 
 const schema = yup.object().shape({
   name: yup.string().required('El campo es obligatorio'),
-  image: yup.string().url('Debe ser una URL válida').nullable(), 
+  image: yup.string().url('Debe ser una URL válida').nullable(),
   description: yup.string(),
 });
 
 const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
 
   const {faculties} = useCatalogs();
-  const {control, formState, register, handleSubmit} = useForm({
+  const {control, formState, register, handleSubmit, reset} = useForm({
     mode: 'onBlur',
     defaultValues: initialData,
     resolver: yupResolver(schema),
@@ -25,16 +26,22 @@ const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
 
   const {errors, isSubmitting} = formState;
 
+  // El CustomModal no desmonta los children al cerrarse, así que el form
+  // queda vivo y useForm ignora cambios en `defaultValues` luego del primer
+  // mount. reset() re-sincroniza el form cada vez que se abre con otra fila.
+  useEffect(() => {
+    reset(initialData);
+  }, [initialData, reset]);
+
   const onSubmit = (data) => {
     const updatedData = {
       ...data,
-      id: data.id,
       faculties: data.faculties?.map((f) => f.value ?? f) ?? [],
     };
 
-  const mutation = !empty(data.id) ? onUpdate : onCreate;
-  mutation.mutate(updatedData);
-};  
+    const mutation = !empty(data.id) ? onUpdate : onCreate;
+    mutation.mutate(updatedData);
+  };
 
  return (
     <div className="bg-white px-2 pt-2 pb-2 sm:p-6 sm:pb-4">

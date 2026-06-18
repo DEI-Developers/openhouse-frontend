@@ -36,10 +36,31 @@ const useTargetAudience = () => {
   });
 
   const onEdit = (data) => {
+    // Mongo devuelve `_id`; el form y el servicio Update esperan `id`.
+    // Sin esta normalización, `data.id` queda undefined y el form cae en
+    // onCreate (POST) en lugar de onUpdate (PUT), creando un duplicado.
+    const id = data._id ?? data.id ?? null;
+
+    // El listado del backend ahora popula faculties, que pueden llegar como
+    // ObjectId-string o como { _id, name }. Los mapeamos al formato
+    // { value, label, name } que matchea con las options del CustomMultiSelect
+    // para que aparezcan preseleccionadas al editar.
+    const faculties = (data.faculties || [])
+      .filter((f) => f != null) // populate devuelve null si la facultad fue hard-deleted
+      .map((f) => {
+        if (typeof f === 'string') {
+          return { value: f, label: f, name: f };
+        }
+        const value = f._id ?? f.value;
+        const name = f.name ?? f.label ?? String(value);
+        return { value, label: name, name };
+      });
+
     setCurrentData({
-      ...data,
+      id,
+      name: data.name ?? '',
       image: data.image ?? '',
-      faculties: data.faculties || [],
+      faculties,
     });
     onToggleBox();
   };
