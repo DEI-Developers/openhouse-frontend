@@ -20,7 +20,7 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Instalamos dependencias y limpiamos caché de pnpm
-RUN pnpm install --frozen-lockfile && \
+RUN pnpm install && \
     pnpm store prune
 
 # Copiamos el resto de archivos (como usuario no-root)
