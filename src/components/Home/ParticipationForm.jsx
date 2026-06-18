@@ -8,7 +8,6 @@ import {isValidPhoneNumber} from '@utils/helpers';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
-import getPublicCatalogs from '@services/getPublicCatalogs';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import useParticipants from '@hooks/Dashboard/useParticipants';
 import {getParticipantByPhoneNumber} from '@services/Participants';
@@ -19,6 +18,7 @@ import NotFound from '@pages/404';
 
 import Events from './Events';
 import SuccessModal from './SuccessModal';
+import getEnrollmentCatalogs from '@services/getEnrollmentCatalogs';
 
 const ParticipationForm = ({
   onCloseForm = null,
@@ -92,6 +92,8 @@ const ParticipationForm = ({
   }, [currentFaculty, data]);
 
   const showAttendanceSection = data?.targetAudience?.attendanceEnabled ?? true;
+
+  const targetAudienceImage = data?.targetAudience?.image ?? null;
    
   const onCloseModal = () => {
     onClean();
@@ -171,13 +173,16 @@ const ParticipationForm = ({
       initialData.subscribedTo = suscriptions;
     }
   };
-  
-  if (isError) {
-    return <NotFound />;
-  }
 
   return (
     <div>
+      {targetAudienceImage && (
+        <img
+          src={targetAudienceImage}
+          className="w-full object-contain"
+          alt="Banner"
+        />
+      )}
       <div className="px-4 py-6 mx-auto max-w-6xl">
         <h1 className={titleClassName}>{titleLabel}</h1>
 
@@ -230,24 +235,20 @@ const ParticipationForm = ({
                 noCopy
                 noPaste
               />
-            </div>
-          </div>
-
-          <div className='w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4'>
               <CustomInput
-                type="text"
-                name="confirmationCode"
+                type="email"
+                name="confirmEmail"
                 required
-                label="Código de confirmación"
-                error={errors.confirmationCode}
+                label="¿Podrías confirmar tu correo electrónico?"
+                error={errors.confirmEmail}
                 disabled={isSubmitting}
                 register={register}
                 containerClassName="flex-1"
-                placeholder="Ingresa el código que recibiste"
+                placeholder="00084417@mail.com"
                 noCopy
                 noPaste
               />
-              <div className="hidden lg:flex lg:flex-1" />
+            </div>
           </div>
 
           <div className="mb-6">
@@ -288,9 +289,7 @@ const ParticipationForm = ({
                 name="faculty"
                 register={register}
                 options={
-                  faculties?.sort((a, b) =>
-                    a.name.localeCompare(b.name)
-                  ) ?? []
+                  faculties?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
                 }
                 label="¿Cuál es tu área de interés?"
                 containerClassName="flex-1"
@@ -315,25 +314,25 @@ const ParticipationForm = ({
           </div>
 
           {showAttendanceSection && (
-          <div className="mb-6">
-            <p className="mb-3 italic font-bold">Asistencia</p>
-            <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
-              <CustomRadioGroup
-                name="withParent"
-                register={register}
-                options={withParentAndparentStudiedAtUCAOptions}
-                label="¿Asistirás al Vive la UCA con tu padre, madre o encargado? (Máximo UNO de ellos.)"
-              />
-              {watch('withParent') === 'true' && (
+            <div className="mb-6">
+              <p className="mb-3 italic font-bold">Asistencia</p>
+              <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
                 <CustomRadioGroup
-                  name="parentStudiedAtUCA"
+                  name="withParent"
                   register={register}
                   options={withParentAndparentStudiedAtUCAOptions}
-                  label="¿La persona (padre, madre o encargado) que te acompañará se graduó de la UCA? "
+                  label="¿Asistirás al Vive la UCA con tu padre, madre o encargado? (Máximo UNO de ellos.)"
                 />
-              )}
+                {watch('withParent') === 'true' && (
+                  <CustomRadioGroup
+                    name="parentStudiedAtUCA"
+                    register={register}
+                    options={withParentAndparentStudiedAtUCAOptions}
+                    label="¿La persona (padre, madre o encargado) que te acompañará se graduó de la UCA? "
+                  />
+                )}
+              </div>
             </div>
-          </div>
           )}
 
           <Events
@@ -390,7 +389,7 @@ const initialFormData = {
   id: null,
   name: '',
   email: '',
-  confirmationCode: '',
+  confirmEmail: '',
   phoneNumber: '',
   institute: '',
   networks: '',
@@ -408,6 +407,11 @@ const schema = yup.object().shape({
     .string()
     .email('Debe ser un correo electrónico válido')
     .required('Campo obligatorio.'),
+  confirmEmail: yup
+    .string()
+    .email('Debe ser un correo electrónico válido')
+    .required('Campo obligatorio.')
+    .oneOf([yup.ref('email')], 'Los correos no coinciden'),
   phoneNumber: yup
     .string()
     .required('Campo obligatorio')
@@ -422,7 +426,6 @@ const schema = yup.object().shape({
   faculty: yup.string().required('Campo obligatorio.'),
   career: yup.object().required('Campo obligatorio.'),
   withParent: yup.boolean().nullable().optional(),
-  confirmationCode: yup.string().required('Campo obligatorio.'),
 });
 
 const withParentAndparentStudiedAtUCAOptions = [

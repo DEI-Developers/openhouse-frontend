@@ -15,9 +15,9 @@ import Registration from '@pages/Registration';
 const AppRouter = () => {
   return (  
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* <Route path="/" element={<Home />} /> */}
 
-      <Route path="/registro/:id" element={<Registration />} />
+      <Route path="/:id" element={<Registration />} />
       <Route path="/" element={<AuthRoute />}>
         <Route path="/iniciar-sesion" element={<Login />} />
         <Route
