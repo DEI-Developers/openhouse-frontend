@@ -29,3 +29,4 @@ yarn.lock
 .env
 
 .vercel*
+.atl

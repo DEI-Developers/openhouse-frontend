@@ -10,12 +10,14 @@ import {
   ForgotPassword,
 } from './pages';
 import OIDCCallback from '@components/Auth/OIDCCallback';
+import Registration from '@pages/Registration';
 
 const AppRouter = () => {
-  return (
+  return (  
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* <Route path="/" element={<Home />} /> */}
 
+      <Route path="/:id" element={<Registration />} />
       <Route path="/" element={<AuthRoute />}>
         <Route path="/iniciar-sesion" element={<Login />} />
         <Route

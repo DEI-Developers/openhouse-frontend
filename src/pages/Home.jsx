@@ -12,9 +12,6 @@ const Home = () => {
         className="w-full"
         alt="UCA"
       />
-      <ErrorBoundary>
-        <ParticipationForm />
-      </ErrorBoundary>
     </div>
   );
 };

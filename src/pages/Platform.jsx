@@ -13,6 +13,7 @@ import {
   Welcome,
   Careers,
   Faculties,
+  TargetAudience,
   Permissions,
 } from './dashboard';
 
@@ -64,7 +65,10 @@ const Platform = () => {
                 {flatMenu.includes('Participantes') && (
                   <Route path="/participantes" element={<Participants />} />
                 )}
-                {/* {flatMenu.includes('Carreras') && (
+                {flatMenu.includes('Público Objetivo') && (
+                 <Route path="/target-audience" element={<TargetAudience />} />
+           )}
+               {/* {flatMenu.includes('Carreras') && (
                 )}
                 {flatMenu.includes('Facultades') && (
                 )} */}
