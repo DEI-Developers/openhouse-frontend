@@ -13,7 +13,7 @@ RUN npm install -g pnpm && \
     npm cache clean --force
 
 # Copiamos archivos de dependencias primero (mejor cache layering)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 # Cambiamos propietario de archivos y instalamos dependencias
 RUN chown -R nextjs:nodejs /app
