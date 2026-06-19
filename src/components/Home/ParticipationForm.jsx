@@ -239,7 +239,7 @@ const ParticipationForm = ({
                 type="email"
                 name="confirmEmail"
                 required
-                label="¿Podrías confirmar tu correo electrónico?"
+                label="Por favor, confirmá tu correo electrónico."
                 error={errors.confirmEmail}
                 disabled={isSubmitting}
                 register={register}
@@ -258,7 +258,7 @@ const ParticipationForm = ({
                 type="text"
                 name="institute"
                 required
-                label="¿De que institución provienes?"
+                label="¿En cuál instituto o colegio estudiás?"
                 error={errors.institute}
                 disabled={isSubmitting}
                 register={register}
