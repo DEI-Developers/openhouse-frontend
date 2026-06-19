@@ -45,9 +45,6 @@ RUN chown -R nginx:nginx /var/cache/nginx && \
     touch /var/run/nginx.pid && \
     chown -R nginx:nginx /var/run/nginx.pid
 
-# Cambiamos a usuario no-root
-USER nginx
-
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
