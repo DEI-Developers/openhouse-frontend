@@ -62,20 +62,23 @@ const Careers = () => {
     pageNumber,
     pageSize,
     searchedWord,
-    filters = null
+    filters = null,
+    sortConfig = null
   ) => {
+    const sortColumn = sortConfig?.field || 'createdAt';
+    const sortOrder = sortConfig?.direction || 'desc';
+
     if (showDeleted) {
-      // Cuando showDeleted es true, obtenemos todas las carreras (incluidas eliminadas)
-      // y luego filtramos solo las eliminadas
       const result = await getCareers(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        true // includeDeleted = true
+        true,
+        sortColumn,
+        sortOrder
       );
 
-      // Filtrar solo las carreras que tienen deletedAt (soft deleted)
       const deletedRows = result.rows.filter((row) => row.deletedAt);
 
       return {
@@ -85,13 +88,14 @@ const Careers = () => {
         nPages: Math.ceil(deletedRows.length / pageSize),
       };
     } else {
-      // Cuando showDeleted es false, solo obtenemos carreras activas
       return getCareers(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        false // includeDeleted = false
+        false,
+        sortColumn,
+        sortOrder
       );
     }
   };
@@ -257,6 +261,7 @@ const getColumns = (showDeleted) => [
   {
     title: 'Estado',
     field: 'status',
+    sortable: false,
     render: (rowData) => (
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

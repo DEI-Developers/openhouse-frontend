@@ -1,12 +1,19 @@
 import {empty, parseUrlParams} from '@utils/helpers';
 import apiInstance from '@utils/instances/ApiInstance';
 
-const getUsers = async (pageNumber, pageSize, searchedWord, filters = null) => {
+const getUsers = async (
+  pageNumber,
+  pageSize,
+  searchedWord,
+  filters = null,
+  sortColumn = 'createdAt',
+  sortOrder = 'desc'
+) => {
   const params = {
     pageNumber,
     pageSize,
-    sortColumn: 'createdAt',
-    sortOrder: 'desc',
+    sortColumn,
+    sortOrder,
     searchWord: !empty(searchedWord) ? searchedWord : undefined,
   };
 

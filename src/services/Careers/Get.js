@@ -6,13 +6,15 @@ const getCareers = async (
   pageSize,
   searchedWord,
   filters = null,
-  includeDeleted = false
+  includeDeleted = false,
+  sortColumn = 'createdAt',
+  sortOrder = 'desc'
 ) => {
   const params = {
     pageNumber,
     pageSize,
-    sortColumn: 'createdAt',
-    sortOrder: 'desc',
+    sortColumn,
+    sortOrder,
     searchWord: !empty(searchedWord) ? searchedWord : undefined,
     includeDeleted,
   };

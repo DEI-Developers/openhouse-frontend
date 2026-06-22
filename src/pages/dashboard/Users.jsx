@@ -43,7 +43,11 @@ const Users = () => {
         columns={columns}
         queryKey="users"
         customActions={customActions}
-        fetchData={getUsers}
+        fetchData={(page, pageSize, searchedWord, filters, sortConfig) => {
+          const sortColumn = sortConfig?.field || 'createdAt';
+          const sortOrder = sortConfig?.direction || 'desc';
+          return getUsers(page, pageSize, searchedWord, filters, sortColumn, sortOrder);
+        }}
         CustomFilters={TableFilters}
       />
 
@@ -116,6 +120,7 @@ const columns = [
   {
     title: 'Estado',
     field: 'isActive',
+    sortable: false,
     render: (rowData) => <BadgeStatus status={rowData.isActive} />,
   },
 ];

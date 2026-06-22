@@ -61,20 +61,23 @@ const Faculties = () => {
     pageNumber,
     pageSize,
     searchedWord,
-    filters = null
+    filters = null,
+    sortConfig = null
   ) => {
+    const sortColumn = sortConfig?.field || 'createdAt';
+    const sortOrder = sortConfig?.direction || 'desc';
+
     if (showDeleted) {
-      // Cuando showDeleted es true, obtenemos todas las facultades (incluidas eliminadas)
-      // y luego filtramos solo las eliminadas
       const result = await getFaculties(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        true // includeDeleted = true
+        true,
+        sortColumn,
+        sortOrder
       );
 
-      // Filtrar solo las facultades que tienen deletedAt (soft deleted)
       const deletedRows = result.rows.filter((row) => row.deletedAt);
 
       return {
@@ -84,13 +87,14 @@ const Faculties = () => {
         nPages: Math.ceil(deletedRows.length / pageSize),
       };
     } else {
-      // Cuando showDeleted es false, solo obtenemos facultades activas
       return getFaculties(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        false // includeDeleted = false
+        false,
+        sortColumn,
+        sortOrder
       );
     }
   };
@@ -259,6 +263,7 @@ const getColumns = (onRemoveCareer, showDeleted) => [
   {
     title: 'Estado',
     field: 'status',
+    sortable: false,
     render: (rowData) => (
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -283,6 +288,7 @@ const getColumns = (onRemoveCareer, showDeleted) => [
   {
     title: 'Carreras',
     field: 'careers',
+    sortable: false,
     render: (rowData) => {
       if (!rowData.careers || rowData.careers.length === 0) {
         return (
