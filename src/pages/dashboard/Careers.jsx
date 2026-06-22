@@ -15,6 +15,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import CareerForm from '@components/Dashboard/Career/CareerForm';
+import TableFilters from '@components/UI/Filters/TableFilters';
 import CustomTable from '@components/UI/Table/CustomTable';
 import CareersCardView from '@components/Dashboard/CareersCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
@@ -149,6 +150,7 @@ const Careers = () => {
             queryKey={showDeleted ? 'careers-with-deleted' : 'careers'}
             customActions={customActions}
             fetchData={fetchCareersData}
+            CustomFilters={TableFilters}
           />
         ) : (
           <CareersCardView

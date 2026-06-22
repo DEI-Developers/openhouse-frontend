@@ -8,7 +8,6 @@ import {useQuery} from '@tanstack/react-query';
 import Loader from '../Loader';
 import CustomRow from './CustomRow';
 import Pagination from './Pagination';
-import TableFilters from '../Filters/EventsFilters';
 
 const CustomTable = ({
   columns,
@@ -17,6 +16,8 @@ const CustomTable = ({
   groupByField = null,
   customActions,
   defaultRowsPerPage = 5,
+  rowsPerPageOptions = [5, 10, 20, 50],
+  onRowsPerPageChange,
   customHeaderClassName = 'text-left text-sm text-gray-900 text-wrap',
   customContainerClassName = '',
   CustomFilters = null,
@@ -28,8 +29,16 @@ const CustomTable = ({
   const [searchedWord, setSearchedWord] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(1); // Reset to first page when changing rows per page
+    if (onRowsPerPageChange) {
+      onRowsPerPageChange(newRowsPerPage);
+    }
+  };
+
   const {isLoading, isError, error, data, refetch} = useQuery({
-    queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
+    queryKey: [queryKey, searchedWord, page, rowsPerPage, JSON.stringify(filters)],
     queryFn: () => {
       return permissions.length > 0
         ? fetchData(permissions, page, rowsPerPage, searchedWord, filters)
@@ -135,6 +144,8 @@ const CustomTable = ({
         nRows={nRows}
         currentPage={page}
         rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={rowsPerPageOptions}
+        onRowsPerPageChange={handleRowsPerPageChange}
         onChangePage={(newPage) => setPage(newPage)}
         nextPage={() => setPage((old) => old + 1)}
         previusPage={() => setPage((old) => Math.max(old - 1, 1))}

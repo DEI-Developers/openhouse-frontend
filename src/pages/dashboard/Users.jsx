@@ -11,6 +11,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import UserForm from '@components/Dashboard/User/UserForm';
+import TableFilters from '@components/UI/Filters/TableFilters';
 import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
@@ -43,6 +44,7 @@ const Users = () => {
         queryKey="users"
         customActions={customActions}
         fetchData={getUsers}
+        CustomFilters={TableFilters}
       />
 
       <DeleteDialog

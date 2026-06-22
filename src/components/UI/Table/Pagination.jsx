@@ -4,6 +4,8 @@ import {BsChevronLeft, BsChevronRight} from 'react-icons/bs';
 const Pagination = ({
   nRows,
   rowsPerPage,
+  rowsPerPageOptions = [5, 10, 20, 50],
+  onRowsPerPageChange,
   currentPage,
   onChangePage,
   nextPage,
@@ -23,9 +25,24 @@ const Pagination = ({
         <CustomButton label="Siguiente" onClick={nextPage} />
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-700">Mostrar</label>
+            <select
+              value={rowsPerPage}
+              onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
+              className="block rounded-md border-0 py-1.5 pl-2 pr-6 text-sm text-gray-900 ring-inset ring-gray-300 focus:ring-inset focus:ring-primary"
+            >
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-gray-700">filas</span>
+          </div>
           <p className="text-sm text-gray-700">
-            Mostrando <span className="font-medium">{startIndex}</span>
+            | Mostrando <span className="font-medium">{startIndex}</span>
             {' - '}
             <span className="font-medium">{endIndex}</span> de{' '}
             <span className="font-medium">{nRows}</span> resultados

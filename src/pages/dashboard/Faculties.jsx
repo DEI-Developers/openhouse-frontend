@@ -12,6 +12,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import FacultyForm from '@components/Dashboard/Faculty/FacultyForm';
+import TableFilters from '@components/UI/Filters/TableFilters';
 import CustomTable from '@components/UI/Table/CustomTable';
 import FacultiesCardView from '@components/Dashboard/FacultiesCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
@@ -150,6 +151,7 @@ const Faculties = () => {
             queryKey={showDeleted ? 'faculties-with-deleted' : 'faculties'}
             customActions={customActions}
             fetchData={fetchFacultiesData}
+            CustomFilters={TableFilters}
           />
         ) : (
           <FacultiesCardView
