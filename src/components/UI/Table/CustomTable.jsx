@@ -4,11 +4,11 @@ import {groupBy} from 'lodash';
 import {empty} from '@utils/helpers';
 import {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
+import {BsChevronUp, BsChevronDown} from 'react-icons/bs';
 
 import Loader from '../Loader';
 import CustomRow from './CustomRow';
 import Pagination from './Pagination';
-import TableFilters from '../Filters/EventsFilters';
 
 const CustomTable = ({
   columns,
@@ -17,6 +17,8 @@ const CustomTable = ({
   groupByField = null,
   customActions,
   defaultRowsPerPage = 5,
+  rowsPerPageOptions = [5, 10, 20, 50],
+  onRowsPerPageChange,
   customHeaderClassName = 'text-left text-sm text-gray-900 text-wrap',
   customContainerClassName = '',
   CustomFilters = null,
@@ -27,13 +29,30 @@ const CustomTable = ({
   const [filters, setFilters] = useState({});
   const [searchedWord, setSearchedWord] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+  const [sortConfig, setSortConfig] = useState({field: null, direction: 'asc'});
+
+  const handleRowsPerPageChange = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+    if (onRowsPerPageChange) {
+      onRowsPerPageChange(newRowsPerPage);
+    }
+  };
+
+  const handleSort = (field) => {
+    setSortConfig((prev) => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+    setPage(1);
+  };
 
   const {isLoading, isError, error, data, refetch} = useQuery({
-    queryKey: [queryKey, searchedWord, page, JSON.stringify(filters)],
+    queryKey: [queryKey, searchedWord, page, rowsPerPage, JSON.stringify(filters), JSON.stringify(sortConfig)],
     queryFn: () => {
       return permissions.length > 0
-        ? fetchData(permissions, page, rowsPerPage, searchedWord, filters)
-        : fetchData(page, rowsPerPage, searchedWord, filters);
+        ? fetchData(permissions, page, rowsPerPage, searchedWord, filters, sortConfig)
+        : fetchData(page, rowsPerPage, searchedWord, filters, sortConfig);
     },
     refetchOnWindowFocus: false,
   });
@@ -63,9 +82,30 @@ const CustomTable = ({
                 <th
                   scope="col"
                   key={column.field}
-                  className={`${column.className} py-3.5 md:px-3 font-semibold`}
+                  className={`${column.className} py-3.5 md:px-3 font-semibold ${column.sortable !== false ? 'cursor-pointer select-none hover:bg-gray-50' : ''}`}
+                  onClick={() => column.sortable !== false && handleSort(column.field)}
                 >
-                  {column.title}
+                  <div className="inline-flex items-center gap-1">
+                    {column.title}
+                    {column.sortable !== false && (
+                      <span className="inline-flex flex-col">
+                        <BsChevronUp
+                          className={`-mb-1 w-3 h-3 ${
+                            sortConfig.field === column.field && sortConfig.direction === 'asc'
+                              ? 'text-primary'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                        <BsChevronDown
+                          className={`-mt-1 w-3 h-3 ${
+                            sortConfig.field === column.field && sortConfig.direction === 'desc'
+                              ? 'text-primary'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
               {!empty(customActions) && (
@@ -135,6 +175,8 @@ const CustomTable = ({
         nRows={nRows}
         currentPage={page}
         rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={rowsPerPageOptions}
+        onRowsPerPageChange={handleRowsPerPageChange}
         onChangePage={(newPage) => setPage(newPage)}
         nextPage={() => setPage((old) => old + 1)}
         previusPage={() => setPage((old) => Math.max(old - 1, 1))}

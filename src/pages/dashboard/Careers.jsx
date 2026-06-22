@@ -15,6 +15,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import CareerForm from '@components/Dashboard/Career/CareerForm';
+import TableFilters from '@components/UI/Filters/TableFilters';
 import CustomTable from '@components/UI/Table/CustomTable';
 import CareersCardView from '@components/Dashboard/CareersCardView';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
@@ -61,20 +62,23 @@ const Careers = () => {
     pageNumber,
     pageSize,
     searchedWord,
-    filters = null
+    filters = null,
+    sortConfig = null
   ) => {
+    const sortColumn = sortConfig?.field || 'createdAt';
+    const sortOrder = sortConfig?.direction || 'desc';
+
     if (showDeleted) {
-      // Cuando showDeleted es true, obtenemos todas las carreras (incluidas eliminadas)
-      // y luego filtramos solo las eliminadas
       const result = await getCareers(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        true // includeDeleted = true
+        true,
+        sortColumn,
+        sortOrder
       );
 
-      // Filtrar solo las carreras que tienen deletedAt (soft deleted)
       const deletedRows = result.rows.filter((row) => row.deletedAt);
 
       return {
@@ -84,13 +88,14 @@ const Careers = () => {
         nPages: Math.ceil(deletedRows.length / pageSize),
       };
     } else {
-      // Cuando showDeleted es false, solo obtenemos carreras activas
       return getCareers(
         pageNumber,
         pageSize,
         searchedWord,
         filters,
-        false // includeDeleted = false
+        false,
+        sortColumn,
+        sortOrder
       );
     }
   };
@@ -149,6 +154,7 @@ const Careers = () => {
             queryKey={showDeleted ? 'careers-with-deleted' : 'careers'}
             customActions={customActions}
             fetchData={fetchCareersData}
+            CustomFilters={TableFilters}
           />
         ) : (
           <CareersCardView
@@ -255,6 +261,7 @@ const getColumns = (showDeleted) => [
   {
     title: 'Estado',
     field: 'status',
+    sortable: false,
     render: (rowData) => (
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

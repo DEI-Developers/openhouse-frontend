@@ -11,6 +11,7 @@ import CustomHeader from '@components/UI/CustomHeader';
 import Breadcrumb from '@components/Dashboard/Breadcrumb';
 import CustomModal from '@components/UI/Modal/CustomModal';
 import UserForm from '@components/Dashboard/User/UserForm';
+import TableFilters from '@components/UI/Filters/TableFilters';
 import CustomTable from '@components/UI/Table/CustomTable';
 import DeleteDialog from '@components/Dashboard/DeleteDialog';
 
@@ -42,7 +43,12 @@ const Users = () => {
         columns={columns}
         queryKey="users"
         customActions={customActions}
-        fetchData={getUsers}
+        fetchData={(page, pageSize, searchedWord, filters, sortConfig) => {
+          const sortColumn = sortConfig?.field || 'createdAt';
+          const sortOrder = sortConfig?.direction || 'desc';
+          return getUsers(page, pageSize, searchedWord, filters, sortColumn, sortOrder);
+        }}
+        CustomFilters={TableFilters}
       />
 
       <DeleteDialog
@@ -114,6 +120,7 @@ const columns = [
   {
     title: 'Estado',
     field: 'isActive',
+    sortable: false,
     render: (rowData) => <BadgeStatus status={rowData.isActive} />,
   },
 ];
