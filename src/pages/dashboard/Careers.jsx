@@ -284,6 +284,16 @@ const getColumns = (showDeleted) => [
     ),
   },
   {
+    title: 'Descripción',
+    field: 'description',
+    sortable: true,
+    render: (rowData) => (
+      <span className={rowData.deletedAt ? 'text-red-500 line-through' : ''}>
+        {rowData.description}
+      </span>
+    ),
+  },
+  {
     title: 'Fecha de creación',
     field: 'createdAt',
     stackedColumn: true,
