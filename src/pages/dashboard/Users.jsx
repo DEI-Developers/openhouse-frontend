@@ -112,10 +112,10 @@ const columns = [
   },
   {
     title: 'Facultad / Carrera',
-    field: 'careerName',
+    field: 'careerNames',
     stackedColumn: true,
     className: 'hidden lg:table-cell',
-    render: (rowData) => <FacultyCareerRow facultyName={rowData.facultyName} careerName={rowData.careerName} />,
+    render: (rowData) => <FacultyCareerRow facultyName={rowData.facultyName} careerNames={rowData.careerNames} />,
   },
   {
     title: 'Estado',
@@ -125,13 +125,15 @@ const columns = [
   },
 ];
 
-const FacultyCareerRow = ({facultyName, careerName}) => {
+const FacultyCareerRow = ({facultyName, careerNames}) => {
   return (
     <div>
       <p className="font-medium">{facultyName ?? 'N/A'}</p>
-      {!empty(careerName) && (
+      {!empty(careerNames) && careerNames.length > 0 && (
         <ul className="list-disc list-inside">
-          <li>{careerName}</li>
+          {careerNames.map((name, i) => (
+            <li key={i}>{name}</li>
+          ))}
         </ul>
       )}
     </div>
