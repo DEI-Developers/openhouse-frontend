@@ -8,7 +8,6 @@ import {isValidPhoneNumber} from '@utils/helpers';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
-import getCatalogs from '@services/getCatalogs';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import useParticipantsAdmin from '@hooks/Dashboard/useParticipantsAdmin';
 import {getParticipantByPhoneNumber} from '@services/Participants';
@@ -18,8 +17,10 @@ import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
 
 import AdminEvents from '../Dashboard/AdminEvents';
 import SuccessModal from '../Home/SuccessModal';
-import getPublicCatalogs from '@services/getPublicCatalogs';
 import Permissions from '@utils/Permissions';
+import getTargetAudiences from '@services/getTargetAudiences';
+import getEnrollmentCatalogs from '@services/getEnrollmentCatalogs';
+import getTargetAudienceByFaculty from '@services/getTargetAudienceByFaculty';
 
 const AdminParticipationForm = ({
   onCloseForm = null,
@@ -31,21 +32,25 @@ const AdminParticipationForm = ({
   submitButtonClassName = 'inline-flex w-full justify-center items-center rounded-md bg-primary px-10 py-3 text-sm font-semibold text-white shadow-xs hover:bg-secondary sm:ml-3 sm:w-auto',
   permissions = [],
 }) => {
-  const {data, refetch} = useQuery({
-    queryKey: ['publicCatalogs'],
-    queryFn: getPublicCatalogs,
-    refetchOnWindowFocus: false,
-  });
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
   );
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [markAttendance, setMarkAttendance] = useState(false);
+  const [targetAudienceId, setTargetAudienceId] = useState(null);
+  const [enrollmentData, setEnrollmentData] = useState(null);
+
+  // Step 1: Load all target audiences to get the list of faculties
+  const {data: targetAudiencesData} = useQuery({
+    queryKey: ['targetAudiences'],
+    queryFn: getTargetAudiences,
+    refetchOnWindowFocus: false,
+  });
 
   const onSuccess = (code) => {
     setSuccessfulCode(code);
-    refetch(); // Refrescar los catálogos después de enviar el formulario
+    setEnrollmentData(null); // Refrescar los catálogos después de enviar
     reset(initialFormData); // Reiniciar el formulario a sus valores iniciales
     setSubscribedTo([]); // Limpiar los eventos seleccionados
     setMarkAttendance(false); // Limpiar checkbox de asistencia
@@ -72,21 +77,59 @@ const AdminParticipationForm = ({
   const currentCareer = watch('career')?.value ?? null;
   const {isSubmitting, errors} = formState;
 
+  // Step 2: When faculty changes, find the targetAudienceId that contains it
   useEffect(() => {
-    setSubscribedTo(initialData.subscribedTo);
+    if (!currentFaculty) return;
+    setEnrollmentData(null);
+    setTargetAudienceId(null);
+
+    getTargetAudienceByFaculty(currentFaculty).then((ta) => {
+      const id = ta?._id ?? null;
+      setTargetAudienceId(id);
+    });
   }, [currentFaculty]);
 
+  // Step 2b: On mount, if faculty is pre-selected (edit mode), load enrollment data immediately
+  useEffect(() => {
+    if (!initialData?.faculty) return;
+    setEnrollmentData(null);
+    setTargetAudienceId(null);
+
+    getTargetAudienceByFaculty(initialData.faculty).then((ta) => {
+      const id = ta?._id ?? null;
+      setTargetAudienceId(id);
+    });
+  }, []); // Only on mount
+
+  // Step 3: When targetAudienceId is set, load enrollment catalogs
+  useEffect(() => {
+    if (!targetAudienceId) return;
+
+    getEnrollmentCatalogs(targetAudienceId).then((data) => {
+      setEnrollmentData(data);
+    });
+  }, [targetAudienceId]);
+
+  // When enrollmentData changes, sync to form
+  useEffect(() => {
+    if (!enrollmentData) return;
+    setValue('targetAudienceId', enrollmentData?.targetAudience?._id);
+  }, [enrollmentData, setValue]);
+
+  // Sync subscribedTo when initialData changes or faculty changes
+  useEffect(() => {
+    setSubscribedTo(initialData?.subscribedTo ?? []);
+  }, [initialData, currentFaculty]);
+
   const careers = useMemo(() => {
-    return (
-      data?.faculties?.find((f) => f.value === currentFaculty)?.careers ?? []
-    );
-  }, [currentFaculty, data]);
+    return enrollmentData?.targetAudience?.faculties?.find(
+      (f) => f.value === currentFaculty
+    )?.careers ?? [];
+  }, [currentFaculty, enrollmentData]);
 
   const events = useMemo(() => {
-    return (
-      data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
-    );
-  }, [currentFaculty, data]);
+    return enrollmentData?.events ?? [];
+  }, [enrollmentData]);
 
   const onCloseModal = () => {
     onClean();
@@ -140,7 +183,10 @@ const AdminParticipationForm = ({
   };
 
   const onRefreshEvents = () => {
-    refetch(); // Recargar los catálogos públicos que incluyen los eventos
+    if (!targetAudienceId) return;
+    getEnrollmentCatalogs(targetAudienceId).then((data) => {
+      setEnrollmentData(data);
+    });
   };
 
   const onSearchByPhoneNumber = async (phoneNumber) => {
@@ -277,9 +323,12 @@ const AdminParticipationForm = ({
                 name="faculty"
                 register={register}
                 options={
-                  data?.faculties?.sort((a, b) =>
-                    a.name.localeCompare(b.name)
-                  ) ?? []
+                  targetAudiencesData?.flatMap((ta) =>
+                    (ta.faculties ?? []).map((f) => ({
+                      value: f._id,
+                      label: f.name,
+                    }))
+                  ).sort((a, b) => a.label.localeCompare(b.label)) ?? []
                 }
                 label="¿Cuál es su área de interés?"
                 containerClassName="flex-1"
@@ -403,6 +452,7 @@ const initialFormData = {
   career: null,
   parentStudiedAtUCA: null,
   withParent: '0',
+  targetAudienceId: null,
 };
 
 const schema = yup.object().shape({
