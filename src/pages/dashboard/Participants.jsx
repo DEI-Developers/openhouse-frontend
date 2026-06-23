@@ -86,8 +86,8 @@ const Participants = () => {
         }
         return e.event?._id;
       }),
-      faculty: '',
-      career: null,
+      faculty: data.faculty || '',
+      career: data.career || null,
       parentStudiedAtUCA: null,
       withParent: '0',
     };

@@ -39,6 +39,7 @@ const ParticipationForm = ({
   const [subscribedTo, setSubscribedTo] = useState(
     initialData?.subscribedTo ?? []
   );
+  const [initialSubscriptions, setInitialSubscriptions] = useState([]);
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -47,6 +48,7 @@ const ParticipationForm = ({
     refetch(); // Refrescar los catálogos públicos después de enviar el formulario
     reset(initialFormData); // Reiniciar el formulario a sus valores iniciales
     setSubscribedTo([]); // Limpiar los eventos seleccionados
+    setInitialSubscriptions([]); // Limpiar las inscripciones iniciales
   };
 
   const onError = (error) => {
@@ -86,10 +88,17 @@ const ParticipationForm = ({
   }, [currentFaculty, faculties]);
 
   const events = useMemo(() => {
+    const alreadySubscribed = initialSubscriptions.length
+      ? initialSubscriptions
+      : initialData?.subscribedTo ?? [];
     return (
-      data?.events?.filter((e) => e.faculties?.includes(currentFaculty)) ?? []
+      data?.events?.filter(
+        (e) =>
+          e.faculties?.includes(currentFaculty) &&
+          !alreadySubscribed?.includes(e.value)
+      ) ?? []
     );
-  }, [currentFaculty, data]);
+  }, [currentFaculty, data, initialSubscriptions]);
 
   const showAttendanceSection = data?.targetAudience?.attendanceEnabled ?? true;
 
@@ -170,6 +179,7 @@ const ParticipationForm = ({
         return e;
       });
       setSubscribedTo(suscriptions);
+      setInitialSubscriptions(suscriptions); // Only filter on load, not on toggle
       initialData.subscribedTo = suscriptions;
     }
   };
