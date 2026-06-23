@@ -307,7 +307,7 @@ const ParticipationForm = ({
                 containerClassName="flex-1"
                 label="Carrera"
                 options={
-                  careers?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
+                  careers?.map(c => ({ ...c, label: c.description || c.label })).sort((a, b) => a.label.localeCompare(b.label)) ?? []
                 }
               />
             </div>
