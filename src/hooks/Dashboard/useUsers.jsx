@@ -14,7 +14,14 @@ const useUsers = () => {
   };
 
   const onEdit = (data) => {
-    setCurrentUser(data);
+    const transformedData = {
+      ...data,
+      career: data.careerIds?.map((id, i) => ({
+        value: id,
+        label: data.careerNames?.[i] ?? '',
+      })) ?? [],
+    };
+    setCurrentUser(transformedData);
     onToggleBox();
   };
 

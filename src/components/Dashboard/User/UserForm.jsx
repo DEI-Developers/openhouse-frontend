@@ -33,7 +33,7 @@ const UserForm = ({
       ...data,
       facultyId: data.faculty?.value ?? null,
       roleId: data.role?.value,
-      careerId: data.career?.value ?? null,
+      careerIds: data.career?.map(c => c.value) ?? [],
       id: data.id,
       role: undefined,
       faculty: undefined,
@@ -48,7 +48,7 @@ const UserForm = ({
 
   useEffect(() => {
     if (empty(currentFaculty)) {
-      setValue('career', null);
+      setValue('career', []);
       setValue('faculty', null);
       return;
     }
@@ -83,12 +83,12 @@ const UserForm = ({
             options={faculties ?? []}
           />
           <CustomMultiSelect
+            isMulti
             isSearchable
             isClearable
             required={false}
             placeholder=""
             control={control}
-            closeMenuOnSelect
             name="career"
             disabled={isSubmitting}
             error={errors.career}
