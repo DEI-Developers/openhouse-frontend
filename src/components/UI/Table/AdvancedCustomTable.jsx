@@ -68,6 +68,7 @@ const AdvancedCustomTable = ({
       queryKey,
       searchedWord,
       page,
+      rowsPerPage,
       JSON.stringify(filters),
       JSON.stringify(advancedFilters),
     ],
@@ -226,6 +227,10 @@ const AdvancedCustomTable = ({
         currentPage={page}
         rowsPerPage={rowsPerPage}
         onChangePage={(newPage) => setPage(newPage)}
+        onRowsPerPageChange={(newRowsPerPage) => {
+          setRowsPerPage(newRowsPerPage);
+          setPage(1);
+        }}
         nextPage={() => setPage((old) => old + 1)}
         previusPage={() => setPage((old) => Math.max(old - 1, 1))}
       />
