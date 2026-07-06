@@ -15,6 +15,8 @@ const SuccessModal = ({isOpen, onClose, code}) => {
     downloadStringAsFile(dataURI, `qr_${code}.png`);
   }
 
+  const showQR = !!code;
+
   return (
     <CustomModal
       isOpen={isOpen}
@@ -24,37 +26,56 @@ const SuccessModal = ({isOpen, onClose, code}) => {
     >
       <div className="bg-white px-4 py-2 rounded-lg flex flex-col items-center">
         <h3 className="text-center text-lg font-bold text-primary mt-4">
-          ¡Éxito!
+          ¡Registro completado!
         </h3>
-        <p className="text-center text-sm text-gray-500 my-3">
-          Muestra este código QR en la entrada del evento para poder registrar
-          tu participación.
-        </p>
-        <QRCodeCanvas
-          marginSize={1}
-          bgColor="#fff"
-          level="H"
-          ref={qrRef}
-          value={code}
-          size={256}
-          title={code}
-          imageSettings={{
-            src: `${BASE_PATH_URL}/uca-logo.png`,
-            x: undefined,
-            y: undefined,
-            height: 50,
-            width: 50,
-            opacity: 1,
-            excavate: true,
-          }}
-        />
-        <button
-          type="button"
-          onClick={onDownloadClick}
-          className="inline-flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white shadow-xs mt-4"
-        >
-          Descargar
-        </button>
+
+        {showQR ? (
+          <>
+            <p className="text-center text-sm text-gray-500 my-3">
+              Mostrá este código QR en la entrada del evento para poder registrar
+              tu participación.
+            </p>
+            <QRCodeCanvas
+              marginSize={1}
+              bgColor="#fff"
+              level="H"
+              ref={qrRef}
+              value={code}
+              size={256}
+              title={code}
+              imageSettings={{
+                src: `${BASE_PATH_URL}/uca-logo.png`,
+                x: undefined,
+                y: undefined,
+                height: 50,
+                width: 50,
+                opacity: 1,
+                excavate: true,
+              }}
+            />
+            <button
+              type="button"
+              onClick={onDownloadClick}
+              className="inline-flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white shadow-xs mt-4"
+            >
+              Descargar
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="text-center text-sm text-gray-500 my-3">
+              Tu asistencia ha sido registrada exitosamente. ¡Te esperamos en el
+              evento!
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex w-full justify-center rounded-lg bg-green-600 px-3 py-3 text-sm font-semibold text-white shadow-xs mt-4"
+            >
+              Cerrar
+            </button>
+          </>
+        )}
       </div>
     </CustomModal>
   );

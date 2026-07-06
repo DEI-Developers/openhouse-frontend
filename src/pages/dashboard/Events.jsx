@@ -5,7 +5,8 @@ import {BiEditAlt} from 'react-icons/bi';
 import {getEvents} from '@services/Events';
 import Permissions from '@utils/Permissions';
 import {AiOutlinePlus} from 'react-icons/ai';
-import {HiOutlineTrash, HiViewGrid, HiViewList} from 'react-icons/hi';
+import {HiOutlineTrash, HiViewGrid, HiViewList, HiOutlineDocument} from 'react-icons/hi';
+import {BsLink45Deg} from 'react-icons/bs';
 import {useAuth} from '@context/AuthContext';
 import useEvents from '@hooks/Dashboard/useEvents';
 import useCatalogs from '@hooks/Dashboard/useCatalogs';
@@ -17,6 +18,7 @@ import DeleteDialog from '@components/Dashboard/DeleteDialog';
 import EventForm from '@components/Dashboard/Event/EventForm';
 import EventsFilters from '@components/UI/Filters/EventsFilters';
 import EventsCardView from '@components/Dashboard/Event/EventsCardView';
+import {BASE_PATH_URL} from '@config/index';
 
 const Events = () => {
   const {permissions} = useAuth();
@@ -213,6 +215,12 @@ const columns = [
     field: 'isActive',
     render: (rowData) => <BadgeStatus status={rowData.isActive} />,
   },
+  {
+    title: 'Registro público',
+    field: 'id',
+    className: 'text-right',
+    render: (rowData) => <PublicRegistration event={rowData} tableMode />,
+  },
 ];
 
 const Faculties = ({data}) => {
@@ -268,6 +276,98 @@ const DesertionRate = ({data}) => {
     </div>
   );
 };
+
+// Botones de registro público para la columna de la tabla
+const PublicRegistration = ({event, tableMode = false}) => {
+  const handleOpenLink = () => {
+    const url = `${BASE_PATH_URL}/evento/${event.id}`
+    window.open(url, '_blank')
+  }
+
+  return (
+    <div className="flex items-center justify-end gap-1">
+      {/* Botón QR PDF */}
+      <button
+        onClick={() => handleDownloadQRPdf(event)}
+        className={`flex items-center gap-1 text-primary border border-primary rounded hover:bg-primary hover:text-white transition-colors ${
+          tableMode ? 'p-1.5' : 'px-2 py-1.5 text-xs font-medium'
+        }`}
+        title="Descargar QR en PDF"
+      >
+        <HiOutlineDocument className={tableMode ? 'w-4 h-4' : 'w-3.5 h-3.5'} />
+        {!tableMode && <span className="hidden sm:inline">QR PDF</span>}
+      </button>
+
+      {/* Botón abrir enlace en nueva pestaña */}
+      <button
+        onClick={handleOpenLink}
+        className={`flex items-center gap-1 text-white bg-primary rounded hover:bg-primary/90 transition-colors ${
+          tableMode ? 'p-1.5' : 'px-2 py-1.5 text-xs font-medium'
+        }`}
+        title="Abrir formulario de registro en nueva pestaña"
+      >
+        <BsLink45Deg className={tableMode ? 'w-4 h-4' : 'w-3.5 h-3.5'} />
+        {!tableMode && <span className="hidden sm:inline">Enlace</span>}
+      </button>
+    </div>
+  )
+}
+
+const handleDownloadQRPdf = async (event) => {
+  try {
+    const {jsPDF} = await import('jspdf')
+    const QRCode = await import('qrcode')
+    const registrationUrl = `${BASE_PATH_URL}/evento/${event.id}`
+    const qrDataUrl = await QRCode.toDataURL(registrationUrl, {width: 300, margin: 2})
+
+    const pdf = new jsPDF({unit: 'mm', format: 'a4'})
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+
+    pdf.setFillColor(250, 250, 250)
+    pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(22)
+    pdf.setTextColor(0, 59, 108)
+    pdf.text('Vive la UCA', pageWidth / 2, 25, {align: 'center'})
+
+    pdf.setDrawColor(0, 59, 108)
+    pdf.setLineWidth(0.5)
+    pdf.line(30, 30, pageWidth - 30, 30)
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(16)
+    pdf.setTextColor(30, 30, 30)
+    pdf.text(event.name || 'Evento', pageWidth / 2, 42, {align: 'center'})
+
+    pdf.setFont('helvetica', 'normal')
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 100, 100)
+    pdf.text(`Fecha: ${event.formatDate || event.date || 'N/A'}`, pageWidth / 2, 52, {align: 'center'})
+
+    pdf.setFont('helvetica', 'normal')
+    pdf.setFontSize(10)
+    pdf.setTextColor(60, 60, 60)
+    pdf.text('Escaneá este código QR con la cámara de tu celular', pageWidth / 2, 68, {align: 'center'})
+    pdf.text('para registrar tu asistencia el día del evento.', pageWidth / 2, 74, {align: 'center'})
+
+    const qrSize = 80
+    const qrX = (pageWidth - qrSize) / 2
+    pdf.addImage(qrDataUrl, 'PNG', qrX, 82, qrSize, qrSize)
+
+    pdf.setFontSize(8)
+    pdf.setTextColor(120, 120, 120)
+    pdf.text('O visitá:', pageWidth / 2, 170, {align: 'center'})
+    pdf.setFontSize(9)
+    pdf.setTextColor(0, 59, 108)
+    pdf.text(registrationUrl, pageWidth / 2, 178, {align: 'center'})
+
+    pdf.save(`qr_${(event.name || 'evento').replace(/\s+/g, '_')}.pdf`)
+  } catch (err) {
+    console.error('Error generando PDF:', err)
+  }
+}
 
 const BadgeStatus = ({status}) => {
   const customClassName = status

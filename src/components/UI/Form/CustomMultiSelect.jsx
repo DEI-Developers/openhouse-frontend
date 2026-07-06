@@ -21,7 +21,7 @@ const CustomMultiSelect = ({
 }) => {
   const animatedComponents = makeAnimated();
   const inputClassName =
-    'appearance-none border border-gray-300 w-full rounded-md shadow-xs text-sm';
+    'appearance-none block w-full rounded-md shadow-xs text-sm';
 
   return (
     <div className={containerClassName}>
@@ -50,10 +50,6 @@ const CustomMultiSelect = ({
               placeholder={placeholder}
               isSearchable={isSearchable}
               defaultValue={defaultValue}
-              value={field.value}
-              onChange={(selectedOption) => {
-                field.onChange(selectedOption);
-              }}
               components={animatedComponents}
               closeMenuOnSelect={closeMenuOnSelect}
               filterOption={createFilter({ignoreAccents: false})}
@@ -64,8 +60,7 @@ const CustomMultiSelect = ({
                   paddingBottom: '0.10rem',
                 }),
               }}
-              menuPosition="fixed"
-              className={`${inputClassName} ${error ? 'custom-MultiSelectError' : 'custom-MultiSelectNoError'} `}
+              className={`${inputClassName} ${error ? 'custom-MultiSelectError' : 'custom-MultiSelectNoError'}`}
             />
           )}
         />
