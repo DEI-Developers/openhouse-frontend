@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useQuery} from '@tanstack/react-query';
+import {jsPDF} from 'jspdf';
 import {
   HiOutlineCalendar,
   HiOutlineUsers,
@@ -10,9 +11,11 @@ import {
   HiX,
 } from 'react-icons/hi';
 import {BiEditAlt} from 'react-icons/bi';
-import {HiOutlineExclamationTriangle, HiOutlineTrash} from 'react-icons/hi2';
+import {HiOutlineExclamationTriangle, HiOutlineTrash, HiOutlineDocument} from 'react-icons/hi2';
+import {BsLink45Deg} from 'react-icons/bs';
 import {getEvents} from '@services/Events';
 import EventsFilters from '@components/UI/Filters/EventsFilters';
+import {BASE_PATH_URL} from '@config/index';
 
 const EventsCardView = ({customActions, onEdit, onDelete}) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,6 +49,88 @@ const EventsCardView = ({customActions, onEdit, onDelete}) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [currentFilters, searchWord]);
+
+  // Genera y descarga el PDF con QR para el evento
+  const handleDownloadQRPdf = async (event) => {
+    try {
+      const registrationUrl = `${BASE_PATH_URL}/evento/${event.id}`
+
+      // Generar QR como data URL usando la librería qrcode
+      // eslint-disable-next-line no-undef
+      const QRCode = await import('qrcode')
+      const qrDataUrl = await QRCode.toDataURL(registrationUrl, {
+        width: 300,
+        margin: 2,
+      })
+
+      const pdf = new jsPDF({unit: 'mm', format: 'a4'})
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      // Fondo
+      pdf.setFillColor(250, 250, 250)
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+
+      // Logo / marca UCA
+      pdf.setFillColor(0, 59, 108)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(22)
+      pdf.setTextColor(0, 59, 108)
+      pdf.text('Vive la UCA', pageWidth / 2, 25, {align: 'center'})
+
+      // Línea decorativa
+      pdf.setDrawColor(0, 59, 108)
+      pdf.setLineWidth(0.5)
+      pdf.line(30, 30, pageWidth - 30, 30)
+
+      // Nombre del evento
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(16)
+      pdf.setTextColor(30, 30, 30)
+      pdf.text(event.name || 'Evento', pageWidth / 2, 42, {align: 'center'})
+
+      // Fecha del evento
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(12)
+      pdf.setTextColor(100, 100, 100)
+      pdf.text(`${event.formatDate || event.date || 'N/A'}`, pageWidth / 2, 52, {align: 'center'})
+
+      // Instrucciones
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+      pdf.setTextColor(60, 60, 60)
+      const instructions = [
+        'Escaneá este código QR con la cámara de tu celular',
+        'para registrar tu asistencia el día del evento.',
+      ]
+      instructions.forEach((line, i) => {
+        pdf.text(line, pageWidth / 2, 68 + i * 6, {align: 'center'})
+      })
+
+      // QR
+      const qrSize = 80
+      const qrX = (pageWidth - qrSize) / 2
+      pdf.addImage(qrDataUrl, 'PNG', qrX, 82, qrSize, qrSize)
+
+      // Enlace en texto
+      pdf.setFontSize(8)
+      pdf.setTextColor(120, 120, 120)
+      pdf.text('O visitá:', pageWidth / 2, 170, {align: 'center'})
+      pdf.setFontSize(9)
+      pdf.setTextColor(0, 59, 108)
+      pdf.text(registrationUrl, pageWidth / 2, 178, {align: 'center'})
+
+      pdf.save(`qr_${event.name?.replace(/\s+/g, '_') || 'evento'}.pdf`)
+    } catch (err) {
+      console.error('Error generando PDF del QR:', err)
+    }
+  }
+
+  // Copia el enlace de registro directo al portapapeles
+  const handleCopyEventLink = (event) => {
+    const registrationUrl = `${BASE_PATH_URL}/evento/${event.id}`
+    window.open(registrationUrl, '_blank')
+  }
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -316,6 +401,29 @@ const EventsCardView = ({customActions, onEdit, onDelete}) => {
                 ))}
               </div>
             )}
+
+            {/* Acciones públicas del evento */}
+            <div className="flex items-center gap-2 pt-3 border-t border-gray-100 mt-3">
+              {/* Botón QR PDF */}
+              <button
+                onClick={() => handleDownloadQRPdf(event)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-primary border border-primary rounded-md hover:bg-primary hover:text-white transition-colors"
+                title="Descargar QR de registro"
+              >
+                <HiOutlineDocument className="w-3.5 h-3.5" />
+                QR PDF
+              </button>
+
+              {/* Botón enlace de registro directo */}
+              <button
+                onClick={() => handleCopyEventLink(event)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
+                title="Copiar enlace de registro directo"
+              >
+                <BsLink45Deg className="w-3.5 h-3.5" />
+                Registro
+              </button>
+            </div>
           </div>
         ))}
       </div>

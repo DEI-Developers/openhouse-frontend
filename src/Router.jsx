@@ -11,13 +11,16 @@ import {
 } from './pages';
 import OIDCCallback from '@components/Auth/OIDCCallback';
 import Registration from '@pages/Registration';
+import EventDayRegistration from './pages/EventDayRegistration';
 
 const AppRouter = () => {
-  return (  
+  return (
     <Routes>
-      {/* <Route path="/" element={<Home />} /> */}
+      {/* Formulario público día-del-evento (independiente del formulario de inscripción) */}
+      <Route path="/evento/:id" element={<EventDayRegistration />} />
 
       <Route path="/:id" element={<Registration />} />
+
       <Route path="/" element={<AuthRoute />}>
         <Route path="/iniciar-sesion" element={<Login />} />
         <Route
