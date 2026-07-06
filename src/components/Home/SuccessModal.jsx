@@ -64,8 +64,7 @@ const SuccessModal = ({isOpen, onClose, code}) => {
         ) : (
           <>
             <p className="text-center text-sm text-gray-500 my-3">
-              Tu asistencia ha sido registrada exitosamente. ¡Te esperamos en el
-              evento!
+              Tu asistencia ha sido registrada exitosamente
             </p>
             <button
               type="button"
