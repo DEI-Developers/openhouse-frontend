@@ -24,7 +24,7 @@ const EventDayParticipationForm = ({event}) => {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
-  const [registrationDisabled, setRegistrationDisabled] = useState(false)
+  const [registrationDisabled, setRegistrationDisabled] = useState(!event.eventDayRegistrationEnabled)
   const [showSuccess, setShowSuccess] = useState(false)
   const [successfulCode, setSuccessfulCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
