@@ -8,8 +8,6 @@ const CustomInput = ({
   inputClassName = 'appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-xs',
   noCopy = false,
   noPaste = false,
-  value,
-  onChange,
   ...rest
 }) => (
   <div className={containerClassName}>
@@ -27,8 +25,6 @@ const CustomInput = ({
         name={name}
         className={`${inputClassName} ${error ? 'border-red-500' : ''} disabled:cursor-not-allowed placeholder-gray-400 focus:outline-hidden focus:ring-primary focus:border-primary sm:text-sm`}
         {...(register && register(name, {required}))}
-        value={value}
-        onChange={onChange}
         {...rest}
         onCopy={(e) => {
           if (noCopy) {

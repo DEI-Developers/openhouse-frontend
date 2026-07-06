@@ -9,14 +9,31 @@ const useEventDayRegistration = (onSuccess, onError) => {
   const onRegister = useMutation({
     mutationFn: createEventDayRegistration,
     onSuccess: (response) => {
-      setSuccessfulCode(response.code)
-      onSuccess?.(response.code, response.data)
+      // Nuevo registro con asistencia: NO mostrar QR, solo mensaje
+      onSuccess?.(null, response.data, false)
     },
     onError: (error) => {
-      const message =
-        error?.response?.data?.errors ??
-        error?.response?.data?.message ??
-        'Ocurrió un error. Por favor, inténtalo de nuevo.'
+      const errData = error?.response?.data
+
+      // 409: ya inscrito — mostrar QR
+      if (errData?.alreadySubscribed && errData?.code) {
+        setSuccessfulCode(errData.code)
+        onSuccess?.(errData.code, errData.data, true)
+        return
+      }
+
+      let message = 'Ocurrió un error. Por favor, inténtalo de nuevo.'
+      if (errData?.errors) {
+        if (Array.isArray(errData.errors)) {
+          message = errData.errors
+            .map((e) => e.msg || e.message || JSON.stringify(e))
+            .join('. ')
+        } else {
+          message = String(errData.errors)
+        }
+      } else if (errData?.message) {
+        message = errData.message
+      }
       onError?.(message)
     },
   })
