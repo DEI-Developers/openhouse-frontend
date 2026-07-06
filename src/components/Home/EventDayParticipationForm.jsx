@@ -24,6 +24,7 @@ const EventDayParticipationForm = ({event}) => {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [registrationDisabled, setRegistrationDisabled] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [successfulCode, setSuccessfulCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -67,6 +68,10 @@ const EventDayParticipationForm = ({event}) => {
 
     try {
       const res = await checkEnrollment(phoneNumber, event._id)
+      if (res?.registrationDisabled) {
+        setRegistrationDisabled(true)
+        return
+      }
       if (res?.enrolled) {
         setSuccessfulCode(phoneNumber)
         setShowSuccess(true)
@@ -159,6 +164,7 @@ const EventDayParticipationForm = ({event}) => {
     setFormErrors({})
     setCurrentFaculty(null)
     setSuccessfulCode('')
+    setRegistrationDisabled(false)
   }
 
   const handleBack = () => {
@@ -167,6 +173,7 @@ const EventDayParticipationForm = ({event}) => {
     setFormErrors({})
     setErrorMessage('')
     setCurrentFaculty(null)
+    setRegistrationDisabled(false)
   }
 
   const labelClass = 'block text-sm font-medium text-gray-700'
@@ -191,7 +198,21 @@ const EventDayParticipationForm = ({event}) => {
           </p>
         </div>
 
-        {step === 'phone' && (
+        {registrationDisabled ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">
+              Para registrarte, ingresá a{' '}
+              <a
+                href="https://vivelauca.uca.edu.sv/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                https://vivelauca.uca.edu.sv/
+              </a>
+            </p>
+          </div>
+        ) : step === 'phone' ? (
           <div className="mb-6">
             <p className="mb-3 italic font-bold">¿Quién sos?</p>
             <div className="w-full flex space-x-4 mb-4">
@@ -220,9 +241,7 @@ const EventDayParticipationForm = ({event}) => {
               Continuar
             </button>
           </div>
-        )}
-
-        {step === 'form' && (
+        ) : step === 'form' && (
           <form noValidate autoComplete="off" className="w-full space-y-4">
             {/* Sección: Quién sos */}
             <div className="mb-6">
@@ -411,8 +430,7 @@ const EventDayParticipationForm = ({event}) => {
               <div className="w-full flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 mb-4">
                 <div className="flex-1">
                   <label className={labelClass}>
-                    ¿Asistirás al Vive la UCA con tu padre, madre o encargado?
-                    (Máximo UNO de ellos.) *
+                    ¿Tu padre, madre o encargado también participará en el evento?
                   </label>
                   <div className="mt-2 flex gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -446,8 +464,7 @@ const EventDayParticipationForm = ({event}) => {
                 {form.withParent === 'true' && (
                   <div className="flex-1">
                     <label className={labelClass}>
-                      ¿La persona (padre, madre o encargado) que te acompañará
-                      se graduó de la UCA? *
+                      ¿La persona (padre, madre o encargado) que te acompaña se graduó de la UCA?
                     </label>
                     <div className="mt-2 flex gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">

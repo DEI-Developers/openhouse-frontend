@@ -109,6 +109,14 @@ const EventForm = ({initialData, onCreate, onUpdate, onClose, faculties}) => {
             label="Activo"
             containerClassName="w-full lg:w-1/3 flex items-end justify-start"
           />
+
+          <CustomToggle
+            control={control}
+            name="eventDayRegistrationEnabled"
+            error={errors.eventDayRegistrationEnabled}
+            label="Registro del día activo"
+            containerClassName="w-full lg:w-1/3 flex items-end justify-start"
+          />
         </div>
 
         <div className="mt-4">
