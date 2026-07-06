@@ -1,9 +1,6 @@
 // @ts-nocheck
 import {useEffect, useMemo, useState} from 'react'
-import {useForm} from 'react-hook-form'
 import {isValidPhoneNumber} from '@utils/helpers'
-import {yupResolver} from '@hookform/resolvers/yup'
-import * as yup from 'yup'
 import CustomInput from '@components/UI/Form/CustomInput'
 import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput'
 import CustomRadioGroup from '@components/UI/Form/CustomRadioGroup'
@@ -16,6 +13,19 @@ import {getParticipantByPhoneNumber} from '@services/Participants'
 import {empty} from '@utils/helpers'
 
 const EventDayParticipationForm = ({event}) => {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    confirmEmail: '',
+    phoneNumber: '',
+    institute: '',
+    networks: '',
+    faculty: null,
+    career: null,
+    withParent: '',
+    parentStudiedAtUCA: null,
+  })
+  const [errors, setErrors] = useState({})
   const [currentFaculty, setCurrentFaculty] = useState(null)
   const [errorMessage, setErrorMessage] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
@@ -25,27 +35,52 @@ const EventDayParticipationForm = ({event}) => {
     (msg) => setErrorMessage(msg)
   )
 
-  // Formatear facultades y carreras del evento para los inputs
+  const handleChange = (field, value) => {
+    setForm((prev) => ({...prev, [field]: value}))
+    if (errors[field]) {
+      setErrors((prev) => ({...prev, [field]: null}))
+    }
+  }
+
+  // Formatear facultades y carreras del evento
   const faculties = useMemo(() => {
-    return (event?.faculties ?? []).map((f) => ({
-      value: f._id,
-      name: f.name,
-      label: f.name,
-      careers: (f.careers ?? (event?.careers ?? []).filter(
-        (c) => c.faculty?.toString() === f._id?.toString() ||
-               c.faculty?.toString() === f._id
-      ).map((c) => ({
-        value: c._id,
-        name: c.name,
-        label: c.name,
-        description: c.name,
-      })) ?? []
-    })))
+    const eventFaculties = event?.faculties ?? []
+    const eventCareers = event?.careers ?? []
+
+    return eventFaculties.map((f) => {
+      let facCareers = []
+      if (f.careers && f.careers.length > 0) {
+        facCareers = f.careers.map((c) => ({
+          value: c._id,
+          name: c.name,
+          label: c.name,
+          description: c.name,
+        }))
+      } else {
+        const filtered = eventCareers.filter((c) => {
+          const cf = c.faculty ?? c.facultyId
+          return cf?.toString() === f._id?.toString()
+        })
+        facCareers = filtered.map((c) => ({
+          value: c._id,
+          name: c.name,
+          label: c.name,
+          description: c.name,
+        }))
+      }
+
+      return {
+        value: f._id,
+        name: f.name,
+        label: f.name,
+        careers: facCareers,
+      }
+    })
   }, [event])
 
-  // Todas las carreras del evento aplanadas
   const allCareers = useMemo(() => {
-    return (event?.careers ?? []).map((c) => ({
+    const eventCareers = event?.careers ?? []
+    return eventCareers.map((c) => ({
       value: c._id,
       name: c.name,
       label: c.name,
@@ -61,35 +96,75 @@ const EventDayParticipationForm = ({event}) => {
     return allCareers
   }, [currentFaculty, faculties, allCareers])
 
-  const {register, handleSubmit, watch, setValue, reset, control, formState} =
-    useForm({
-      mode: 'onBlur',
-      defaultValues: initialFormData,
-      resolver: yupResolver(schema),
-    })
+  const handleFacultyChange = (val) => {
+    setCurrentFaculty(val)
+    setForm((prev) => ({...prev, faculty: val, career: null}))
+  }
 
-  const watchWithParent = watch('withParent')
-  const {isSubmitting, errors} = formState
-
-  // Reset career when faculty changes
-  useEffect(() => {
-    setValue('career', null)
-  }, [currentFaculty, setValue])
+  const handleCareerChange = (val) => {
+    setForm((prev) => ({...prev, career: val}))
+    if (errors.career) setErrors((prev) => ({...prev, career: null}))
+  }
 
   const onCloseModal = () => {
     setShowSuccess(false)
-    reset(initialFormData)
+    setForm({
+      name: '',
+      email: '',
+      confirmEmail: '',
+      phoneNumber: '',
+      institute: '',
+      networks: '',
+      faculty: null,
+      career: null,
+      withParent: '',
+      parentStudiedAtUCA: null,
+    })
     setCurrentFaculty(null)
     setErrorMessage('')
+    setErrors({})
   }
 
-  const onSubmit = async (formData) => {
+  const validate = () => {
+    const errs = {}
+    if (!form.name.trim()) errs.name = 'El nombre es obligatorio.'
+    if (!form.institute.trim()) errs.institute = 'El instituto/colegio es obligatorio.'
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      errs.email = 'Correo electrónico inválido.'
+    }
+    if (!form.confirmEmail.trim() || form.email !== form.confirmEmail) {
+      errs.confirmEmail = 'Los correos no coinciden.'
+    }
+    if (!isValidPhoneNumber(form.phoneNumber)) {
+      errs.phoneNumber = 'Número de celular inválido.'
+    }
+    if (!form.networks?.value) {
+      errs.networks = 'Seleccioná cómo te enteraste del Vive la UCA.'
+    }
+    if (!form.faculty) {
+      errs.faculty = 'Seleccioná tu área de interés.'
+    }
+    if (!form.career?.value) {
+      errs.career = 'Seleccioná una carrera.'
+    }
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const onSubmit = () => {
+    if (!validate()) return
+
     const payload = {
-      ...formData,
-      phoneNumber: formData.phoneNumber?.replaceAll('+', ''),
-      career: formData.career?.id,
-      networks: formData.networks?.value,
+      name: form.name.trim(),
+      institute: form.institute.trim(),
+      email: form.email.trim(),
+      phoneNumber: form.phoneNumber.replaceAll('+', ''),
+      career: form.career.value,
+      networks: form.networks.value,
       subscribedTo: [event._id],
+      withParent: form.withParent === 'true',
+      parentStudiedAtUCA:
+        form.withParent === 'true' ? form.parentStudiedAtUCA : null,
     }
 
     onRegister.mutate(payload)
@@ -97,7 +172,10 @@ const EventDayParticipationForm = ({event}) => {
 
   const onSearchByPhoneNumber = async (phoneNumber) => {
     if (!isValidPhoneNumber(phoneNumber)) {
-      reset({...initialFormData, phoneNumber})
+      setForm((prev) => ({
+        ...initialFormData,
+        phoneNumber,
+      }))
       setCurrentFaculty(null)
       return
     }
@@ -107,17 +185,18 @@ const EventDayParticipationForm = ({event}) => {
       const participant = response?.participant
 
       if (!empty(participant)) {
-        reset({
-          ...initialFormData,
-          name: participant.name,
-          email: participant.email,
-          confirmEmail: participant.email,
-          institute: participant.institute,
-          networks: {value: participant.networks, label: participant.networks},
-          phoneNumber: participant.phoneNumber,
-        })
+        setForm((prev) => ({
+          ...prev,
+          name: participant.name || '',
+          email: participant.email || '',
+          confirmEmail: participant.email || '',
+          institute: participant.institute || '',
+          networks: participant.networks
+            ? {value: participant.networks, label: participant.networks}
+            : '',
+          phoneNumber: participant.phoneNumber || phoneNumber,
+        }))
 
-        // Si ya está inscrito al evento, prevenir envío
         const alreadySubscribed = participant.subscribedTo?.some(
           (s) =>
             (typeof s === 'object' ? s.event : s) === event._id
@@ -127,8 +206,15 @@ const EventDayParticipationForm = ({event}) => {
         }
       }
     } catch {
-      reset({...initialFormData, phoneNumber})
+      setForm((prev) => ({
+        ...initialFormData,
+        phoneNumber,
+      }))
     }
+  }
+
+  const handlePhoneBlur = (val) => {
+    onSearchByPhoneNumber(val)
   }
 
   return (
@@ -146,44 +232,39 @@ const EventDayParticipationForm = ({event}) => {
           </p>
         </div>
 
-        <form noValidate onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+        <div className="space-y-4">
           {/* Teléfono */}
-          <div className="mb-4">
-            <CustomPhoneNumberInput
-              name="phoneNumber"
-              control={control}
-              label="Número de celular"
-              error={errors.phoneNumber}
-              onCustomBlur={(val) => onSearchByPhoneNumber(val)}
-            />
-          </div>
+          <CustomPhoneNumberInput
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={(val) => handleChange('phoneNumber', val)}
+            label="Número de celular"
+            error={errors.phoneNumber}
+            onCustomBlur={handlePhoneBlur}
+          />
 
           {/* Nombre */}
-          <div className="mb-4">
-            <CustomInput
-              type="text"
-              name="name"
-              required
-              label="Nombre completo"
-              error={errors.name}
-              disabled={isSubmitting}
-              register={register}
-              placeholder="Nombres y apellidos"
-              noCopy
-              noPaste
-            />
-          </div>
+          <CustomInput
+            type="text"
+            name="name"
+            label="Nombre completo"
+            value={form.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            error={errors.name}
+            placeholder="Nombres y apellidos"
+            noCopy
+            noPaste
+          />
 
           {/* Email */}
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CustomInput
               type="email"
               name="email"
-              required
               label="Correo electrónico"
+              value={form.email}
+              onChange={(e) => handleChange('email', e.target.value)}
               error={errors.email}
-              disabled={isSubmitting}
-              register={register}
               placeholder="correo@mail.com"
               noCopy
               noPaste
@@ -191,11 +272,10 @@ const EventDayParticipationForm = ({event}) => {
             <CustomInput
               type="email"
               name="confirmEmail"
-              required
               label="Confirmar correo"
+              value={form.confirmEmail}
+              onChange={(e) => handleChange('confirmEmail', e.target.value)}
               error={errors.confirmEmail}
-              disabled={isSubmitting}
-              register={register}
               placeholder="Repetí tu correo"
               noCopy
               noPaste
@@ -203,58 +283,48 @@ const EventDayParticipationForm = ({event}) => {
           </div>
 
           {/* Instituto */}
-          <div className="mb-4">
-            <CustomInput
-              type="text"
-              name="institute"
-              required
-              label="Instituto o colegio"
-              error={errors.institute}
-              disabled={isSubmitting}
-              register={register}
-              placeholder="¿Dónde estudiás?"
-              noCopy
-              noPaste
-            />
-          </div>
+          <CustomInput
+            type="text"
+            name="institute"
+            label="Instituto o colegio"
+            value={form.institute}
+            onChange={(e) => handleChange('institute', e.target.value)}
+            error={errors.institute}
+            placeholder="¿Dónde estudiás?"
+            noCopy
+            noPaste
+          />
 
           {/* Redes */}
-          <div className="mb-4">
-            <CustomMultiSelect
-              isSearchable
-              isClearable
-              required
-              placeholder=""
-              control={control}
-              closeMenuOnSelect
-              name="networks"
-              disabled={isSubmitting}
-              error={errors.networks}
-              label="¿Cómo te enteraste del Vive la UCA?"
-              options={networksOptions}
-            />
-          </div>
+          <CustomMultiSelect
+            isSearchable
+            isClearable
+            placeholder=""
+            value={form.networks}
+            onChange={(val) => handleChange('networks', val)}
+            error={errors.networks}
+            label="¿Cómo te enteraste del Vive la UCA?"
+            options={networksOptions}
+          />
 
           {/* Facultad + Carrera */}
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CustomRadioGroup
               name="faculty"
-              register={register}
+              value={form.faculty}
+              onChange={handleFacultyChange}
               options={
                 faculties?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
               }
               label="¿Cuál es tu área de interés?"
-              onChange={(val) => setCurrentFaculty(val)}
             />
             <CustomMultiSelect
               isSearchable
               isClearable
-              required
               placeholder=""
-              control={control}
-              closeMenuOnSelect
-              name="career"
-              disabled={isSubmitting || !currentFaculty}
+              value={form.career}
+              onChange={handleCareerChange}
+              disabled={!currentFaculty}
               error={errors.career}
               label="Carrera"
               options={
@@ -267,18 +337,20 @@ const EventDayParticipationForm = ({event}) => {
           </div>
 
           {/* Asistencia con padre */}
-          <div className="mb-6">
+          <div>
             <CustomRadioGroup
               name="withParent"
-              register={register}
+              value={form.withParent}
+              onChange={(val) => handleChange('withParent', val)}
               options={withParentOptions}
               label="¿Asistís con padre, madre o encargado?"
             />
-            {watchWithParent === 'true' && (
+            {form.withParent === 'true' && (
               <div className="mt-3">
                 <CustomRadioGroup
                   name="parentStudiedAtUCA"
-                  register={register}
+                  value={form.parentStudiedAtUCA}
+                  onChange={(val) => handleChange('parentStudiedAtUCA', val)}
                   options={withParentOptions}
                   label="¿La persona que te acompaña estudió en la UCA?"
                 />
@@ -296,12 +368,13 @@ const EventDayParticipationForm = ({event}) => {
 
           {/* Submit */}
           <SubmitButton
-            type="submit"
+            type="button"
+            onClick={onSubmit}
             label="Registrar mi asistencia"
             loading={onRegister.isPending}
             className="w-full flex justify-center items-center bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-3.5 rounded-lg transition-colors"
           />
-        </form>
+        </div>
       </div>
 
       <SuccessModal
@@ -326,33 +399,9 @@ const initialFormData = {
   parentStudiedAtUCA: null,
 }
 
-const schema = yup.object().shape({
-  email: yup
-    .string()
-    .email('Correo inválido')
-    .required('Campo obligatorio'),
-  confirmEmail: yup
-    .string()
-    .email('Correo inválido')
-    .required('Campo obligatorio')
-    .oneOf([yup.ref('email')], 'Los correos no coinciden'),
-  phoneNumber: yup
-    .string()
-    .required('Campo obligatorio')
-    .test('is-phone_number', 'Teléfono inválido', (value) =>
-      isValidPhoneNumber(value)
-    ),
-  name: yup.string().required('Campo obligatorio'),
-  institute: yup.string().required('Campo obligatorio'),
-  networks: yup.object().required('Campo obligatorio'),
-  faculty: yup.string().required('Campo obligatorio'),
-  career: yup.object().required('Campo obligatorio'),
-  withParent: yup.string().nullable().optional(),
-})
-
 const withParentOptions = [
-  {value: true, label: 'Sí'},
-  {value: false, label: 'No'},
+  {value: 'true', label: 'Sí'},
+  {value: 'false', label: 'No'},
 ]
 
 const networksOptions = [

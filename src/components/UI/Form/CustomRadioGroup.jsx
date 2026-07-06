@@ -5,7 +5,13 @@ const CustomRadioGroup = ({
   required = false,
   options = [],
   containerClassName = '',
+  onChange,
+  value,
 }) => {
+  const handleChange = (optionValue) => {
+    if (onChange) onChange(optionValue)
+  }
+
   return (
     <fieldset className={containerClassName}>
       {label && (
@@ -21,10 +27,13 @@ const CustomRadioGroup = ({
         {options.map((option) => (
           <div key={option.value} className="flex items-center">
             <input
-              {...register(name)}
+              {...(register && register(name))}
               id={`${name}-${option.value}`}
+              name={name}
               value={option.value}
               type="radio"
+              checked={value === option.value}
+              onChange={() => handleChange(option.value)}
               className="relative min-w-4 size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden not-checked:before:hidden"
             />
             <label
