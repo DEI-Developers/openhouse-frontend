@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import getOIDCProviders from '@services/Auth/getOIDCProviders';
 import oidcLogin from '@services/Auth/oidcLogin';
 import CustomButton from '@components/UI/Form/CustomButton';
-import { FaGoogle, FaMicrosoft, FaGithub } from 'react-icons/fa';
 
 const OIDCLoginButtons = () => {
   const [providers, setProviders] = useState([]);
@@ -38,16 +37,6 @@ const OIDCLoginButtons = () => {
       console.error('Error en login OIDC:', error);
       setError('Error al iniciar sesión con ' + getProviderName(providerId));
     }
-  };
-
-  const getProviderIcon = (providerId) => {
-    const iconProps = { className: "w-5 h-5" };
-    const icons = {
-      google: <FaGoogle {...iconProps} className="w-5 h-5 text-red-500" />,
-      microsoft: <FaMicrosoft {...iconProps} className="w-5 h-5 text-blue-500" />,
-      github: <FaGithub {...iconProps} className="w-5 h-5 text-gray-800" />
-    };
-    return icons[providerId] || <FaGoogle {...iconProps} className="w-5 h-5 text-gray-500" />;
   };
 
   const getProviderName = (providerId) => {
@@ -92,12 +81,7 @@ const OIDCLoginButtons = () => {
             onClick={() => handleOIDCLogin(provider.name || provider.id)}
             className="w-full flex justify-center items-center bg-white border border-gray-300 text-gray-700 text-sm font-medium py-3 rounded-lg hover:bg-gray-50 transition-colors"
             loading={false}
-            label={
-              <span className="flex items-center gap-2">
-                {getProviderIcon(provider.name || provider.id)}
-                Continuar con {getProviderName(provider.displayName || provider.name || provider.id)}
-              </span>
-            }
+            label={`Continuar con ${getProviderName(provider.displayName || provider.name || provider.id)}`}
           />
         ))}
       </div>
