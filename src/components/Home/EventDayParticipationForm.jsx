@@ -78,6 +78,18 @@ const EventDayParticipationForm = ({event}) => {
       } else {
         if (res?.participant) {
           const p = res.participant
+          const withParentValue =
+            p.withParent === true || p.withParent === 'true'
+              ? 'true'
+              : p.withParent === false || p.withParent === 'false'
+              ? 'false'
+              : ''
+          const parentStudiedValue =
+            p.parentStudiedAtUCA === true || p.parentStudiedAtUCA === 'true'
+              ? 'true'
+              : p.parentStudiedAtUCA === false || p.parentStudiedAtUCA === 'false'
+              ? 'false'
+              : null
           setForm({
             name: p.name || '',
             email: p.email || '',
@@ -86,8 +98,8 @@ const EventDayParticipationForm = ({event}) => {
             networks: p.networks || '',
             faculty: null,
             career: null,
-            withParent: '',
-            parentStudiedAtUCA: null,
+            withParent: withParentValue,
+            parentStudiedAtUCA: parentStudiedValue,
           })
         } else {
           setForm({...emptyForm})
