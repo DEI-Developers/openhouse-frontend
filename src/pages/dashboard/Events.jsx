@@ -280,7 +280,7 @@ const DesertionRate = ({data}) => {
 // Botones de registro público para la columna de la tabla
 const PublicRegistration = ({event, tableMode = false}) => {
   const handleOpenLink = () => {
-    const url = `${BASE_PATH_URL}/evento/${event.id}`
+    const url = `${window.location.origin}${BASE_PATH_URL}/evento/${event.id}`
     window.open(url, '_blank')
   }
 
@@ -317,7 +317,7 @@ const handleDownloadQRPdf = async (event) => {
   try {
     const {jsPDF} = await import('jspdf')
     const QRCode = await import('qrcode')
-    const registrationUrl = `${BASE_PATH_URL}/evento/${event.id}`
+    const registrationUrl = `${window.location.origin}${BASE_PATH_URL}/evento/${event.id}`
     const qrDataUrl = await QRCode.toDataURL(registrationUrl, {width: 300, margin: 2})
 
     const pdf = new jsPDF({unit: 'mm', format: 'a4'})
