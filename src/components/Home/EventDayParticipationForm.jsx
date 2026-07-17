@@ -73,7 +73,7 @@ const EventDayParticipationForm = ({event}) => {
         return
       }
       if (res?.enrolled) {
-        setSuccessfulCode(phoneNumber)
+        setSuccessfulCode(phoneNumber.replaceAll('+', ''))
         setShowSuccess(true)
       } else {
         if (res?.participant) {
