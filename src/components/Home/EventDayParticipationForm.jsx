@@ -59,6 +59,11 @@ const EventDayParticipationForm = ({event}) => {
     ? (faculties.find((f) => f.value === currentFaculty)?.careers || [])
     : []
 
+  const selectedFacultyName =
+    faculties.find((f) => f.value === form.faculty)?.name || ''
+  const selectedCareerName =
+    careers.find((c) => c.value === form.career)?.name || ''
+
   const handlePhoneSubmit = async () => {
     if (!isValidPhoneNumber(phoneNumber)) {
       setPhoneError('Número de celular inválido.')
@@ -550,6 +555,8 @@ const EventDayParticipationForm = ({event}) => {
         isOpen={showSuccess}
         onClose={handleClose}
         code={successfulCode}
+        facultyName={selectedFacultyName}
+        careerName={selectedCareerName}
       />
     </div>
   )
