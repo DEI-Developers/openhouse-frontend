@@ -3,7 +3,7 @@ import {QRCodeCanvas} from 'qrcode.react';
 import {BASE_PATH_URL} from '@config/index';
 import CustomModal from '@components/UI/Modal/CustomModal';
 
-const SuccessModal = ({isOpen, onClose, code}) => {
+const SuccessModal = ({isOpen, onClose, code, facultyName, careerName}) => {
   const qrRef = useRef(null);
 
   function onDownloadClick() {
@@ -66,6 +66,29 @@ const SuccessModal = ({isOpen, onClose, code}) => {
             <p className="text-center text-sm text-gray-500 my-3">
               Tu asistencia ha sido registrada exitosamente
             </p>
+            {(facultyName || careerName) && (
+              <div className="w-full mt-2 mb-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 text-center">
+                  Tu registro
+                </p>
+                {facultyName && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-xs text-gray-500">Facultad</span>
+                    <span className="text-sm font-semibold text-gray-800 text-right">
+                      {facultyName}
+                    </span>
+                  </div>
+                )}
+                {careerName && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-xs text-gray-500">Carrera</span>
+                    <span className="text-sm font-semibold text-gray-800 text-right">
+                      {careerName}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
             <button
               type="button"
               onClick={onClose}
