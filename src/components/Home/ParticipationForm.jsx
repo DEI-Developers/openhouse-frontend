@@ -161,6 +161,8 @@ const ParticipationForm = ({
         phoneNumber: phoneNumber,
       });
       setSubscribedTo([]);
+      setInitialSubscriptions([]);
+      initialData.subscribedTo = [];
       return;
     }
 
@@ -177,6 +179,15 @@ const ParticipationForm = ({
       setSubscribedTo(suscriptions);
       setInitialSubscriptions(suscriptions); // Only filter on load, not on toggle
       initialData.subscribedTo = suscriptions;
+    } else {
+      // Teléfono válido pero sin participante registrado: limpiar cualquier dato previo
+      reset({
+        ...initialFormData,
+        phoneNumber: phoneNumber,
+      });
+      setSubscribedTo([]);
+      setInitialSubscriptions([]);
+      initialData.subscribedTo = [];
     }
   };
 
