@@ -71,7 +71,11 @@ const Stadistics = () => {
               className={`border shadow-sm bg-white rounded-2xl p-4 w-full ${!isPie ? 'md:col-span-2' : ''}`}
             >
               <h4 className="text-sm text-gray-500 mb-1">{item.title}</h4>
-              <p className="font-bold text-3xl mb-4">{item.total}</p>
+              <p className="font-bold text-3xl mb-4">
+                {typeof item.total === 'string'
+                  ? item.total.replace(/\s*\+\s*0$/, '')
+                  : item.total}
+              </p>
 
               <Chart
                 {...restChartData}

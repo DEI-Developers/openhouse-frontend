@@ -36,10 +36,10 @@ const ParticipationForm = ({
   refetchOnWindowFocus: false,
   });
   
-  const [subscribedTo, setSubscribedTo] = useState(
+  const [subscribedTo, setSubscribedTo] = useState([]);
+  const [initialSubscriptions, setInitialSubscriptions] = useState(
     initialData?.subscribedTo ?? []
   );
-  const [initialSubscriptions, setInitialSubscriptions] = useState([]);
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -105,11 +105,7 @@ const ParticipationForm = ({
   const targetAudienceImage = data?.targetAudience?.image ?? null;
    
   const onCloseModal = () => {
-    onClean();
-    reset();
-    setSuccessfulCode('');
-    setErrorMessage('');
-    onCloseForm && onCloseForm();
+    window.location.reload();
   };
 
   useEffect(() => {
