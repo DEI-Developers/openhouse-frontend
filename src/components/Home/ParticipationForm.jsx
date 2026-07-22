@@ -36,10 +36,10 @@ const ParticipationForm = ({
   refetchOnWindowFocus: false,
   });
   
-  const [subscribedTo, setSubscribedTo] = useState(
+  const [subscribedTo, setSubscribedTo] = useState([]);
+  const [initialSubscriptions, setInitialSubscriptions] = useState(
     initialData?.subscribedTo ?? []
   );
-  const [initialSubscriptions, setInitialSubscriptions] = useState([]);
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -105,11 +105,7 @@ const ParticipationForm = ({
   const targetAudienceImage = data?.targetAudience?.image ?? null;
    
   const onCloseModal = () => {
-    onClean();
-    reset();
-    setSuccessfulCode('');
-    setErrorMessage('');
-    onCloseForm && onCloseForm();
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -165,6 +161,8 @@ const ParticipationForm = ({
         phoneNumber: phoneNumber,
       });
       setSubscribedTo([]);
+      setInitialSubscriptions([]);
+      initialData.subscribedTo = [];
       return;
     }
 
@@ -181,6 +179,15 @@ const ParticipationForm = ({
       setSubscribedTo(suscriptions);
       setInitialSubscriptions(suscriptions); // Only filter on load, not on toggle
       initialData.subscribedTo = suscriptions;
+    } else {
+      // Teléfono válido pero sin participante registrado: limpiar cualquier dato previo
+      reset({
+        ...initialFormData,
+        phoneNumber: phoneNumber,
+      });
+      setSubscribedTo([]);
+      setInitialSubscriptions([]);
+      initialData.subscribedTo = [];
     }
   };
 
