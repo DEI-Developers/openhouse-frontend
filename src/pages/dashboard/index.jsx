@@ -11,3 +11,4 @@ export const Careers = React.lazy(() => import('./Careers'));
 export const Faculties = React.lazy(() => import('./Faculties'));
 export const Permissions = React.lazy(() => import('./Permissions'));
 export const TargetAudience = React.lazy(() => import('./TargetAudience'));
+export const FormTemplates = React.lazy(() => import('./FormTemplates'));
