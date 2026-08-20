@@ -15,6 +15,7 @@ import {
   Faculties,
   TargetAudience,
   Permissions,
+  FormTemplates,
 } from './dashboard';
 
 const Platform = () => {
@@ -68,6 +69,9 @@ const Platform = () => {
                 {flatMenu.includes('Público Objetivo') && (
                  <Route path="/target-audience" element={<TargetAudience />} />
            )}
+                {flatMenu.includes('Plantillas de formulario') && (
+                  <Route path="/plantillas-formulario" element={<FormTemplates />} />
+                )}
                {/* {flatMenu.includes('Carreras') && (
                 )}
                 {flatMenu.includes('Facultades') && (
