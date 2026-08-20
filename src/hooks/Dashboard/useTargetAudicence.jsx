@@ -61,6 +61,7 @@ const useTargetAudience = () => {
       name: data.name ?? '',
       image: data.image ?? '',
       faculties,
+      formTemplateId: data.formTemplateId ?? '',
     });
     onToggleBox();
   };

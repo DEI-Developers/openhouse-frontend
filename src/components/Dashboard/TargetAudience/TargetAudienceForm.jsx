@@ -7,17 +7,28 @@ import {empty} from '@utils/helpers';
 import CustomInput from '@components/UI/Form/CustomInput';
 import SubmitButton from '@components/UI/Form/SubmitButton';
 import CustomMultiSelect from '@components/UI/Form/CustomMultiSelect';
+import CustomSelect from '@components/UI/Form/CustomSelect';
 import useCatalogs from '@hooks/Dashboard/useCatalogs';
+import {useQuery} from '@tanstack/react-query';
+import getFormTemplates from '@services/FormTemplates/Get';
 
 const schema = yup.object().shape({
   name: yup.string().required('El campo es obligatorio'),
   image: yup.string().url('Debe ser una URL válida').nullable(),
   description: yup.string(),
+  formTemplateId: yup.string().nullable(),
 });
 
 const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
 
   const {faculties} = useCatalogs();
+
+  const {data: templatesData} = useQuery({
+    queryKey: ['formTemplates', 'active'],
+    queryFn: () => getFormTemplates(1, 100, '', {includeInactive: false}),
+    refetchOnWindowFocus: false,
+  });
+
   const {control, formState, register, handleSubmit, reset} = useForm({
     mode: 'onBlur',
     defaultValues: initialData,
@@ -37,6 +48,7 @@ const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
     const updatedData = {
       ...data,
       faculties: data.faculties?.map((f) => f.value ?? f) ?? [],
+      formTemplateId: data.formTemplateId || null,
     };
 
     const mutation = !empty(data.id) ? onUpdate : onCreate;
@@ -82,6 +94,21 @@ const TargetAudienceForm = ({initialData, onCreate, onUpdate, onClose}) => {
             name="faculties"
             label="Facultades asociadas"
             options={faculties ?? []}
+            containerClassName="w-full"
+          />
+        </div>
+        <div className="mt-4">
+          <CustomSelect
+            name="formTemplateId"
+            register={register}
+            label="Plantilla de formulario (opcional)"
+            options={[
+              {value: '', label: 'Sin plantilla (formulario clásico)'},
+              ...(templatesData?.rows ?? []).map((t) => ({
+                value: t._id ?? t.id,
+                label: t.name,
+              })),
+            ]}
             containerClassName="w-full"
           />
         </div>
