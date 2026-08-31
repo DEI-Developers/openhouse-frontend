@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as yup from 'yup';
 import {empty} from '@utils/helpers';
-import {useMemo, useState} from 'react';
+import {useMemo, useRef, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CustomInput from '@components/UI/Form/CustomInput';
@@ -16,6 +16,12 @@ import Events from './Events';
 import CustomErrorAlert from '@components/UI/CustomErrorAlert';
 import SuccessModal from './SuccessModal';
 import CustomPhoneNumberInput from '@components/UI/Form/CustomPhoneNumberInput';
+import {defaultCountries, parseCountry} from 'react-international-phone';
+import getParticipantFormValues from '@utils/helpers/getParticipantFormValues';
+
+const phoneDialCodes = new Set(
+  defaultCountries.map((country) => `+${parseCountry(country).dialCode}`)
+);
 
 /**
  * FIELD_TYPE_SCHEMA maps fieldType to yup schema builders.
@@ -51,7 +57,7 @@ const FIELD_TYPE_SCHEMA = {
 const FIELD_TYPE_COMPONENT = {
   TEXT: CustomInput,
   EMAIL: CustomInput,
-  TEL: CustomInput,
+  TEL: CustomPhoneNumberInput,
   TEXTAREA: CustomInput,
   SELECT: CustomSelect,
   RADIO: CustomRadioGroup,
@@ -96,6 +102,12 @@ function buildYupSchema(fields) {
       fieldSchema = fieldSchema.required('Campo obligatorio.');
     } else {
       fieldSchema = fieldSchema.nullable().optional();
+      if (field.fieldType === 'TEL') {
+        // A country code without a subscriber number is an empty optional field.
+        fieldSchema = fieldSchema.transform((value) =>
+          phoneDialCodes.has(value) ? '' : value
+        );
+      }
     }
 
     shape[field.fieldKey] = fieldSchema;
@@ -154,6 +166,9 @@ const DynamicForm = ({
   const [subscribedTo, setSubscribedTo] = useState([]);
   const [successfulCode, setSuccessfulCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLookingUpPhone, setIsLookingUpPhone] = useState(false);
+  const phoneLookupRequest = useRef(0);
+  const lastPhoneLookup = useRef(null);
 
   const handleSuccess = (code) => {
     setSuccessfulCode(code);
@@ -178,26 +193,57 @@ const DynamicForm = ({
     window.location.reload();
   };
 
-  const onSearchByPhoneNumber = async (phoneNumber) => {
-    if (!isValidPhoneNumber(phoneNumber)) return;
+  const onSearchByPhoneNumber = async (phoneNumber, phoneFieldKey) => {
+    if (
+      lastPhoneLookup.current?.phoneNumber === phoneNumber &&
+      lastPhoneLookup.current?.phoneFieldKey === phoneFieldKey
+    ) return;
 
+    lastPhoneLookup.current = null;
+    const request = ++phoneLookupRequest.current;
+    const applyParticipant = (participant, subscriptions = [], clearParticipant = false) => {
+      reset({
+        ...getParticipantFormValues({
+          fields: template.fields,
+          values: getValues(),
+          phoneNumber,
+          phoneFieldKey,
+          participant,
+          clearParticipant,
+        }),
+        subscribedTo: subscriptions,
+      });
+      setSubscribedTo(subscriptions);
+    };
+
+    // Never leave a previous participant ID attached to a different phone number.
+    const hadParticipant = Boolean(getValues('id'));
+    applyParticipant(null, hadParticipant ? [] : subscribedTo, hadParticipant);
+    if (!isValidPhoneNumber(phoneNumber)) {
+      lastPhoneLookup.current = {phoneNumber, phoneFieldKey};
+      setIsLookingUpPhone(false);
+      return;
+    }
+
+    setIsLookingUpPhone(true);
     try {
       const data = await getParticipantByPhoneNumber(phoneNumber);
+      if (
+        request !== phoneLookupRequest.current ||
+        getValues(phoneFieldKey) !== phoneNumber
+      ) return;
+      lastPhoneLookup.current = {phoneNumber, phoneFieldKey};
 
       if (data?.participant) {
-        // Reset form with existing participant data
         const subs = (data.subscribedTo || []).map((e) =>
           typeof e === 'object' ? e.event : e
         );
-        setSubscribedTo(subs);
-        reset({
-          ...data.participant,
-          subscribedTo: subs,
-        });
+        applyParticipant(data.participant, subs);
       }
-    } catch (err) {
-      // Participant not found — clear form for new entry
-      // No-op, user can continue typing
+    } catch {
+      // Keep the cleared identity and custom answers if the lookup fails.
+    } finally {
+      if (request === phoneLookupRequest.current) setIsLookingUpPhone(false);
     }
   };
 
@@ -218,7 +264,7 @@ const DynamicForm = ({
     register,
     handleSubmit,
     watch,
-    setValue,
+    getValues,
     reset,
     control,
     formState,
@@ -245,6 +291,8 @@ const DynamicForm = ({
   const currentCareer = watchedValues[template.fields.find(f => f.subFieldKey === 'career')?.fieldKey];
 
   const onSubmit = async (formData) => {
+    if (isLookingUpPhone) return;
+
     // subscribedTo must have at least one event selected
     if (!subscribedTo || subscribedTo.length === 0) {
       setErrorMessage('Debes seleccionar al menos 1 evento');
@@ -298,8 +346,8 @@ const DynamicForm = ({
     };
 
     if (field.fieldType === 'TEXT' || field.fieldType === 'EMAIL' || field.fieldType === 'TEL' || field.fieldType === 'TEXTAREA') {
-      // Use CustomPhoneNumberInput for phoneNumber field (auto-fill search)
-      if (field.fieldKey === 'phoneNumber') {
+      // All telephone fields share the default form's country selector and formatting.
+      if (field.fieldType === 'TEL' || field.fieldKey === 'phoneNumber') {
         return (
           <CustomPhoneNumberInput
             key={field.fieldKey}
@@ -310,7 +358,7 @@ const DynamicForm = ({
             required={field.required}
             error={errors[field.fieldKey]}
             containerClassName="w-full"
-            onCustomBlur={(value) => onSearchByPhoneNumber(value)}
+            onCustomBlur={(value) => onSearchByPhoneNumber(value, field.fieldKey)}
           />
         );
       }
@@ -319,7 +367,7 @@ const DynamicForm = ({
         <CustomInput
           key={field.fieldKey}
           {...commonProps}
-          type={field.fieldType === 'EMAIL' ? 'email' : field.fieldType === 'TEL' ? 'tel' : 'text'}
+          type={field.fieldType === 'EMAIL' ? 'email' : 'text'}
           containerClassName="w-full"
           placeholder={field.placeholder}
           noCopy={false}
@@ -476,7 +524,8 @@ const DynamicForm = ({
             <SubmitButton
               type="submit"
               label={submitButtonLabel}
-              loading={onCreate.isPending || onUpdate.isPending}
+              loading={isLookingUpPhone || onCreate.isPending || onUpdate.isPending}
+              disabled={isLookingUpPhone}
               className="w-full flex justify-center items-center bg-primary text-white text-sm font-bold py-3.5 rounded-lg"
             />
           </div>
