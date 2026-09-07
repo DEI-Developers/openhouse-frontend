@@ -6,8 +6,8 @@ const Events = ({events, subscribed, currentCareer, onEnrollment}) => {
     return (
       <>
         <p className="my-3 italic font-bold">
-          De acuerdo a tu selección, estos son los días que podrás vivir la
-          experiencia de la UCA. Por favor, escogé el día en que nos visitarás.
+          De acuerdo a su selección, estos son los días en que podrá vivir la
+          experiencia de la UCA. Por favor, escoja el día en que nos visitará.
         </p>
         <div className="border border-gray-200 flex justify-center items-center h-32 rounded-lg">
           <p className="text-sm text-gray-400">
@@ -22,8 +22,8 @@ const Events = ({events, subscribed, currentCareer, onEnrollment}) => {
     return (
       <>
         <p className="my-3 italic font-bold">
-          De acuerdo a tu selección, estos son los días que podrás vivir la
-          experiencia de la UCA. Por favor, escogé el día en que nos visitarás.
+          De acuerdo a su selección, estos son los días en que podrá vivir la
+          experiencia de la UCA. Por favor, escoja el día en que nos visitará.
         </p>
         <div className="border border-gray-200 flex justify-center items-center h-32 rounded-lg">
           <p className="text-sm text-gray-400">No hay eventos disponibles.</p>
@@ -35,8 +35,8 @@ const Events = ({events, subscribed, currentCareer, onEnrollment}) => {
   return (
     <>
       <p className="my-3 italic font-bold">
-        De acuerdo a tu selección, estos son los días que podrás vivir la
-        experiencia de la UCA. Por favor, escogé el día en que nos visitarás.
+        De acuerdo a su selección, estos son los días en que podrá vivir la
+        experiencia de la UCA. Por favor, escoja el día en que nos visitará.
       </p>
       <div className="flex flex-wrap justify-center items-center space-x-4">
         {events.map((event) => (
