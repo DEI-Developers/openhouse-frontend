@@ -39,9 +39,8 @@ const AdminEvents = ({
       <>
         <div className="flex items-center my-3">
           <p className="italic font-bold">
-            De acuerdo a tu selección, estos son los días que podrás vivir la
-            experiencia de la UCA. Por favor, escogé el día en que nos
-            visitarás.
+            De acuerdo a su selección, estos son los días en que podrá vivir la
+            experiencia de la UCA. Por favor, escoja el día en que nos visitará.
           </p>
           <RefreshButton />
         </div>
@@ -59,9 +58,8 @@ const AdminEvents = ({
       <>
         <div className="flex items-center my-3">
           <p className="italic font-bold">
-            De acuerdo a tu selección, estos son los días que podrás vivir la
-            experiencia de la UCA. Por favor, escogé el día en que nos
-            visitarás.
+            De acuerdo a su selección, estos son los días en que podrá vivir la
+            experiencia de la UCA. Por favor, escoja el día en que nos visitará.
           </p>
           <RefreshButton />
         </div>
@@ -76,8 +74,8 @@ const AdminEvents = ({
     <>
       <div className="flex items-center my-3">
         <p className="italic font-bold">
-          De acuerdo a tu selección, estos son los días que podrás vivir la
-          experiencia de la UCA. Por favor, escogé el día en que nos visitarás.
+          De acuerdo a su selección, estos son los días en que podrá vivir la
+          experiencia de la UCA. Por favor, escoja el día en que nos visitará.
         </p>
         <RefreshButton />
       </div>
